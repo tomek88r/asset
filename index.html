@@ -1,4 +1,4 @@
-﻿
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -16,8 +16,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: #f5f5f5;
             min-height: 100vh;
-            padding: 16px;
-            position: relative;
+            padding: 8px;
         }
 
         .app-container {
@@ -26,78 +25,78 @@
             width: 100%;
         }
 
+        /* Header - responsywny */
         .header-bar {
             background: white;
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 20px;
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.03);
             border: 1px solid #eaeef2;
             display: flex;
             flex-wrap: wrap;
-            gap: 16px;
+            gap: 10px;
             align-items: center;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 1.6rem;
+            gap: 4px;
+            font-size: 1.2rem;
             font-weight: 500;
             color: #1a2634;
-            margin-right: auto;
         }
 
         .logo svg {
-            width: 40px;
-            height: 40px;
+            width: 28px;
+            height: 28px;
         }
 
         .search-box {
             flex: 1;
-            min-width: 250px;
+            min-width: 200px;
         }
 
         .search-box input {
             width: 100%;
-            padding: 12px 20px;
-            border-radius: 40px;
+            padding: 8px 14px;
+            border-radius: 30px;
             border: 1px solid #d0d8e2;
-            font-size: 1rem;
+            font-size: 0.9rem;
             background: white;
         }
 
         .filter-group {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 8px;
             align-items: center;
         }
 
         .filter-select {
-            padding: 10px 18px;
-            border-radius: 40px;
+            padding: 6px 12px;
+            border-radius: 30px;
             border: 1px solid #d0d8e2;
             background: white;
-            font-size: 0.95rem;
-            min-width: 160px;
+            font-size: 0.85rem;
+            min-width: 130px;
             cursor: pointer;
         }
 
         .sort-buttons {
             display: flex;
-            gap: 8px;
+            gap: 4px;
         }
 
         .sort-btn {
-            padding: 8px 16px;
-            border-radius: 40px;
+            padding: 6px 12px;
+            border-radius: 30px;
             border: 1px solid #d0d8e2;
             background: white;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             cursor: pointer;
-            transition: all 0.1s;
+            white-space: nowrap;
         }
 
         .sort-btn.active {
@@ -108,53 +107,65 @@
 
         .excel-buttons {
             display: flex;
-            gap: 8px;
-            margin-left: auto;
+            gap: 4px;
         }
 
         .excel-btn {
-            padding: 10px 18px;
-            border-radius: 40px;
+            padding: 6px 12px;
+            border-radius: 30px;
             border: 1px solid #d0d8e2;
             background: white;
-            font-size: 0.95rem;
+            font-size: 0.8rem;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            white-space: nowrap;
         }
 
-        .excel-btn:hover {
-            background: #f0f4fa;
-        }
-
+        /* Grid - dostosowany do telefonu */
         .inventory-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 16px;
-            margin-bottom: 80px;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 70px;
         }
 
+        @media (min-width: 600px) {
+            .inventory-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 900px) {
+            .inventory-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .inventory-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* Karta - mniejsza na telefon */
         .inventory-card {
             background: white;
-            border-radius: 24px;
-            padding: 16px;
+            border-radius: 16px;
+            padding: 10px;
             border: 1px solid #edf2f7;
             box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-            transition: 0.1s;
         }
 
         .card-main {
             display: flex;
-            gap: 14px;
+            gap: 8px;
             cursor: pointer;
         }
 
         .card-img {
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             background: #eef2f6;
-            border-radius: 16px;
+            border-radius: 12px;
             object-fit: cover;
             border: 1px solid #dde3ea;
         }
@@ -168,38 +179,36 @@
             display: flex;
             flex-wrap: wrap;
             align-items: baseline;
-            gap: 6px 8px;
-            margin-bottom: 6px;
+            gap: 4px 6px;
+            margin-bottom: 4px;
         }
 
         .asset-tag {
             font-weight: 600;
             color: #2c3e50;
             background: #f0f4fa;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 0.85rem;
-            letter-spacing: 0.3px;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
         }
 
         .sn-label {
             color: #546e7a;
-            font-size: 0.9rem;
+            font-size: 0.75rem;
             word-break: break-word;
         }
 
         .name-preview {
             font-weight: 500;
-            font-size: 1rem;
+            font-size: 0.85rem;
             color: #1e293b;
-            margin-right: 8px;
         }
 
         .loc-badge {
             background: #ecf1f7;
-            padding: 4px 14px;
-            border-radius: 30px;
-            font-size: 0.85rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
             color: #2c3e50;
             display: inline-block;
         }
@@ -209,131 +218,121 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-width: 50px;
+            min-width: 44px;
         }
 
         .in-stack-box input[type="checkbox"] {
-            width: 26px;
-            height: 26px;
-            border-radius: 8px;
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
             border: 2px solid #a0b8cc;
             cursor: pointer;
         }
 
         .in-stack-box span {
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             color: #546e7a;
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
+        /* Szczegóły - bardziej zwarte */
         .details-panel {
-            margin-top: 18px;
-            padding-top: 16px;
+            margin-top: 12px;
+            padding-top: 12px;
             border-top: 1px solid #e2eaf2;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
         }
 
         .detail-row {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
         }
 
         .detail-row label {
             font-weight: 500;
             color: #2c3e50;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
         }
 
         .detail-row input, .detail-row textarea {
-            padding: 12px 14px;
-            border-radius: 16px;
+            padding: 8px 12px;
+            border-radius: 12px;
             border: 1px solid #d4dee8;
             background: #fafcff;
-            font-size: 1rem;
+            font-size: 0.9rem;
             width: 100%;
         }
 
         .detail-row textarea {
+            min-height: 60px;
             resize: vertical;
-            font-family: inherit;
         }
 
-        .sticker-img, .preview-detail-img {
+        .sticker-img {
             width: 100%;
-            max-height: 150px;
+            max-height: 120px;
             object-fit: contain;
             background: #f0f4fa;
-            border-radius: 16px;
-            padding: 6px;
+            border-radius: 12px;
+            padding: 4px;
             border: 1px solid #d0dcee;
         }
 
         .action-buttons {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             margin-top: 8px;
             flex-wrap: wrap;
         }
 
+        .btn-edit, .btn-delete, .btn-close {
+            padding: 10px 12px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            flex: 1;
+            min-width: 70px;
+        }
+
         .btn-edit {
             background: #e3f0ff;
-            border: none;
-            border-radius: 40px;
-            padding: 14px 18px;
             color: #1a5a9c;
-            font-weight: 500;
-            flex: 1;
-            font-size: 1rem;
-            cursor: pointer;
             border: 1px solid #b8d3f0;
         }
 
         .btn-delete {
             background: #fee;
-            border: none;
-            border-radius: 40px;
-            padding: 14px 18px;
             color: #b91c1c;
-            font-weight: 500;
-            flex: 1;
-            font-size: 1rem;
-            cursor: pointer;
             border: 1px solid #f3cdcd;
         }
 
         .btn-close {
             background: #eef3f8;
-            border: none;
-            border-radius: 40px;
-            padding: 14px;
-            flex: 0 0 70px;
-            font-weight: 500;
-            cursor: pointer;
+            color: #2c3e50;
             border: 1px solid #d0dcee;
         }
 
         .btn-photo-small {
             background: #f0f4fa;
             border: 1px solid #cbd6e4;
-            border-radius: 30px;
-            padding: 12px 16px;
-            font-size: 0.95rem;
+            border-radius: 25px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 6px;
-            margin-right: 8px;
+            gap: 4px;
         }
 
         .photo-source-buttons {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
         }
 
@@ -341,9 +340,9 @@
             flex: 1;
             background: #f0f4fa;
             border: 1px solid #cbd6e4;
-            border-radius: 30px;
-            padding: 10px;
-            font-size: 0.9rem;
+            border-radius: 25px;
+            padding: 8px;
+            font-size: 0.8rem;
             cursor: pointer;
         }
 
@@ -351,32 +350,33 @@
             display: none !important;
         }
 
+        /* FAB - mniejszy i lepiej widoczny */
         .fab {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
-            width: 64px;
-            height: 64px;
-            border-radius: 32px;
+            bottom: 16px;
+            right: 16px;
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
             background: #1a2634;
             color: white;
             border: none;
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 300;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
             z-index: 1000;
             transition: 0.1s;
         }
 
         .fab:active {
             transform: scale(0.95);
-            background: #2c3e50;
         }
 
+        /* Modal - lepiej dopasowany */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -385,12 +385,13 @@
             bottom: 0;
             background: rgba(0,0,0,0.5);
             display: flex;
-            align-items: flex-end;
+            align-items: center;
             justify-content: center;
             z-index: 2000;
             visibility: hidden;
             opacity: 0;
             transition: 0.2s;
+            padding: 10px;
         }
 
         .modal-overlay.active {
@@ -402,79 +403,71 @@
             background: white;
             width: 100%;
             max-width: 500px;
-            border-radius: 30px 30px 0 0;
-            padding: 24px 20px 30px;
-            transition: 0.2s;
+            border-radius: 24px;
+            padding: 20px;
             max-height: 90vh;
             overflow-y: auto;
         }
 
-        .active .modal-content {
-            transform: translateY(0);
-        }
-
         .modal-header {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 500;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             color: #1a2634;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .modal-form {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
         }
 
         .modal-form input, .modal-form textarea {
-            padding: 16px 18px;
-            border-radius: 30px;
+            padding: 12px 14px;
+            border-radius: 25px;
             border: 1px solid #d0d8e2;
-            font-size: 1rem;
+            font-size: 0.95rem;
             background: #fafcff;
         }
 
         .photo-buttons-modal {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
         .photo-buttons-modal button {
-            flex: 1 1 auto;
+            flex: 1;
             background: #f0f4fa;
             border: 1px solid #cbd6e4;
-            border-radius: 40px;
-            padding: 14px 12px;
-            font-size: 1rem;
+            border-radius: 30px;
+            padding: 12px;
+            font-size: 0.9rem;
             cursor: pointer;
+            white-space: nowrap;
         }
 
         .thumb-row-modal {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
             background: #f5f7fb;
-            border-radius: 24px;
-            padding: 12px;
+            border-radius: 16px;
+            padding: 10px;
         }
 
         .thumb-item-modal {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 0.9rem;
-            flex: 1;
+            gap: 10px;
+            font-size: 0.85rem;
         }
 
         .thumb-item-modal img {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             object-fit: cover;
-            border-radius: 12px;
+            border-radius: 10px;
             border: 1px solid #bcc9db;
         }
 
@@ -482,21 +475,21 @@
             background: #1a2634;
             color: white;
             border: none;
-            border-radius: 40px;
-            padding: 18px;
-            font-size: 1.2rem;
+            border-radius: 30px;
+            padding: 16px;
+            font-size: 1.1rem;
             font-weight: 500;
-            margin-top: 20px;
+            margin-top: 12px;
             cursor: pointer;
         }
 
         .close-modal-btn {
             background: #eef3f8;
             border: 1px solid #d0dcee;
-            border-radius: 40px;
-            padding: 16px;
-            font-size: 1rem;
-            margin-top: 12px;
+            border-radius: 30px;
+            padding: 14px;
+            font-size: 0.95rem;
+            margin-top: 8px;
             cursor: pointer;
         }
 
@@ -504,13 +497,35 @@
             display: none;
         }
 
-        .edit-mode-badge {
-            background: #ffd966;
-            color: #1a2634;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            margin-left: 10px;
+        /* Mniejsze marginesy na telefonie */
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .header-bar {
+                padding: 8px;
+            }
+            
+            .filter-select {
+                min-width: 110px;
+                font-size: 0.75rem;
+                padding: 5px 8px;
+            }
+            
+            .sort-btn, .excel-btn {
+                padding: 5px 8px;
+                font-size: 0.7rem;
+            }
+            
+            .logo {
+                font-size: 1rem;
+            }
+            
+            .logo svg {
+                width: 22px;
+                height: 22px;
+            }
         }
     </style>
 </head>
@@ -532,19 +547,19 @@
             </svg>
         </div>
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Szukaj po wszystkich polach...">
+            <input type="text" id="searchInput" placeholder="Szukaj...">
         </div>
         <div class="filter-group">
             <select id="locationFilter" class="filter-select">
-                <option value="">Wszystkie lokalizacje</option>
+                <option value="">Wszystkie</option>
             </select>
             <div class="sort-buttons">
-                <button id="sortAssetAsc" class="sort-btn active">Asset ↑</button>
-                <button id="sortAssetDesc" class="sort-btn">Asset ↓</button>
+                <button id="sortAssetAsc" class="sort-btn active">↑</button>
+                <button id="sortAssetDesc" class="sort-btn">↓</button>
             </div>
             <div class="excel-buttons">
-                <button class="excel-btn" id="exportExcel">📥 Eksport Excel</button>
-                <button class="excel-btn" id="importExcelBtn">📤 Import Excel</button>
+                <button class="excel-btn" id="exportExcel">📥</button>
+                <button class="excel-btn" id="importExcelBtn">📤</button>
                 <input type="file" id="excelImport" accept=".xlsx,.xls,.csv">
             </div>
         </div>
@@ -558,7 +573,7 @@
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal-content">
         <div class="modal-header">
-            <svg viewBox="0 0 100 40" width="40" height="40">
+            <svg viewBox="0 0 100 40" width="30" height="30">
                 <rect x="5" y="8" width="60" height="24" rx="3" fill="none" stroke="#1a2634" stroke-width="2"/>
                 <line x1="10" y1="14" x2="60" y2="14" stroke="#1a2634" stroke-width="2"/>
                 <line x1="10" y1="20" x2="60" y2="20" stroke="#1a2634" stroke-width="2"/>
@@ -572,34 +587,34 @@
             <input type="text" id="newSn" placeholder="S/N">
             <input type="text" id="newLoc" placeholder="Lokalizacja">
             <input type="date" id="newCapDate" placeholder="Cap. date">
-            <input type="text" id="newPicName" placeholder="Pic name (osoba odpowiedzialna)">
+            <input type="text" id="newPicName" placeholder="Osoba odpowiedzialna">
             <textarea id="newNotes" rows="2" placeholder="Adnotacje"></textarea>
 
             <div class="photo-buttons-modal">
-                <button id="capturePreviewBtn">📸 Zrób zdjęcie poglądowe</button>
-                <button id="uploadPreviewBtn">📁 Wybierz z dysku</button>
-                <input type="file" id="previewUpload" accept="image/*" style="display: none;">
+                <button id="capturePreviewBtn">📸 Aparat</button>
+                <button id="uploadPreviewBtn">📁 Dysk</button>
+                <input type="file" id="previewUpload" accept="image/*" capture="environment" style="display: none;">
                 <input type="file" id="previewUploadFile" accept="image/*" style="display: none;">
             </div>
 
             <div id="previewThumbContainer" class="thumb-row-modal hidden">
                 <div class="thumb-item-modal">
                     <img id="previewThumbImg" src="#" alt="podgląd">
-                    <span>zdjęcie poglądowe</span>
+                    <span>Zdjęcie poglądowe</span>
                 </div>
             </div>
 
             <div class="photo-buttons-modal">
-                <button id="captureStickerBtn">📸 Zrób zdjęcie naklejki</button>
-                <button id="uploadStickerBtn">📁 Wybierz z dysku</button>
-                <input type="file" id="stickerUpload" accept="image/*" style="display: none;">
+                <button id="captureStickerBtn">📸 Aparat</button>
+                <button id="uploadStickerBtn">📁 Dysk</button>
+                <input type="file" id="stickerUpload" accept="image/*" capture="environment" style="display: none;">
                 <input type="file" id="stickerUploadFile" accept="image/*" style="display: none;">
             </div>
 
             <div id="stickerThumbContainer" class="thumb-row-modal hidden">
                 <div class="thumb-item-modal">
                     <img id="stickerThumbImg" src="#" alt="naklejka">
-                    <span>zdjęcie naklejki</span>
+                    <span>Zdjęcie naklejki</span>
                 </div>
             </div>
 
@@ -612,7 +627,7 @@
 <template id="deviceCardTemplate">
     <div class="inventory-card" data-id="">
         <div class="card-main">
-            <img class="card-img" src="https://via.placeholder.com/80?text=no+img" alt="preview">
+            <img class="card-img" src="https://via.placeholder.com/60?text=no+img" alt="preview">
             <div class="info-preview">
                 <div class="row-preview">
                     <span class="asset-tag asset-preview"></span>
@@ -628,22 +643,22 @@
                 <span>na stanie</span>
             </div>
         </div>
-        <div class="details-panel">
+        <div class="details-panel hidden">
             <div class="detail-row">
                 <label>Cap. date</label>
                 <input type="date" class="cap-date">
             </div>
             <div class="detail-row">
                 <label>Pic name</label>
-                <input type="text" class="pic-name" placeholder="osoba odpowiedzialna">
+                <input type="text" class="pic-name" placeholder="Osoba odpowiedzialna">
             </div>
             <div class="detail-row">
                 <label>Adnotacje</label>
-                <textarea class="notes" rows="2" placeholder="uwagi..."></textarea>
+                <textarea class="notes" rows="2" placeholder="Uwagi..."></textarea>
             </div>
             <div class="detail-row">
                 <label>Zdjęcie poglądowe</label>
-                <img class="sticker-img preview-detail-img" src="https://via.placeholder.com/300?text=brak+zdjęcia" alt="preview">
+                <img class="sticker-img preview-detail-img" src="https://via.placeholder.com/200?text=brak+zdjęcia" alt="preview">
                 <div class="photo-source-buttons">
                     <button class="btn-photo-small update-preview-camera">📸 Aparat</button>
                     <button class="btn-photo-small update-preview-file">📁 Dysk</button>
@@ -653,7 +668,7 @@
             </div>
             <div class="detail-row">
                 <label>Naklejka z asset</label>
-                <img class="sticker-img" src="https://via.placeholder.com/300?text=brak+naklejki" alt="sticker">
+                <img class="sticker-img" src="https://via.placeholder.com/200?text=brak+naklejki" alt="sticker">
                 <div class="photo-source-buttons">
                     <button class="btn-photo-small update-sticker-camera">📸 Aparat</button>
                     <button class="btn-photo-small update-sticker-file">📁 Dysk</button>
@@ -673,7 +688,7 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
     (function() {
-        const STORAGE_KEY = 'equipmentListV5';
+        const STORAGE_KEY = 'equipmentListV6';
         let devices = loadFromStorage();
         let currentFilter = '';
         let currentSort = 'asc';
@@ -697,7 +712,6 @@
         const newNotes = document.getElementById('newNotes');
         const addBtn = document.getElementById('addDeviceBtn');
 
-        // Przyciski do zdjęć w modalu
         const capturePreviewBtn = document.getElementById('capturePreviewBtn');
         const uploadPreviewBtn = document.getElementById('uploadPreviewBtn');
         const previewUpload = document.getElementById('previewUpload');
@@ -725,17 +739,38 @@
         let currentPreviewBase64 = '';
         let currentStickerBase64 = '';
 
-        // Otwieranie modala do dodawania
+        // Funkcja pomocnicza do obsługi błędów
+        function safeOperation(operation) {
+            try {
+                return operation();
+            } catch (error) {
+                console.error('Błąd:', error);
+                return null;
+            }
+        }
+
+        // Otwieranie modala
         fab.addEventListener('click', () => {
-            editingId = null;
-            modalTitle.textContent = 'Nowy sprzęt';
-            clearForm();
-            modalOverlay.classList.add('active');
+            safeOperation(() => {
+                editingId = null;
+                modalTitle.textContent = 'Nowy sprzęt';
+                clearForm();
+                modalOverlay.classList.add('active');
+            });
         });
 
         closeModalBtn.addEventListener('click', () => {
-            modalOverlay.classList.remove('active');
-            clearForm();
+            safeOperation(() => {
+                modalOverlay.classList.remove('active');
+                clearForm();
+            });
+        });
+
+        // Kliknięcie w tło nie zamyka modala
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                // Nie zamykamy
+            }
         });
 
         function clearForm() {
@@ -756,7 +791,6 @@
             stickerUploadFile.value = '';
         }
 
-        // Obsługa zdjęć w modalu - aparat i dysk
         function handleImageUpload(input, callback) {
             if (!input.files || !input.files[0]) return;
             const file = input.files[0];
@@ -801,20 +835,36 @@
             });
         });
 
-        // Zapisz (dodaj lub edytuj)
-        addBtn.addEventListener('click', () => {
-            const asset = newAsset.value.trim();
-            if (!asset) {
-                alert('Numer asset jest wymagany');
-                return;
-            }
+        // Zapisz (dodaj lub edytuj) - naprawione dla telefonu
+        addBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            safeOperation(() => {
+                const asset = newAsset.value.trim();
+                if (!asset) {
+                    alert('Numer asset jest wymagany');
+                    return;
+                }
 
-            if (editingId) {
-                // Edycja istniejącego
-                const index = devices.findIndex(d => d.id === editingId);
-                if (index !== -1) {
-                    devices[index] = {
-                        ...devices[index],
+                if (editingId) {
+                    const index = devices.findIndex(d => d.id === editingId);
+                    if (index !== -1) {
+                        devices[index] = {
+                            ...devices[index],
+                            asset,
+                            name: newName.value.trim() || '—',
+                            sn: newSn.value.trim() || '—',
+                            loc: newLoc.value.trim() || '—',
+                            capDate: newCapDate.value || '',
+                            picName: newPicName.value.trim() || '',
+                            notes: newNotes.value.trim() || '',
+                            previewImg: currentPreviewBase64 || devices[index].previewImg,
+                            stickerImg: currentStickerBase64 || devices[index].stickerImg
+                        };
+                    }
+                } else {
+                    const newDevice = {
+                        id: Date.now() + '-' + Math.random().toString(36).substr(2, 6),
                         asset,
                         name: newName.value.trim() || '—',
                         sn: newSn.value.trim() || '—',
@@ -822,34 +872,20 @@
                         capDate: newCapDate.value || '',
                         picName: newPicName.value.trim() || '',
                         notes: newNotes.value.trim() || '',
-                        previewImg: currentPreviewBase64 || devices[index].previewImg,
-                        stickerImg: currentStickerBase64 || devices[index].stickerImg
+                        previewImg: currentPreviewBase64 || '',
+                        stickerImg: currentStickerBase64 || '',
+                        inStock: false
                     };
+                    devices.push(newDevice);
                 }
-            } else {
-                // Nowy wpis
-                const newDevice = {
-                    id: Date.now() + '-' + Math.random().toString(36).substr(2, 6),
-                    asset,
-                    name: newName.value.trim() || '—',
-                    sn: newSn.value.trim() || '—',
-                    loc: newLoc.value.trim() || '—',
-                    capDate: newCapDate.value || '',
-                    picName: newPicName.value.trim() || '',
-                    notes: newNotes.value.trim() || '',
-                    previewImg: currentPreviewBase64 || '',
-                    stickerImg: currentStickerBase64 || '',
-                    inStock: false
-                };
-                devices.push(newDevice);
-            }
 
-            saveToStorage();
-            updateLocationFilterOptions();
-            renderFilteredAndSorted();
-            modalOverlay.classList.remove('active');
-            clearForm();
-            editingId = null;
+                saveToStorage();
+                updateLocationFilterOptions();
+                renderFilteredAndSorted();
+                modalOverlay.classList.remove('active');
+                clearForm();
+                editingId = null;
+            });
         });
 
         function updateLocationFilterOptions() {
@@ -857,50 +893,33 @@
             locations.sort();
             const select = locationFilter;
             const currentVal = select.value;
-            select.innerHTML = '<option value="">Wszystkie lokalizacje</option>';
+            select.innerHTML = '<option value="">Wszystkie</option>';
             locations.forEach(loc => {
                 const option = document.createElement('option');
                 option.value = loc;
-                option.textContent = loc;
+                option.textContent = loc.length > 15 ? loc.substr(0, 12) + '...' : loc;
                 select.appendChild(option);
             });
-            select.value = currentVal && locations.includes(currentVal) ? currentVal : '';
+            if (currentVal && locations.includes(currentVal)) {
+                select.value = currentVal;
+            }
         }
 
         function matchesSearch(device, term) {
             if (!term) return true;
             const lowerTerm = term.toLowerCase();
-            const fields = [
-                device.asset,
-                device.name,
-                device.sn,
-                device.loc,
-                device.capDate,
-                device.picName,
-                device.notes
-            ];
-            return fields.some(field => field && field.toLowerCase().includes(lowerTerm));
+            return [device.asset, device.name, device.sn, device.loc, device.capDate, device.picName, device.notes]
+                .some(field => field && field.toLowerCase().includes(lowerTerm));
         }
 
         function getFilteredAndSorted() {
             let filtered = devices;
-            
-            if (searchTerm) {
-                filtered = filtered.filter(d => matchesSearch(d, searchTerm));
-            }
-            
-            if (currentFilter) {
-                filtered = filtered.filter(d => d.loc === currentFilter);
-            }
-
+            if (searchTerm) filtered = filtered.filter(d => matchesSearch(d, searchTerm));
+            if (currentFilter) filtered = filtered.filter(d => d.loc === currentFilter);
             return filtered.sort((a, b) => {
                 const assetA = a.asset.toLowerCase();
                 const assetB = b.asset.toLowerCase();
-                if (currentSort === 'asc') {
-                    return assetA.localeCompare(assetB);
-                } else {
-                    return assetB.localeCompare(assetA);
-                }
+                return currentSort === 'asc' ? assetA.localeCompare(assetB) : assetB.localeCompare(assetA);
             });
         }
 
@@ -919,12 +938,12 @@
             card.dataset.id = device.id;
 
             const imgPreview = card.querySelector('.card-img');
-            imgPreview.src = device.previewImg || 'https://via.placeholder.com/80?text=no+img';
+            imgPreview.src = device.previewImg || 'https://via.placeholder.com/60?text=no+img';
 
             card.querySelector('.asset-preview').textContent = device.asset;
-            card.querySelector('.name-preview').textContent = device.name;
-            card.querySelector('.sn-preview').textContent = device.sn;
-            card.querySelector('.loc-preview').textContent = device.loc;
+            card.querySelector('.name-preview').textContent = device.name.length > 20 ? device.name.substr(0, 17) + '...' : device.name;
+            card.querySelector('.sn-preview').textContent = device.sn.length > 15 ? device.sn.substr(0, 12) + '...' : device.sn;
+            card.querySelector('.loc-preview').textContent = device.loc.length > 15 ? device.loc.substr(0, 12) + '...' : device.loc;
 
             const chk = card.querySelector('.in-stack-checkbox');
             chk.checked = device.inStock;
@@ -940,7 +959,6 @@
             const previewDetailImg = card.querySelector('.preview-detail-img');
             const stickerImg = card.querySelector('.sticker-img:not(.preview-detail-img)');
             
-            // Przyciski do zdjęć w detalach
             const updatePreviewCamera = card.querySelector('.update-preview-camera');
             const updatePreviewFile = card.querySelector('.update-preview-file');
             const previewFileInput = card.querySelector('.preview-file-input');
@@ -954,18 +972,16 @@
             capInput.value = device.capDate || '';
             picInput.value = device.picName || '';
             notesText.value = device.notes || '';
-            previewDetailImg.src = device.previewImg || 'https://via.placeholder.com/300?text=brak+zdjęcia';
-            stickerImg.src = device.stickerImg || 'https://via.placeholder.com/300?text=brak+naklejki';
+            previewDetailImg.src = device.previewImg || 'https://via.placeholder.com/200?text=brak+zdjęcia';
+            stickerImg.src = device.stickerImg || 'https://via.placeholder.com/200?text=brak+naklejki';
 
-            // Auto-zapis przy zmianach
             capInput.addEventListener('input', () => { device.capDate = capInput.value; saveToStorage(); });
             picInput.addEventListener('input', () => { device.picName = picInput.value; saveToStorage(); });
             notesText.addEventListener('input', () => { device.notes = notesText.value; saveToStorage(); });
 
-            // Obsługa zdjęcia poglądowego w detalach
             updatePreviewCamera.addEventListener('click', () => previewFileInput.click());
             previewFileInput.addEventListener('change', () => {
-                if (previewFileInput.files && previewFileInput.files[0]) {
+                if (previewFileInput.files?.[0]) {
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         device.previewImg = e.target.result;
@@ -979,7 +995,7 @@
 
             updatePreviewFile.addEventListener('click', () => previewUploadInput.click());
             previewUploadInput.addEventListener('change', () => {
-                if (previewUploadInput.files && previewUploadInput.files[0]) {
+                if (previewUploadInput.files?.[0]) {
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         device.previewImg = e.target.result;
@@ -991,10 +1007,9 @@
                 }
             });
 
-            // Obsługa zdjęcia naklejki w detalach
             updateStickerCamera.addEventListener('click', () => stickerFileInput.click());
             stickerFileInput.addEventListener('change', () => {
-                if (stickerFileInput.files && stickerFileInput.files[0]) {
+                if (stickerFileInput.files?.[0]) {
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         device.stickerImg = e.target.result;
@@ -1007,7 +1022,7 @@
 
             updateStickerFile.addEventListener('click', () => stickerUploadInput.click());
             stickerUploadInput.addEventListener('change', () => {
-                if (stickerUploadInput.files && stickerUploadInput.files[0]) {
+                if (stickerUploadInput.files?.[0]) {
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         device.stickerImg = e.target.result;
@@ -1018,11 +1033,9 @@
                 }
             });
 
-            // Edycja - otwiera modal z danymi
             card.querySelector('.edit-device').addEventListener('click', () => {
                 editingId = device.id;
                 modalTitle.textContent = 'Edytuj sprzęt';
-                
                 newAsset.value = device.asset;
                 newName.value = device.name === '—' ? '' : device.name;
                 newSn.value = device.sn === '—' ? '' : device.sn;
@@ -1030,26 +1043,23 @@
                 newCapDate.value = device.capDate || '';
                 newPicName.value = device.picName || '';
                 newNotes.value = device.notes || '';
-                
                 currentPreviewBase64 = device.previewImg || '';
                 if (currentPreviewBase64) {
                     previewThumbContainer.classList.remove('hidden');
                     previewThumbImg.src = currentPreviewBase64;
                 }
-                
                 currentStickerBase64 = device.stickerImg || '';
                 if (currentStickerBase64) {
                     stickerThumbContainer.classList.remove('hidden');
                     stickerThumbImg.src = currentStickerBase64;
                 }
-                
                 modalOverlay.classList.add('active');
             });
 
-            const mainDiv = card.querySelector('.card-main');
-            mainDiv.addEventListener('click', (e) => {
-                if (e.target.type === 'checkbox') return;
-                detailsDiv.classList.toggle('hidden');
+            card.querySelector('.card-main').addEventListener('click', (e) => {
+                if (e.target.type !== 'checkbox') {
+                    detailsDiv.classList.toggle('hidden');
+                }
             });
 
             card.querySelector('.close-details').addEventListener('click', () => {
@@ -1057,7 +1067,7 @@
             });
 
             card.querySelector('.delete-device').addEventListener('click', () => {
-                if (confirm('Czy na pewno usunąć ten sprzęt?')) {
+                if (confirm('Usunąć ten sprzęt?')) {
                     devices = devices.filter(d => d.id !== device.id);
                     saveToStorage();
                     updateLocationFilterOptions();
@@ -1068,7 +1078,6 @@
             return card;
         }
 
-        // Eksport do Excel
         exportBtn.addEventListener('click', () => {
             const data = devices.map(d => ({
                 'Asset': d.asset,
@@ -1078,9 +1087,7 @@
                 'Cap. date': d.capDate,
                 'Pic name': d.picName,
                 'Adnotacje': d.notes,
-                'Na stanie': d.inStock ? 'Tak' : 'Nie',
-                'Zdjęcie poglądowe': d.previewImg ? 'tak' : 'brak',
-                'Zdjęcie naklejki': d.stickerImg ? 'tak' : 'brak'
+                'Na stanie': d.inStock ? 'Tak' : 'Nie'
             }));
 
             const wb = XLSX.utils.book_new();
@@ -1089,9 +1096,7 @@
             XLSX.writeFile(wb, 'ewidencja_sprzetu.xlsx');
         });
 
-        importBtn.addEventListener('click', () => {
-            importFile.click();
-        });
+        importBtn.addEventListener('click', () => importFile.click());
 
         importFile.addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -1125,8 +1130,7 @@
                     renderFilteredAndSorted();
                     alert(`Zaimportowano ${importedDevices.length} urządzeń`);
                 } catch (error) {
-                    alert('Błąd podczas importu pliku Excel');
-                    console.error(error);
+                    alert('Błąd importu');
                 }
             };
             reader.readAsArrayBuffer(file);
