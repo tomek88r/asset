@@ -1,0 +1,1182 @@
+﻿
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Asset Inventory</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 16px;
+            position: relative;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .header-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border: 1px solid #eaeef2;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: #1a2634;
+            margin-right: auto;
+        }
+
+        .logo svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: 40px;
+            border: 1px solid #d0d8e2;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 10px 18px;
+            border-radius: 40px;
+            border: 1px solid #d0d8e2;
+            background: white;
+            font-size: 0.95rem;
+            min-width: 160px;
+            cursor: pointer;
+        }
+
+        .sort-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .sort-btn {
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: 1px solid #d0d8e2;
+            background: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .sort-btn.active {
+            background: #1a2634;
+            color: white;
+            border-color: #1a2634;
+        }
+
+        .excel-buttons {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .excel-btn {
+            padding: 10px 18px;
+            border-radius: 40px;
+            border: 1px solid #d0d8e2;
+            background: white;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .excel-btn:hover {
+            background: #f0f4fa;
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 16px;
+            margin-bottom: 80px;
+        }
+
+        .inventory-card {
+            background: white;
+            border-radius: 24px;
+            padding: 16px;
+            border: 1px solid #edf2f7;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            transition: 0.1s;
+        }
+
+        .card-main {
+            display: flex;
+            gap: 14px;
+            cursor: pointer;
+        }
+
+        .card-img {
+            width: 80px;
+            height: 80px;
+            background: #eef2f6;
+            border-radius: 16px;
+            object-fit: cover;
+            border: 1px solid #dde3ea;
+        }
+
+        .info-preview {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .row-preview {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 6px 8px;
+            margin-bottom: 6px;
+        }
+
+        .asset-tag {
+            font-weight: 600;
+            color: #2c3e50;
+            background: #f0f4fa;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+        }
+
+        .sn-label {
+            color: #546e7a;
+            font-size: 0.9rem;
+            word-break: break-word;
+        }
+
+        .name-preview {
+            font-weight: 500;
+            font-size: 1rem;
+            color: #1e293b;
+            margin-right: 8px;
+        }
+
+        .loc-badge {
+            background: #ecf1f7;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            color: #2c3e50;
+            display: inline-block;
+        }
+
+        .in-stack-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+        }
+
+        .in-stack-box input[type="checkbox"] {
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            border: 2px solid #a0b8cc;
+            cursor: pointer;
+        }
+
+        .in-stack-box span {
+            font-size: 0.7rem;
+            color: #546e7a;
+            margin-top: 4px;
+        }
+
+        .details-panel {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid #e2eaf2;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .detail-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .detail-row label {
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .detail-row input, .detail-row textarea {
+            padding: 12px 14px;
+            border-radius: 16px;
+            border: 1px solid #d4dee8;
+            background: #fafcff;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .detail-row textarea {
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .sticker-img, .preview-detail-img {
+            width: 100%;
+            max-height: 150px;
+            object-fit: contain;
+            background: #f0f4fa;
+            border-radius: 16px;
+            padding: 6px;
+            border: 1px solid #d0dcee;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-edit {
+            background: #e3f0ff;
+            border: none;
+            border-radius: 40px;
+            padding: 14px 18px;
+            color: #1a5a9c;
+            font-weight: 500;
+            flex: 1;
+            font-size: 1rem;
+            cursor: pointer;
+            border: 1px solid #b8d3f0;
+        }
+
+        .btn-delete {
+            background: #fee;
+            border: none;
+            border-radius: 40px;
+            padding: 14px 18px;
+            color: #b91c1c;
+            font-weight: 500;
+            flex: 1;
+            font-size: 1rem;
+            cursor: pointer;
+            border: 1px solid #f3cdcd;
+        }
+
+        .btn-close {
+            background: #eef3f8;
+            border: none;
+            border-radius: 40px;
+            padding: 14px;
+            flex: 0 0 70px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid #d0dcee;
+        }
+
+        .btn-photo-small {
+            background: #f0f4fa;
+            border: 1px solid #cbd6e4;
+            border-radius: 30px;
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-right: 8px;
+        }
+
+        .photo-source-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .photo-source-buttons button {
+            flex: 1;
+            background: #f0f4fa;
+            border: 1px solid #cbd6e4;
+            border-radius: 30px;
+            padding: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 64px;
+            height: 64px;
+            border-radius: 32px;
+            background: #1a2634;
+            color: white;
+            border: none;
+            font-size: 2.5rem;
+            font-weight: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transition: 0.1s;
+        }
+
+        .fab:active {
+            transform: scale(0.95);
+            background: #2c3e50;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 2000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 30px 30px 0 0;
+            padding: 24px 20px 30px;
+            transition: 0.2s;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: #1a2634;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-form input, .modal-form textarea {
+            padding: 16px 18px;
+            border-radius: 30px;
+            border: 1px solid #d0d8e2;
+            font-size: 1rem;
+            background: #fafcff;
+        }
+
+        .photo-buttons-modal {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .photo-buttons-modal button {
+            flex: 1 1 auto;
+            background: #f0f4fa;
+            border: 1px solid #cbd6e4;
+            border-radius: 40px;
+            padding: 14px 12px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .thumb-row-modal {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: #f5f7fb;
+            border-radius: 24px;
+            padding: 12px;
+        }
+
+        .thumb-item-modal {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+            flex: 1;
+        }
+
+        .thumb-item-modal img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #bcc9db;
+        }
+
+        .btn-submit-modal {
+            background: #1a2634;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 18px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        .close-modal-btn {
+            background: #eef3f8;
+            border: 1px solid #d0dcee;
+            border-radius: 40px;
+            padding: 16px;
+            font-size: 1rem;
+            margin-top: 12px;
+            cursor: pointer;
+        }
+
+        #excelImport {
+            display: none;
+        }
+
+        .edit-mode-badge {
+            background: #ffd966;
+            color: #1a2634;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="header-bar">
+        <div class="logo">
+            <svg viewBox="0 0 100 40">
+                <rect x="5" y="8" width="60" height="24" rx="3" fill="none" stroke="#1a2634" stroke-width="2"/>
+                <line x1="10" y1="14" x2="60" y2="14" stroke="#1a2634" stroke-width="2"/>
+                <line x1="10" y1="20" x2="60" y2="20" stroke="#1a2634" stroke-width="2"/>
+                <line x1="10" y1="26" x2="60" y2="26" stroke="#1a2634" stroke-width="2"/>
+                <line x1="15" y1="8" x2="15" y2="32" stroke="#1a2634" stroke-width="1.5"/>
+                <line x1="25" y1="8" x2="25" y2="32" stroke="#1a2634" stroke-width="1.5"/>
+                <line x1="35" y1="8" x2="35" y2="32" stroke="#1a2634" stroke-width="1.5"/>
+                <line x1="45" y1="8" x2="45" y2="32" stroke="#1a2634" stroke-width="1.5"/>
+                <line x1="55" y1="8" x2="55" y2="32" stroke="#1a2634" stroke-width="1.5"/>
+                <text x="70" y="26" font-family="Arial" font-size="18" fill="#1a2634" font-weight="bold">ASSET</text>
+            </svg>
+        </div>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Szukaj po wszystkich polach...">
+        </div>
+        <div class="filter-group">
+            <select id="locationFilter" class="filter-select">
+                <option value="">Wszystkie lokalizacje</option>
+            </select>
+            <div class="sort-buttons">
+                <button id="sortAssetAsc" class="sort-btn active">Asset ↑</button>
+                <button id="sortAssetDesc" class="sort-btn">Asset ↓</button>
+            </div>
+            <div class="excel-buttons">
+                <button class="excel-btn" id="exportExcel">📥 Eksport Excel</button>
+                <button class="excel-btn" id="importExcelBtn">📤 Import Excel</button>
+                <input type="file" id="excelImport" accept=".xlsx,.xls,.csv">
+            </div>
+        </div>
+    </div>
+
+    <div id="inventoryGrid" class="inventory-grid"></div>
+</div>
+
+<button class="fab" id="fabAdd">+</button>
+
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <svg viewBox="0 0 100 40" width="40" height="40">
+                <rect x="5" y="8" width="60" height="24" rx="3" fill="none" stroke="#1a2634" stroke-width="2"/>
+                <line x1="10" y1="14" x2="60" y2="14" stroke="#1a2634" stroke-width="2"/>
+                <line x1="10" y1="20" x2="60" y2="20" stroke="#1a2634" stroke-width="2"/>
+                <line x1="10" y1="26" x2="60" y2="26" stroke="#1a2634" stroke-width="2"/>
+            </svg>
+            <span id="modalTitle">Nowy sprzęt</span>
+        </div>
+        <div class="modal-form">
+            <input type="text" id="newAsset" placeholder="Nr asset *">
+            <input type="text" id="newName" placeholder="Nazwa sprzętu">
+            <input type="text" id="newSn" placeholder="S/N">
+            <input type="text" id="newLoc" placeholder="Lokalizacja">
+            <input type="date" id="newCapDate" placeholder="Cap. date">
+            <input type="text" id="newPicName" placeholder="Pic name (osoba odpowiedzialna)">
+            <textarea id="newNotes" rows="2" placeholder="Adnotacje"></textarea>
+
+            <div class="photo-buttons-modal">
+                <button id="capturePreviewBtn">📸 Zrób zdjęcie poglądowe</button>
+                <button id="uploadPreviewBtn">📁 Wybierz z dysku</button>
+                <input type="file" id="previewUpload" accept="image/*" style="display: none;">
+                <input type="file" id="previewUploadFile" accept="image/*" style="display: none;">
+            </div>
+
+            <div id="previewThumbContainer" class="thumb-row-modal hidden">
+                <div class="thumb-item-modal">
+                    <img id="previewThumbImg" src="#" alt="podgląd">
+                    <span>zdjęcie poglądowe</span>
+                </div>
+            </div>
+
+            <div class="photo-buttons-modal">
+                <button id="captureStickerBtn">📸 Zrób zdjęcie naklejki</button>
+                <button id="uploadStickerBtn">📁 Wybierz z dysku</button>
+                <input type="file" id="stickerUpload" accept="image/*" style="display: none;">
+                <input type="file" id="stickerUploadFile" accept="image/*" style="display: none;">
+            </div>
+
+            <div id="stickerThumbContainer" class="thumb-row-modal hidden">
+                <div class="thumb-item-modal">
+                    <img id="stickerThumbImg" src="#" alt="naklejka">
+                    <span>zdjęcie naklejki</span>
+                </div>
+            </div>
+
+            <button class="btn-submit-modal" id="addDeviceBtn">Dodaj do listy</button>
+            <button class="close-modal-btn" id="closeModalBtn">Anuluj</button>
+        </div>
+    </div>
+</div>
+
+<template id="deviceCardTemplate">
+    <div class="inventory-card" data-id="">
+        <div class="card-main">
+            <img class="card-img" src="https://via.placeholder.com/80?text=no+img" alt="preview">
+            <div class="info-preview">
+                <div class="row-preview">
+                    <span class="asset-tag asset-preview"></span>
+                    <span class="sn-label sn-preview"></span>
+                </div>
+                <div class="row-preview">
+                    <span class="name-preview"></span>
+                </div>
+                <div class="loc-badge loc-preview"></div>
+            </div>
+            <div class="in-stack-box">
+                <input type="checkbox" class="in-stack-checkbox">
+                <span>na stanie</span>
+            </div>
+        </div>
+        <div class="details-panel">
+            <div class="detail-row">
+                <label>Cap. date</label>
+                <input type="date" class="cap-date">
+            </div>
+            <div class="detail-row">
+                <label>Pic name</label>
+                <input type="text" class="pic-name" placeholder="osoba odpowiedzialna">
+            </div>
+            <div class="detail-row">
+                <label>Adnotacje</label>
+                <textarea class="notes" rows="2" placeholder="uwagi..."></textarea>
+            </div>
+            <div class="detail-row">
+                <label>Zdjęcie poglądowe</label>
+                <img class="sticker-img preview-detail-img" src="https://via.placeholder.com/300?text=brak+zdjęcia" alt="preview">
+                <div class="photo-source-buttons">
+                    <button class="btn-photo-small update-preview-camera">📸 Aparat</button>
+                    <button class="btn-photo-small update-preview-file">📁 Dysk</button>
+                </div>
+                <input type="file" class="preview-file-input" accept="image/*" capture="environment" style="display: none;">
+                <input type="file" class="preview-upload-input" accept="image/*" style="display: none;">
+            </div>
+            <div class="detail-row">
+                <label>Naklejka z asset</label>
+                <img class="sticker-img" src="https://via.placeholder.com/300?text=brak+naklejki" alt="sticker">
+                <div class="photo-source-buttons">
+                    <button class="btn-photo-small update-sticker-camera">📸 Aparat</button>
+                    <button class="btn-photo-small update-sticker-file">📁 Dysk</button>
+                </div>
+                <input type="file" class="sticker-file-input" accept="image/*" capture="environment" style="display: none;">
+                <input type="file" class="sticker-upload-input" accept="image/*" style="display: none;">
+            </div>
+            <div class="action-buttons">
+                <button class="btn-edit edit-device">✏️ Edytuj</button>
+                <button class="btn-delete delete-device">🗑️ Usuń</button>
+                <button class="btn-close close-details">Zwiń</button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+    (function() {
+        const STORAGE_KEY = 'equipmentListV5';
+        let devices = loadFromStorage();
+        let currentFilter = '';
+        let currentSort = 'asc';
+        let searchTerm = '';
+        let editingId = null;
+
+        const gridEl = document.getElementById('inventoryGrid');
+        const template = document.getElementById('deviceCardTemplate');
+
+        const fab = document.getElementById('fabAdd');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalTitle = document.getElementById('modalTitle');
+
+        const newAsset = document.getElementById('newAsset');
+        const newName = document.getElementById('newName');
+        const newSn = document.getElementById('newSn');
+        const newLoc = document.getElementById('newLoc');
+        const newCapDate = document.getElementById('newCapDate');
+        const newPicName = document.getElementById('newPicName');
+        const newNotes = document.getElementById('newNotes');
+        const addBtn = document.getElementById('addDeviceBtn');
+
+        // Przyciski do zdjęć w modalu
+        const capturePreviewBtn = document.getElementById('capturePreviewBtn');
+        const uploadPreviewBtn = document.getElementById('uploadPreviewBtn');
+        const previewUpload = document.getElementById('previewUpload');
+        const previewUploadFile = document.getElementById('previewUploadFile');
+        
+        const captureStickerBtn = document.getElementById('captureStickerBtn');
+        const uploadStickerBtn = document.getElementById('uploadStickerBtn');
+        const stickerUpload = document.getElementById('stickerUpload');
+        const stickerUploadFile = document.getElementById('stickerUploadFile');
+
+        const previewThumbContainer = document.getElementById('previewThumbContainer');
+        const stickerThumbContainer = document.getElementById('stickerThumbContainer');
+        const previewThumbImg = document.getElementById('previewThumbImg');
+        const stickerThumbImg = document.getElementById('stickerThumbImg');
+
+        const locationFilter = document.getElementById('locationFilter');
+        const sortAscBtn = document.getElementById('sortAssetAsc');
+        const sortDescBtn = document.getElementById('sortAssetDesc');
+        const searchInput = document.getElementById('searchInput');
+
+        const exportBtn = document.getElementById('exportExcel');
+        const importBtn = document.getElementById('importExcelBtn');
+        const importFile = document.getElementById('excelImport');
+
+        let currentPreviewBase64 = '';
+        let currentStickerBase64 = '';
+
+        // Otwieranie modala do dodawania
+        fab.addEventListener('click', () => {
+            editingId = null;
+            modalTitle.textContent = 'Nowy sprzęt';
+            clearForm();
+            modalOverlay.classList.add('active');
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            modalOverlay.classList.remove('active');
+            clearForm();
+        });
+
+        function clearForm() {
+            newAsset.value = '';
+            newName.value = '';
+            newSn.value = '';
+            newLoc.value = '';
+            newCapDate.value = '';
+            newPicName.value = '';
+            newNotes.value = '';
+            currentPreviewBase64 = '';
+            currentStickerBase64 = '';
+            previewThumbContainer.classList.add('hidden');
+            stickerThumbContainer.classList.add('hidden');
+            previewUpload.value = '';
+            previewUploadFile.value = '';
+            stickerUpload.value = '';
+            stickerUploadFile.value = '';
+        }
+
+        // Obsługa zdjęć w modalu - aparat i dysk
+        function handleImageUpload(input, callback) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => callback(e.target.result);
+            reader.readAsDataURL(file);
+        }
+
+        capturePreviewBtn.addEventListener('click', () => previewUpload.click());
+        previewUpload.addEventListener('change', () => {
+            handleImageUpload(previewUpload, (base64) => {
+                currentPreviewBase64 = base64;
+                previewThumbContainer.classList.remove('hidden');
+                previewThumbImg.src = base64;
+            });
+        });
+
+        uploadPreviewBtn.addEventListener('click', () => previewUploadFile.click());
+        previewUploadFile.addEventListener('change', () => {
+            handleImageUpload(previewUploadFile, (base64) => {
+                currentPreviewBase64 = base64;
+                previewThumbContainer.classList.remove('hidden');
+                previewThumbImg.src = base64;
+            });
+        });
+
+        captureStickerBtn.addEventListener('click', () => stickerUpload.click());
+        stickerUpload.addEventListener('change', () => {
+            handleImageUpload(stickerUpload, (base64) => {
+                currentStickerBase64 = base64;
+                stickerThumbContainer.classList.remove('hidden');
+                stickerThumbImg.src = base64;
+            });
+        });
+
+        uploadStickerBtn.addEventListener('click', () => stickerUploadFile.click());
+        stickerUploadFile.addEventListener('change', () => {
+            handleImageUpload(stickerUploadFile, (base64) => {
+                currentStickerBase64 = base64;
+                stickerThumbContainer.classList.remove('hidden');
+                stickerThumbImg.src = base64;
+            });
+        });
+
+        // Zapisz (dodaj lub edytuj)
+        addBtn.addEventListener('click', () => {
+            const asset = newAsset.value.trim();
+            if (!asset) {
+                alert('Numer asset jest wymagany');
+                return;
+            }
+
+            if (editingId) {
+                // Edycja istniejącego
+                const index = devices.findIndex(d => d.id === editingId);
+                if (index !== -1) {
+                    devices[index] = {
+                        ...devices[index],
+                        asset,
+                        name: newName.value.trim() || '—',
+                        sn: newSn.value.trim() || '—',
+                        loc: newLoc.value.trim() || '—',
+                        capDate: newCapDate.value || '',
+                        picName: newPicName.value.trim() || '',
+                        notes: newNotes.value.trim() || '',
+                        previewImg: currentPreviewBase64 || devices[index].previewImg,
+                        stickerImg: currentStickerBase64 || devices[index].stickerImg
+                    };
+                }
+            } else {
+                // Nowy wpis
+                const newDevice = {
+                    id: Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+                    asset,
+                    name: newName.value.trim() || '—',
+                    sn: newSn.value.trim() || '—',
+                    loc: newLoc.value.trim() || '—',
+                    capDate: newCapDate.value || '',
+                    picName: newPicName.value.trim() || '',
+                    notes: newNotes.value.trim() || '',
+                    previewImg: currentPreviewBase64 || '',
+                    stickerImg: currentStickerBase64 || '',
+                    inStock: false
+                };
+                devices.push(newDevice);
+            }
+
+            saveToStorage();
+            updateLocationFilterOptions();
+            renderFilteredAndSorted();
+            modalOverlay.classList.remove('active');
+            clearForm();
+            editingId = null;
+        });
+
+        function updateLocationFilterOptions() {
+            const locations = [...new Set(devices.map(d => d.loc).filter(loc => loc && loc !== '—'))];
+            locations.sort();
+            const select = locationFilter;
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">Wszystkie lokalizacje</option>';
+            locations.forEach(loc => {
+                const option = document.createElement('option');
+                option.value = loc;
+                option.textContent = loc;
+                select.appendChild(option);
+            });
+            select.value = currentVal && locations.includes(currentVal) ? currentVal : '';
+        }
+
+        function matchesSearch(device, term) {
+            if (!term) return true;
+            const lowerTerm = term.toLowerCase();
+            const fields = [
+                device.asset,
+                device.name,
+                device.sn,
+                device.loc,
+                device.capDate,
+                device.picName,
+                device.notes
+            ];
+            return fields.some(field => field && field.toLowerCase().includes(lowerTerm));
+        }
+
+        function getFilteredAndSorted() {
+            let filtered = devices;
+            
+            if (searchTerm) {
+                filtered = filtered.filter(d => matchesSearch(d, searchTerm));
+            }
+            
+            if (currentFilter) {
+                filtered = filtered.filter(d => d.loc === currentFilter);
+            }
+
+            return filtered.sort((a, b) => {
+                const assetA = a.asset.toLowerCase();
+                const assetB = b.asset.toLowerCase();
+                if (currentSort === 'asc') {
+                    return assetA.localeCompare(assetB);
+                } else {
+                    return assetB.localeCompare(assetA);
+                }
+            });
+        }
+
+        function renderFilteredAndSorted() {
+            const toRender = getFilteredAndSorted();
+            gridEl.innerHTML = '';
+            toRender.forEach(device => {
+                const card = createCard(device);
+                gridEl.appendChild(card);
+            });
+        }
+
+        function createCard(device) {
+            const clone = template.content.cloneNode(true);
+            const card = clone.querySelector('.inventory-card');
+            card.dataset.id = device.id;
+
+            const imgPreview = card.querySelector('.card-img');
+            imgPreview.src = device.previewImg || 'https://via.placeholder.com/80?text=no+img';
+
+            card.querySelector('.asset-preview').textContent = device.asset;
+            card.querySelector('.name-preview').textContent = device.name;
+            card.querySelector('.sn-preview').textContent = device.sn;
+            card.querySelector('.loc-preview').textContent = device.loc;
+
+            const chk = card.querySelector('.in-stack-checkbox');
+            chk.checked = device.inStock;
+            chk.addEventListener('change', (e) => {
+                device.inStock = e.target.checked;
+                saveToStorage();
+            });
+
+            const detailsDiv = card.querySelector('.details-panel');
+            const capInput = card.querySelector('.cap-date');
+            const picInput = card.querySelector('.pic-name');
+            const notesText = card.querySelector('.notes');
+            const previewDetailImg = card.querySelector('.preview-detail-img');
+            const stickerImg = card.querySelector('.sticker-img:not(.preview-detail-img)');
+            
+            // Przyciski do zdjęć w detalach
+            const updatePreviewCamera = card.querySelector('.update-preview-camera');
+            const updatePreviewFile = card.querySelector('.update-preview-file');
+            const previewFileInput = card.querySelector('.preview-file-input');
+            const previewUploadInput = card.querySelector('.preview-upload-input');
+            
+            const updateStickerCamera = card.querySelector('.update-sticker-camera');
+            const updateStickerFile = card.querySelector('.update-sticker-file');
+            const stickerFileInput = card.querySelector('.sticker-file-input');
+            const stickerUploadInput = card.querySelector('.sticker-upload-input');
+
+            capInput.value = device.capDate || '';
+            picInput.value = device.picName || '';
+            notesText.value = device.notes || '';
+            previewDetailImg.src = device.previewImg || 'https://via.placeholder.com/300?text=brak+zdjęcia';
+            stickerImg.src = device.stickerImg || 'https://via.placeholder.com/300?text=brak+naklejki';
+
+            // Auto-zapis przy zmianach
+            capInput.addEventListener('input', () => { device.capDate = capInput.value; saveToStorage(); });
+            picInput.addEventListener('input', () => { device.picName = picInput.value; saveToStorage(); });
+            notesText.addEventListener('input', () => { device.notes = notesText.value; saveToStorage(); });
+
+            // Obsługa zdjęcia poglądowego w detalach
+            updatePreviewCamera.addEventListener('click', () => previewFileInput.click());
+            previewFileInput.addEventListener('change', () => {
+                if (previewFileInput.files && previewFileInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        device.previewImg = e.target.result;
+                        imgPreview.src = e.target.result;
+                        previewDetailImg.src = e.target.result;
+                        saveToStorage();
+                    };
+                    reader.readAsDataURL(previewFileInput.files[0]);
+                }
+            });
+
+            updatePreviewFile.addEventListener('click', () => previewUploadInput.click());
+            previewUploadInput.addEventListener('change', () => {
+                if (previewUploadInput.files && previewUploadInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        device.previewImg = e.target.result;
+                        imgPreview.src = e.target.result;
+                        previewDetailImg.src = e.target.result;
+                        saveToStorage();
+                    };
+                    reader.readAsDataURL(previewUploadInput.files[0]);
+                }
+            });
+
+            // Obsługa zdjęcia naklejki w detalach
+            updateStickerCamera.addEventListener('click', () => stickerFileInput.click());
+            stickerFileInput.addEventListener('change', () => {
+                if (stickerFileInput.files && stickerFileInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        device.stickerImg = e.target.result;
+                        stickerImg.src = e.target.result;
+                        saveToStorage();
+                    };
+                    reader.readAsDataURL(stickerFileInput.files[0]);
+                }
+            });
+
+            updateStickerFile.addEventListener('click', () => stickerUploadInput.click());
+            stickerUploadInput.addEventListener('change', () => {
+                if (stickerUploadInput.files && stickerUploadInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        device.stickerImg = e.target.result;
+                        stickerImg.src = e.target.result;
+                        saveToStorage();
+                    };
+                    reader.readAsDataURL(stickerUploadInput.files[0]);
+                }
+            });
+
+            // Edycja - otwiera modal z danymi
+            card.querySelector('.edit-device').addEventListener('click', () => {
+                editingId = device.id;
+                modalTitle.textContent = 'Edytuj sprzęt';
+                
+                newAsset.value = device.asset;
+                newName.value = device.name === '—' ? '' : device.name;
+                newSn.value = device.sn === '—' ? '' : device.sn;
+                newLoc.value = device.loc === '—' ? '' : device.loc;
+                newCapDate.value = device.capDate || '';
+                newPicName.value = device.picName || '';
+                newNotes.value = device.notes || '';
+                
+                currentPreviewBase64 = device.previewImg || '';
+                if (currentPreviewBase64) {
+                    previewThumbContainer.classList.remove('hidden');
+                    previewThumbImg.src = currentPreviewBase64;
+                }
+                
+                currentStickerBase64 = device.stickerImg || '';
+                if (currentStickerBase64) {
+                    stickerThumbContainer.classList.remove('hidden');
+                    stickerThumbImg.src = currentStickerBase64;
+                }
+                
+                modalOverlay.classList.add('active');
+            });
+
+            const mainDiv = card.querySelector('.card-main');
+            mainDiv.addEventListener('click', (e) => {
+                if (e.target.type === 'checkbox') return;
+                detailsDiv.classList.toggle('hidden');
+            });
+
+            card.querySelector('.close-details').addEventListener('click', () => {
+                detailsDiv.classList.add('hidden');
+            });
+
+            card.querySelector('.delete-device').addEventListener('click', () => {
+                if (confirm('Czy na pewno usunąć ten sprzęt?')) {
+                    devices = devices.filter(d => d.id !== device.id);
+                    saveToStorage();
+                    updateLocationFilterOptions();
+                    renderFilteredAndSorted();
+                }
+            });
+
+            return card;
+        }
+
+        // Eksport do Excel
+        exportBtn.addEventListener('click', () => {
+            const data = devices.map(d => ({
+                'Asset': d.asset,
+                'Nazwa': d.name,
+                'S/N': d.sn,
+                'Lokalizacja': d.loc,
+                'Cap. date': d.capDate,
+                'Pic name': d.picName,
+                'Adnotacje': d.notes,
+                'Na stanie': d.inStock ? 'Tak' : 'Nie',
+                'Zdjęcie poglądowe': d.previewImg ? 'tak' : 'brak',
+                'Zdjęcie naklejki': d.stickerImg ? 'tak' : 'brak'
+            }));
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, 'Sprzęt');
+            XLSX.writeFile(wb, 'ewidencja_sprzetu.xlsx');
+        });
+
+        importBtn.addEventListener('click', () => {
+            importFile.click();
+        });
+
+        importFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (loadEvent) => {
+                try {
+                    const data = new Uint8Array(loadEvent.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const rows = XLSX.utils.sheet_to_json(firstSheet);
+
+                    const importedDevices = rows.map((row, index) => ({
+                        id: Date.now() + '-' + index + '-' + Math.random().toString(36).substr(2, 6),
+                        asset: row['Asset']?.toString() || `IMPORT-${index}`,
+                        name: row['Nazwa']?.toString() || '—',
+                        sn: row['S/N']?.toString() || '—',
+                        loc: row['Lokalizacja']?.toString() || '—',
+                        capDate: row['Cap. date']?.toString() || '',
+                        picName: row['Pic name']?.toString() || '',
+                        notes: row['Adnotacje']?.toString() || '',
+                        previewImg: '',
+                        stickerImg: '',
+                        inStock: row['Na stanie'] === 'Tak'
+                    }));
+
+                    devices = [...devices, ...importedDevices];
+                    saveToStorage();
+                    updateLocationFilterOptions();
+                    renderFilteredAndSorted();
+                    alert(`Zaimportowano ${importedDevices.length} urządzeń`);
+                } catch (error) {
+                    alert('Błąd podczas importu pliku Excel');
+                    console.error(error);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+            importFile.value = '';
+        });
+
+        locationFilter.addEventListener('change', (e) => {
+            currentFilter = e.target.value;
+            renderFilteredAndSorted();
+        });
+
+        sortAscBtn.addEventListener('click', () => {
+            currentSort = 'asc';
+            sortAscBtn.classList.add('active');
+            sortDescBtn.classList.remove('active');
+            renderFilteredAndSorted();
+        });
+
+        sortDescBtn.addEventListener('click', () => {
+            currentSort = 'desc';
+            sortDescBtn.classList.add('active');
+            sortAscBtn.classList.remove('active');
+            renderFilteredAndSorted();
+        });
+
+        searchInput.addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            renderFilteredAndSorted();
+        });
+
+        function loadFromStorage() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                return stored ? JSON.parse(stored) : [];
+            } catch {
+                return [];
+            }
+        }
+
+        function saveToStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
+        }
+
+        function init() {
+            updateLocationFilterOptions();
+            renderFilteredAndSorted();
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>
