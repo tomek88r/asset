@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Asset Inventory</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -13,10 +17,11 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #f5f5f5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
             min-height: 100vh;
-            padding: 8px;
+            padding: 16px;
+            color: #1e293b;
         }
 
         .app-container {
@@ -25,149 +30,330 @@
             width: 100%;
         }
 
-        /* Header - responsywny */
-        .header-bar {
-            background: white;
-            border-radius: 16px;
-            padding: 12px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-            border: 1px solid #eaeef2;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-        }
-
+        /* Jednolite, rysowane logo */
         .logo {
             display: flex;
             align-items: center;
-            gap: 4px;
-            font-size: 1.2rem;
-            font-weight: 500;
-            color: #1a2634;
+            gap: 10px;
+            padding: 8px 20px 8px 12px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
         }
 
-        .logo svg {
-            width: 28px;
-            height: 28px;
+        .logo:hover {
+            border-color: #94a3b8;
+            transform: translateY(-1px);
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: #1e293b;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-icon::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 8px;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+        }
+
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+        }
+
+        .logo-text {
+            font-size: 1.3rem;
+            font-weight: 500;
+            letter-spacing: -0.3px;
+            color: #0f172a;
+            position: relative;
+        }
+
+        .logo-text::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #1e293b;
+            transform: scaleX(0);
+            transition: transform 0.2s ease;
+            transform-origin: left;
+        }
+
+        .logo:hover .logo-text::after {
+            transform: scaleX(1);
+        }
+
+        /* Header */
+        .header-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
         }
 
         .search-box {
             flex: 1;
-            min-width: 200px;
+            min-width: 280px;
         }
 
         .search-box input {
             width: 100%;
-            padding: 8px 14px;
-            border-radius: 30px;
-            border: 1px solid #d0d8e2;
-            font-size: 0.9rem;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.95rem;
+            background: #f8fafc;
+            transition: all 0.2s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #64748b;
             background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
 
         .filter-group {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 10px;
             align-items: center;
         }
 
         .filter-select {
-            padding: 6px 12px;
-            border-radius: 30px;
-            border: 1px solid #d0d8e2;
-            background: white;
-            font-size: 0.85rem;
-            min-width: 130px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 0.9rem;
+            min-width: 150px;
             cursor: pointer;
+            color: #1e293b;
+            transition: all 0.2s ease;
+        }
+
+        .filter-select:hover {
+            border-color: #94a3b8;
+            background: white;
         }
 
         .sort-buttons {
             display: flex;
-            gap: 4px;
+            gap: 6px;
         }
 
         .sort-btn {
-            padding: 6px 12px;
-            border-radius: 30px;
-            border: 1px solid #d0d8e2;
-            background: white;
-            font-size: 0.8rem;
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 0.9rem;
             cursor: pointer;
-            white-space: nowrap;
+            transition: all 0.2s ease;
+            color: #1e293b;
+            font-weight: 400;
+        }
+
+        .sort-btn:hover {
+            background: white;
+            border-color: #94a3b8;
         }
 
         .sort-btn.active {
-            background: #1a2634;
+            background: #1e293b;
             color: white;
-            border-color: #1a2634;
+            border-color: #1e293b;
         }
 
         .excel-buttons {
             display: flex;
-            gap: 4px;
+            gap: 8px;
         }
 
         .excel-btn {
-            padding: 6px 12px;
-            border-radius: 30px;
-            border: 1px solid #d0d8e2;
-            background: white;
-            font-size: 0.8rem;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 0.9rem;
             cursor: pointer;
-            white-space: nowrap;
+            transition: all 0.2s ease;
+            color: #1e293b;
+            font-weight: 400;
         }
 
-        /* Grid - dostosowany do telefonu */
-        .inventory-grid {
+        .excel-btn:hover {
+            background: white;
+            border-color: #94a3b8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+        }
+
+        .excel-btn.import:hover {
+            background: #1e293b;
+            color: white;
+            border-color: #1e293b;
+        }
+
+        .excel-btn.export:hover {
+            background: #1e293b;
+            color: white;
+            border-color: #1e293b;
+        }
+
+        /* Grupowanie po lokalizacjach */
+        .location-group {
+            margin-bottom: 24px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .location-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: blur(8px);
+            background: rgba(255,255,255,0.9);
+        }
+
+        .location-icon {
+            width: 32px;
+            height: 32px;
+            background: #1e293b;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .location-name {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #0f172a;
+            flex: 1;
+        }
+
+        .location-count {
+            background: #f1f5f9;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .location-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 10px;
-            margin-bottom: 70px;
+            gap: 12px;
+            padding-left: 12px;
+            border-left: 2px solid #e2e8f0;
+            margin-left: 16px;
         }
 
         @media (min-width: 600px) {
-            .inventory-grid {
+            .location-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
 
         @media (min-width: 900px) {
-            .inventory-grid {
+            .location-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
         }
 
         @media (min-width: 1200px) {
-            .inventory-grid {
+            .location-grid {
                 grid-template-columns: repeat(4, 1fr);
             }
         }
 
-        /* Karta - mniejsza na telefon */
+        /* Karta */
         .inventory-card {
             background: white;
             border-radius: 16px;
-            padding: 10px;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: cardAppear 0.3s ease-out;
+            animation-fill-mode: both;
+        }
+
+        @keyframes cardAppear {
+            from { 
+                opacity: 0; 
+                transform: translateY(10px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .inventory-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.05);
+            border-color: #cbd5e1;
         }
 
         .card-main {
             display: flex;
-            gap: 8px;
+            gap: 12px;
             cursor: pointer;
         }
 
         .card-img {
-            width: 60px;
-            height: 60px;
-            background: #eef2f6;
+            width: 70px;
+            height: 70px;
             border-radius: 12px;
             object-fit: cover;
-            border: 1px solid #dde3ea;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            transition: all 0.2s ease;
         }
 
         .info-preview {
@@ -179,37 +365,37 @@
             display: flex;
             flex-wrap: wrap;
             align-items: baseline;
-            gap: 4px 6px;
-            margin-bottom: 4px;
+            gap: 6px 8px;
+            margin-bottom: 6px;
         }
 
         .asset-tag {
-            font-weight: 600;
-            color: #2c3e50;
-            background: #f0f4fa;
-            padding: 3px 8px;
-            border-radius: 20px;
-            font-size: 0.75rem;
+            font-weight: 500;
+            color: #0f172a;
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
         }
 
         .sn-label {
-            color: #546e7a;
-            font-size: 0.75rem;
+            color: #475569;
+            font-size: 0.8rem;
             word-break: break-word;
         }
 
         .name-preview {
             font-weight: 500;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: #1e293b;
         }
 
         .loc-badge {
-            background: #ecf1f7;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            color: #2c3e50;
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #334155;
             display: inline-block;
         }
 
@@ -218,68 +404,82 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-width: 44px;
+            min-width: 48px;
         }
 
         .in-stack-box input[type="checkbox"] {
-            width: 22px;
-            height: 22px;
-            border-radius: 6px;
-            border: 2px solid #a0b8cc;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid #cbd5e1;
             cursor: pointer;
+            accent-color: #1e293b;
         }
 
         .in-stack-box span {
-            font-size: 0.6rem;
-            color: #546e7a;
-            margin-top: 2px;
+            font-size: 0.65rem;
+            color: #64748b;
+            margin-top: 4px;
         }
 
-        /* Szczegóły - bardziej zwarte */
+        /* Szczegóły - TYLKO DLA POJEDYNCZEJ KARTY */
         .details-panel {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #e2eaf2;
-            display: flex;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+            display: none;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
+        }
+
+        .details-panel.visible {
+            display: flex;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .detail-row {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
         }
 
         .detail-row label {
             font-weight: 500;
-            color: #2c3e50;
+            color: #475569;
             font-size: 0.8rem;
             text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .detail-row input, .detail-row textarea {
-            padding: 8px 12px;
-            border-radius: 12px;
-            border: 1px solid #d4dee8;
-            background: #fafcff;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
             font-size: 0.9rem;
             width: 100%;
+            transition: all 0.2s ease;
         }
 
-        .detail-row textarea {
-            min-height: 60px;
-            resize: vertical;
+        .detail-row input:focus, .detail-row textarea:focus {
+            outline: none;
+            border-color: #94a3b8;
+            background: white;
         }
 
         .sticker-img {
             width: 100%;
             max-height: 120px;
             object-fit: contain;
-            background: #f0f4fa;
-            border-radius: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
             padding: 4px;
-            border: 1px solid #d0dcee;
+            border: 1px solid #e2e8f0;
         }
 
         .action-buttons {
@@ -290,108 +490,126 @@
         }
 
         .btn-edit, .btn-delete, .btn-close {
-            padding: 10px 12px;
-            border-radius: 30px;
-            font-size: 0.85rem;
-            font-weight: 500;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 400;
             cursor: pointer;
-            border: none;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #1e293b;
+            transition: all 0.2s ease;
             flex: 1;
-            min-width: 70px;
         }
 
-        .btn-edit {
-            background: #e3f0ff;
-            color: #1a5a9c;
-            border: 1px solid #b8d3f0;
+        .btn-edit:hover {
+            background: #1e293b;
+            color: white;
+            border-color: #1e293b;
         }
 
-        .btn-delete {
-            background: #fee;
-            color: #b91c1c;
-            border: 1px solid #f3cdcd;
+        .btn-delete:hover {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
         }
 
-        .btn-close {
-            background: #eef3f8;
-            color: #2c3e50;
-            border: 1px solid #d0dcee;
+        .btn-close:hover {
+            background: #e2e8f0;
+            border-color: #94a3b8;
         }
 
         .btn-photo-small {
-            background: #f0f4fa;
-            border: 1px solid #cbd6e4;
-            border-radius: 25px;
             padding: 8px 12px;
-            font-size: 0.8rem;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 0.85rem;
             cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
+            transition: all 0.2s ease;
+            color: #1e293b;
+        }
+
+        .btn-photo-small:hover {
+            background: #e2e8f0;
         }
 
         .photo-source-buttons {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
         .photo-source-buttons button {
             flex: 1;
-            background: #f0f4fa;
-            border: 1px solid #cbd6e4;
-            border-radius: 25px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
             padding: 8px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .photo-source-buttons button:hover {
+            background: #e2e8f0;
         }
 
         .hidden {
             display: none !important;
         }
 
-        /* FAB - mniejszy i lepiej widoczny */
+        /* FAB */
         .fab {
             position: fixed;
-            bottom: 16px;
-            right: 16px;
+            bottom: 24px;
+            right: 24px;
             width: 56px;
             height: 56px;
-            border-radius: 28px;
-            background: #1a2634;
+            border-radius: 16px;
+            background: #1e293b;
             color: white;
             border: none;
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 300;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
             z-index: 1000;
-            transition: 0.1s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #334155;
         }
 
-        .fab:active {
-            transform: scale(0.95);
+        .fab:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+            background: #0f172a;
         }
 
-        /* Modal - lepiej dopasowany */
+        /* Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
             display: flex;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
             z-index: 2000;
             visibility: hidden;
             opacity: 0;
-            transition: 0.2s;
-            padding: 10px;
+            transition: all 0.2s ease;
+        }
+
+        @media (min-width: 768px) {
+            .modal-overlay {
+                align-items: center;
+            }
         }
 
         .modal-overlay.active {
@@ -403,34 +621,74 @@
             background: white;
             width: 100%;
             max-width: 500px;
-            border-radius: 24px;
-            padding: 20px;
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 -8px 30px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
             max-height: 90vh;
             overflow-y: auto;
         }
 
+        @media (min-width: 768px) {
+            .modal-content {
+                border-radius: 24px;
+                transform: translateY(20px) scale(0.95);
+            }
+            
+            .modal-overlay.active .modal-content {
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
         .modal-header {
-            font-size: 1.3rem;
-            font-weight: 500;
-            margin-bottom: 16px;
-            color: #1a2634;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            margin-bottom: 20px;
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: #0f172a;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 16px;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .modal-header .logo-icon {
+            width: 36px;
+            height: 36px;
+            font-size: 1rem;
         }
 
         .modal-form {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
+            padding-bottom: 20px;
         }
 
         .modal-form input, .modal-form textarea {
-            padding: 12px 14px;
-            border-radius: 25px;
-            border: 1px solid #d0d8e2;
-            font-size: 0.95rem;
-            background: #fafcff;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            font-size: 1rem;
+            background: #f8fafc;
+            transition: all 0.2s ease;
+            -webkit-appearance: none;
+        }
+
+        .modal-form input:focus, .modal-form textarea:focus {
+            outline: none;
+            border-color: #64748b;
+            background: white;
         }
 
         .photo-buttons-modal {
@@ -441,131 +699,149 @@
 
         .photo-buttons-modal button {
             flex: 1;
-            background: #f0f4fa;
-            border: 1px solid #cbd6e4;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
             border-radius: 30px;
-            padding: 12px;
-            font-size: 0.9rem;
+            padding: 14px 12px;
+            font-size: 0.95rem;
             cursor: pointer;
-            white-space: nowrap;
+            transition: all 0.2s ease;
+            color: #1e293b;
+            min-width: 120px;
+        }
+
+        .photo-buttons-modal button:hover {
+            background: #e2e8f0;
         }
 
         .thumb-row-modal {
-            background: #f5f7fb;
+            background: #f8fafc;
             border-radius: 16px;
-            padding: 10px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
         }
 
         .thumb-item-modal {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 0.85rem;
+            gap: 12px;
+            font-size: 0.9rem;
         }
 
         .thumb-item-modal img {
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
             object-fit: cover;
             border-radius: 10px;
-            border: 1px solid #bcc9db;
+            border: 1px solid #e2e8f0;
         }
 
         .btn-submit-modal {
-            background: #1a2634;
+            background: #1e293b;
             color: white;
             border: none;
             border-radius: 30px;
-            padding: 16px;
+            padding: 18px;
             font-size: 1.1rem;
             font-weight: 500;
-            margin-top: 12px;
+            margin-top: 16px;
             cursor: pointer;
+            transition: all 0.2s ease;
+            -webkit-appearance: none;
+            width: 100%;
+        }
+
+        .btn-submit-modal:hover {
+            background: #0f172a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .btn-submit-modal:active {
+            transform: translateY(0);
         }
 
         .close-modal-btn {
-            background: #eef3f8;
-            border: 1px solid #d0dcee;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
             border-radius: 30px;
-            padding: 14px;
-            font-size: 0.95rem;
+            padding: 16px;
+            font-size: 1rem;
             margin-top: 8px;
             cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            color: #1e293b;
+            -webkit-appearance: none;
+        }
+
+        .close-modal-btn:hover {
+            background: #e2e8f0;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f1f5f9;
+            border-radius: 50%;
+            border-top-color: #1e293b;
+            animation: spin 0.8s linear infinite;
+            margin: 40px auto;
+            grid-column: 1 / -1;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         #excelImport {
             display: none;
         }
-
-        /* Mniejsze marginesy na telefonie */
-        @media (max-width: 480px) {
-            body {
-                padding: 5px;
-            }
-            
-            .header-bar {
-                padding: 8px;
-            }
-            
-            .filter-select {
-                min-width: 110px;
-                font-size: 0.75rem;
-                padding: 5px 8px;
-            }
-            
-            .sort-btn, .excel-btn {
-                padding: 5px 8px;
-                font-size: 0.7rem;
-            }
-            
-            .logo {
-                font-size: 1rem;
-            }
-            
-            .logo svg {
-                width: 22px;
-                height: 22px;
-            }
-        }
     </style>
 </head>
 <body>
+    <!-- Konfiguracja Firebase - tutaj wpisz swoje dane -->
+    <div id="firebase-config" style="display: none;" 
+         data-api-key="AIzaSyExample"
+         data-auth-domain="your-project.firebaseapp.com"
+         data-project-id="your-project"
+         data-storage-bucket="your-project.appspot.com"
+         data-messaging-sender-id="123456789"
+         data-app-id="1:123456789:web:abc123">
+    </div>
+
 <div class="app-container">
     <div class="header-bar">
         <div class="logo">
-            <svg viewBox="0 0 100 40">
-                <rect x="5" y="8" width="60" height="24" rx="3" fill="none" stroke="#1a2634" stroke-width="2"/>
-                <line x1="10" y1="14" x2="60" y2="14" stroke="#1a2634" stroke-width="2"/>
-                <line x1="10" y1="20" x2="60" y2="20" stroke="#1a2634" stroke-width="2"/>
-                <line x1="10" y1="26" x2="60" y2="26" stroke="#1a2634" stroke-width="2"/>
-                <line x1="15" y1="8" x2="15" y2="32" stroke="#1a2634" stroke-width="1.5"/>
-                <line x1="25" y1="8" x2="25" y2="32" stroke="#1a2634" stroke-width="1.5"/>
-                <line x1="35" y1="8" x2="35" y2="32" stroke="#1a2634" stroke-width="1.5"/>
-                <line x1="45" y1="8" x2="45" y2="32" stroke="#1a2634" stroke-width="1.5"/>
-                <line x1="55" y1="8" x2="55" y2="32" stroke="#1a2634" stroke-width="1.5"/>
-                <text x="70" y="26" font-family="Arial" font-size="18" fill="#1a2634" font-weight="bold">ASSET</text>
-            </svg>
+            <div class="logo-icon">A</div>
+            <div class="logo-text">asset</div>
         </div>
+        
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Szukaj...">
+            <input type="text" id="searchInput" placeholder="Szukaj we wszystkich polach...">
         </div>
+        
         <div class="filter-group">
             <select id="locationFilter" class="filter-select">
-                <option value="">Wszystkie</option>
+                <option value="">Wszystkie lokalizacje</option>
             </select>
+            
             <div class="sort-buttons">
-                <button id="sortAssetAsc" class="sort-btn active">↑</button>
-                <button id="sortAssetDesc" class="sort-btn">↓</button>
+                <button id="sortAssetAsc" class="sort-btn active">Rosnąco</button>
+                <button id="sortAssetDesc" class="sort-btn">Malejąco</button>
             </div>
+            
             <div class="excel-buttons">
-                <button class="excel-btn" id="exportExcel">📥</button>
-                <button class="excel-btn" id="importExcelBtn">📤</button>
+                <button class="excel-btn export" id="exportExcel">Eksport</button>
+                <button class="excel-btn import" id="importExcelBtn">Import</button>
                 <input type="file" id="excelImport" accept=".xlsx,.xls,.csv">
             </div>
         </div>
     </div>
 
-    <div id="inventoryGrid" class="inventory-grid"></div>
+    <div id="inventoryContainer"></div>
 </div>
 
 <button class="fab" id="fabAdd">+</button>
@@ -573,12 +849,7 @@
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal-content">
         <div class="modal-header">
-            <svg viewBox="0 0 100 40" width="30" height="30">
-                <rect x="5" y="8" width="60" height="24" rx="3" fill="none" stroke="#1a2634" stroke-width="2"/>
-                <line x1="10" y1="14" x2="60" y2="14" stroke="#1a2634" stroke-width="2"/>
-                <line x1="10" y1="20" x2="60" y2="20" stroke="#1a2634" stroke-width="2"/>
-                <line x1="10" y1="26" x2="60" y2="26" stroke="#1a2634" stroke-width="2"/>
-            </svg>
+            <div class="logo-icon">A</div>
             <span id="modalTitle">Nowy sprzęt</span>
         </div>
         <div class="modal-form">
@@ -591,8 +862,8 @@
             <textarea id="newNotes" rows="2" placeholder="Adnotacje"></textarea>
 
             <div class="photo-buttons-modal">
-                <button id="capturePreviewBtn">📸 Aparat</button>
-                <button id="uploadPreviewBtn">📁 Dysk</button>
+                <button type="button" id="capturePreviewBtn">Aparat - zdjęcie</button>
+                <button type="button" id="uploadPreviewBtn">Dysk - zdjęcie</button>
                 <input type="file" id="previewUpload" accept="image/*" capture="environment" style="display: none;">
                 <input type="file" id="previewUploadFile" accept="image/*" style="display: none;">
             </div>
@@ -600,13 +871,13 @@
             <div id="previewThumbContainer" class="thumb-row-modal hidden">
                 <div class="thumb-item-modal">
                     <img id="previewThumbImg" src="#" alt="podgląd">
-                    <span>Zdjęcie poglądowe</span>
+                    <span>Zdjęcie dodane</span>
                 </div>
             </div>
 
             <div class="photo-buttons-modal">
-                <button id="captureStickerBtn">📸 Aparat</button>
-                <button id="uploadStickerBtn">📁 Dysk</button>
+                <button type="button" id="captureStickerBtn">Aparat - naklejka</button>
+                <button type="button" id="uploadStickerBtn">Dysk - naklejka</button>
                 <input type="file" id="stickerUpload" accept="image/*" capture="environment" style="display: none;">
                 <input type="file" id="stickerUploadFile" accept="image/*" style="display: none;">
             </div>
@@ -614,12 +885,12 @@
             <div id="stickerThumbContainer" class="thumb-row-modal hidden">
                 <div class="thumb-item-modal">
                     <img id="stickerThumbImg" src="#" alt="naklejka">
-                    <span>Zdjęcie naklejki</span>
+                    <span>Naklejka dodana</span>
                 </div>
             </div>
 
-            <button class="btn-submit-modal" id="addDeviceBtn">Dodaj do listy</button>
-            <button class="close-modal-btn" id="closeModalBtn">Anuluj</button>
+            <button type="button" class="btn-submit-modal" id="addDeviceBtn">Dodaj do listy</button>
+            <button type="button" class="close-modal-btn" id="closeModalBtn">Anuluj</button>
         </div>
     </div>
 </div>
@@ -627,7 +898,7 @@
 <template id="deviceCardTemplate">
     <div class="inventory-card" data-id="">
         <div class="card-main">
-            <img class="card-img" src="https://via.placeholder.com/60?text=no+img" alt="preview">
+            <img class="card-img" src="https://via.placeholder.com/70/e2e8f0/475569?text=no+img" alt="preview">
             <div class="info-preview">
                 <div class="row-preview">
                     <span class="asset-tag asset-preview"></span>
@@ -643,7 +914,7 @@
                 <span>na stanie</span>
             </div>
         </div>
-        <div class="details-panel hidden">
+        <div class="details-panel">
             <div class="detail-row">
                 <label>Cap. date</label>
                 <input type="date" class="cap-date">
@@ -658,28 +929,28 @@
             </div>
             <div class="detail-row">
                 <label>Zdjęcie poglądowe</label>
-                <img class="sticker-img preview-detail-img" src="https://via.placeholder.com/200?text=brak+zdjęcia" alt="preview">
+                <img class="sticker-img preview-detail-img" src="https://via.placeholder.com/200/e2e8f0/475569?text=brak+zdjęcia" alt="preview">
                 <div class="photo-source-buttons">
-                    <button class="btn-photo-small update-preview-camera">📸 Aparat</button>
-                    <button class="btn-photo-small update-preview-file">📁 Dysk</button>
+                    <button type="button" class="btn-photo-small update-preview-camera">Aparat</button>
+                    <button type="button" class="btn-photo-small update-preview-file">Dysk</button>
                 </div>
                 <input type="file" class="preview-file-input" accept="image/*" capture="environment" style="display: none;">
                 <input type="file" class="preview-upload-input" accept="image/*" style="display: none;">
             </div>
             <div class="detail-row">
                 <label>Naklejka z asset</label>
-                <img class="sticker-img" src="https://via.placeholder.com/200?text=brak+naklejki" alt="sticker">
+                <img class="sticker-img" src="https://via.placeholder.com/200/e2e8f0/475569?text=brak+naklejki" alt="sticker">
                 <div class="photo-source-buttons">
-                    <button class="btn-photo-small update-sticker-camera">📸 Aparat</button>
-                    <button class="btn-photo-small update-sticker-file">📁 Dysk</button>
+                    <button type="button" class="btn-photo-small update-sticker-camera">Aparat</button>
+                    <button type="button" class="btn-photo-small update-sticker-file">Dysk</button>
                 </div>
                 <input type="file" class="sticker-file-input" accept="image/*" capture="environment" style="display: none;">
                 <input type="file" class="sticker-upload-input" accept="image/*" style="display: none;">
             </div>
             <div class="action-buttons">
-                <button class="btn-edit edit-device">✏️ Edytuj</button>
-                <button class="btn-delete delete-device">🗑️ Usuń</button>
-                <button class="btn-close close-details">Zwiń</button>
+                <button type="button" class="btn-edit edit-device">Edytuj</button>
+                <button type="button" class="btn-delete delete-device">Usuń</button>
+                <button type="button" class="btn-close close-details">Zwiń</button>
             </div>
         </div>
     </div>
@@ -688,14 +959,39 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
     (function() {
-        const STORAGE_KEY = 'equipmentListV6';
-        let devices = loadFromStorage();
+        // Konfiguracja Firebase
+        const configDiv = document.getElementById('firebase-config');
+        
+        const firebaseConfig = {
+            apiKey: configDiv?.dataset.apiKey || "AIzaSyExample",
+            authDomain: configDiv?.dataset.authDomain || "your-project.firebaseapp.com",
+            projectId: configDiv?.dataset.projectId || "your-project",
+            storageBucket: configDiv?.dataset.storageBucket || "your-project.appspot.com",
+            messagingSenderId: configDiv?.dataset.messagingSenderId || "123456789",
+            appId: configDiv?.dataset.appId || "1:123456789:web:abc123"
+        };
+
+        let db, storage;
+        let firebaseInitialized = false;
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            storage = firebase.storage();
+            firebaseInitialized = true;
+            console.log('Firebase zainicjalizowany');
+        } catch (error) {
+            console.error('Błąd Firebase:', error);
+        }
+
+        const STORAGE_KEY = 'equipmentListV12';
+        let devices = [];
         let currentFilter = '';
         let currentSort = 'asc';
         let searchTerm = '';
         let editingId = null;
 
-        const gridEl = document.getElementById('inventoryGrid');
+        const container = document.getElementById('inventoryContainer');
         const template = document.getElementById('deviceCardTemplate');
 
         const fab = document.getElementById('fabAdd');
@@ -739,7 +1035,7 @@
         let currentPreviewBase64 = '';
         let currentStickerBase64 = '';
 
-        // Funkcja pomocnicza do obsługi błędów
+        // Funkcje pomocnicze
         function safeOperation(operation) {
             try {
                 return operation();
@@ -749,28 +1045,145 @@
             }
         }
 
-        // Otwieranie modala
-        fab.addEventListener('click', () => {
-            safeOperation(() => {
-                editingId = null;
-                modalTitle.textContent = 'Nowy sprzęt';
-                clearForm();
-                modalOverlay.classList.add('active');
+        // Firebase functions
+        async function loadFromFirestore() {
+            if (!firebaseInitialized) return loadFromStorage();
+            try {
+                const snapshot = await db.collection('devices').get();
+                return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            } catch (error) {
+                console.error('Błąd ładowania z Firestore:', error);
+                return loadFromStorage();
+            }
+        }
+
+        async function saveToFirestore() {
+            if (!firebaseInitialized) return saveToStorage();
+            try {
+                const batch = db.batch();
+                devices.forEach(device => {
+                    const docRef = db.collection('devices').doc(device.id);
+                    batch.set(docRef, device);
+                });
+                await batch.commit();
+            } catch (error) {
+                console.error('Błąd zapisu do Firestore:', error);
+                saveToStorage();
+            }
+        }
+
+        function loadFromStorage() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            } catch {
+                return [];
+            }
+        }
+
+        function saveToStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
+        }
+
+        async function saveData() {
+            if (firebaseInitialized) {
+                await saveToFirestore();
+            } else {
+                saveToStorage();
+            }
+        }
+
+        // Inicjalizacja
+        async function initData() {
+            container.innerHTML = '<div class="loading-spinner"></div>';
+            devices = await loadFromFirestore();
+            updateLocationFilterOptions();
+            renderGroupedByLocation();
+        }
+
+        // Renderowanie zgrupowane po lokalizacjach
+        function renderGroupedByLocation() {
+            let filtered = devices;
+            
+            if (searchTerm) {
+                filtered = filtered.filter(d => matchesSearch(d, searchTerm));
+            }
+            
+            if (currentFilter) {
+                filtered = filtered.filter(d => d.loc === currentFilter);
+            }
+
+            // Sortowanie
+            filtered.sort((a, b) => {
+                const assetA = a.asset.toLowerCase();
+                const assetB = b.asset.toLowerCase();
+                return currentSort === 'asc' ? assetA.localeCompare(assetB) : assetB.localeCompare(assetA);
             });
+
+            // Grupowanie po lokalizacjach
+            const grouped = {};
+            filtered.forEach(device => {
+                const loc = device.loc || 'Brak lokalizacji';
+                if (!grouped[loc]) {
+                    grouped[loc] = [];
+                }
+                grouped[loc].push(device);
+            });
+
+            // Sortowanie lokalizacji
+            const sortedLocations = Object.keys(grouped).sort();
+
+            container.innerHTML = '';
+            
+            if (sortedLocations.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #64748b;">Brak sprzętu</div>';
+                return;
+            }
+
+            sortedLocations.forEach(location => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'location-group';
+                
+                // Nagłówek lokalizacji
+                const header = document.createElement('div');
+                header.className = 'location-header';
+                header.innerHTML = `
+                    <div class="location-icon">📍</div>
+                    <div class="location-name">${location}</div>
+                    <div class="location-count">${grouped[location].length}</div>
+                `;
+                
+                // Grid z kartami
+                const grid = document.createElement('div');
+                grid.className = 'location-grid';
+                
+                grouped[location].forEach(device => {
+                    grid.appendChild(createCard(device));
+                });
+                
+                groupDiv.appendChild(header);
+                groupDiv.appendChild(grid);
+                container.appendChild(groupDiv);
+            });
+        }
+
+        function matchesSearch(device, term) {
+            if (!term) return true;
+            const lowerTerm = term.toLowerCase();
+            return [device.asset, device.name, device.sn, device.loc, device.capDate, device.picName, device.notes]
+                .some(field => field?.toLowerCase().includes(lowerTerm));
+        }
+
+        // Event listeners
+        fab.addEventListener('click', () => {
+            editingId = null;
+            modalTitle.textContent = 'Nowy sprzęt';
+            clearForm();
+            modalOverlay.classList.add('active');
         });
 
         closeModalBtn.addEventListener('click', () => {
-            safeOperation(() => {
-                modalOverlay.classList.remove('active');
-                clearForm();
-            });
-        });
-
-        // Kliknięcie w tło nie zamyka modala
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) {
-                // Nie zamykamy
-            }
+            modalOverlay.classList.remove('active');
+            clearForm();
         });
 
         function clearForm() {
@@ -792,11 +1205,10 @@
         }
 
         function handleImageUpload(input, callback) {
-            if (!input.files || !input.files[0]) return;
-            const file = input.files[0];
+            if (!input.files?.[0]) return;
             const reader = new FileReader();
             reader.onload = (e) => callback(e.target.result);
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(input.files[0]);
         }
 
         capturePreviewBtn.addEventListener('click', () => previewUpload.click());
@@ -835,36 +1247,20 @@
             });
         });
 
-        // Zapisz (dodaj lub edytuj) - naprawione dla telefonu
-        addBtn.addEventListener('click', (e) => {
+        addBtn.addEventListener('click', async (e) => {
             e.preventDefault();
             
-            safeOperation(() => {
-                const asset = newAsset.value.trim();
-                if (!asset) {
-                    alert('Numer asset jest wymagany');
-                    return;
-                }
+            const asset = newAsset.value.trim();
+            if (!asset) {
+                alert('Numer asset jest wymagany');
+                return;
+            }
 
-                if (editingId) {
-                    const index = devices.findIndex(d => d.id === editingId);
-                    if (index !== -1) {
-                        devices[index] = {
-                            ...devices[index],
-                            asset,
-                            name: newName.value.trim() || '—',
-                            sn: newSn.value.trim() || '—',
-                            loc: newLoc.value.trim() || '—',
-                            capDate: newCapDate.value || '',
-                            picName: newPicName.value.trim() || '',
-                            notes: newNotes.value.trim() || '',
-                            previewImg: currentPreviewBase64 || devices[index].previewImg,
-                            stickerImg: currentStickerBase64 || devices[index].stickerImg
-                        };
-                    }
-                } else {
-                    const newDevice = {
-                        id: Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+            if (editingId) {
+                const index = devices.findIndex(d => d.id === editingId);
+                if (index !== -1) {
+                    devices[index] = {
+                        ...devices[index],
                         asset,
                         name: newName.value.trim() || '—',
                         sn: newSn.value.trim() || '—',
@@ -872,20 +1268,32 @@
                         capDate: newCapDate.value || '',
                         picName: newPicName.value.trim() || '',
                         notes: newNotes.value.trim() || '',
-                        previewImg: currentPreviewBase64 || '',
-                        stickerImg: currentStickerBase64 || '',
-                        inStock: false
+                        previewImg: currentPreviewBase64 || devices[index].previewImg,
+                        stickerImg: currentStickerBase64 || devices[index].stickerImg
                     };
-                    devices.push(newDevice);
                 }
+            } else {
+                devices.push({
+                    id: Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+                    asset,
+                    name: newName.value.trim() || '—',
+                    sn: newSn.value.trim() || '—',
+                    loc: newLoc.value.trim() || '—',
+                    capDate: newCapDate.value || '',
+                    picName: newPicName.value.trim() || '',
+                    notes: newNotes.value.trim() || '',
+                    previewImg: currentPreviewBase64 || '',
+                    stickerImg: currentStickerBase64 || '',
+                    inStock: false
+                });
+            }
 
-                saveToStorage();
-                updateLocationFilterOptions();
-                renderFilteredAndSorted();
-                modalOverlay.classList.remove('active');
-                clearForm();
-                editingId = null;
-            });
+            await saveData();
+            updateLocationFilterOptions();
+            renderGroupedByLocation(); // Natychmiastowe odświeżenie listy
+            modalOverlay.classList.remove('active'); // Zamknięcie modala
+            clearForm();
+            editingId = null;
         });
 
         function updateLocationFilterOptions() {
@@ -893,43 +1301,16 @@
             locations.sort();
             const select = locationFilter;
             const currentVal = select.value;
-            select.innerHTML = '<option value="">Wszystkie</option>';
+            select.innerHTML = '<option value="">Wszystkie lokalizacje</option>';
             locations.forEach(loc => {
                 const option = document.createElement('option');
                 option.value = loc;
-                option.textContent = loc.length > 15 ? loc.substr(0, 12) + '...' : loc;
+                option.textContent = loc;
                 select.appendChild(option);
             });
             if (currentVal && locations.includes(currentVal)) {
                 select.value = currentVal;
             }
-        }
-
-        function matchesSearch(device, term) {
-            if (!term) return true;
-            const lowerTerm = term.toLowerCase();
-            return [device.asset, device.name, device.sn, device.loc, device.capDate, device.picName, device.notes]
-                .some(field => field && field.toLowerCase().includes(lowerTerm));
-        }
-
-        function getFilteredAndSorted() {
-            let filtered = devices;
-            if (searchTerm) filtered = filtered.filter(d => matchesSearch(d, searchTerm));
-            if (currentFilter) filtered = filtered.filter(d => d.loc === currentFilter);
-            return filtered.sort((a, b) => {
-                const assetA = a.asset.toLowerCase();
-                const assetB = b.asset.toLowerCase();
-                return currentSort === 'asc' ? assetA.localeCompare(assetB) : assetB.localeCompare(assetA);
-            });
-        }
-
-        function renderFilteredAndSorted() {
-            const toRender = getFilteredAndSorted();
-            gridEl.innerHTML = '';
-            toRender.forEach(device => {
-                const card = createCard(device);
-                gridEl.appendChild(card);
-            });
         }
 
         function createCard(device) {
@@ -938,18 +1319,18 @@
             card.dataset.id = device.id;
 
             const imgPreview = card.querySelector('.card-img');
-            imgPreview.src = device.previewImg || 'https://via.placeholder.com/60?text=no+img';
+            imgPreview.src = device.previewImg || 'https://via.placeholder.com/70/e2e8f0/475569?text=no+img';
 
             card.querySelector('.asset-preview').textContent = device.asset;
-            card.querySelector('.name-preview').textContent = device.name.length > 20 ? device.name.substr(0, 17) + '...' : device.name;
-            card.querySelector('.sn-preview').textContent = device.sn.length > 15 ? device.sn.substr(0, 12) + '...' : device.sn;
-            card.querySelector('.loc-preview').textContent = device.loc.length > 15 ? device.loc.substr(0, 12) + '...' : device.loc;
+            card.querySelector('.name-preview').textContent = device.name;
+            card.querySelector('.sn-preview').textContent = device.sn;
+            card.querySelector('.loc-preview').textContent = device.loc;
 
             const chk = card.querySelector('.in-stack-checkbox');
             chk.checked = device.inStock;
-            chk.addEventListener('change', (e) => {
+            chk.addEventListener('change', async (e) => {
                 device.inStock = e.target.checked;
-                saveToStorage();
+                await saveData();
             });
 
             const detailsDiv = card.querySelector('.details-panel');
@@ -972,22 +1353,22 @@
             capInput.value = device.capDate || '';
             picInput.value = device.picName || '';
             notesText.value = device.notes || '';
-            previewDetailImg.src = device.previewImg || 'https://via.placeholder.com/200?text=brak+zdjęcia';
-            stickerImg.src = device.stickerImg || 'https://via.placeholder.com/200?text=brak+naklejki';
+            previewDetailImg.src = device.previewImg || 'https://via.placeholder.com/200/e2e8f0/475569?text=brak+zdjęcia';
+            stickerImg.src = device.stickerImg || 'https://via.placeholder.com/200/e2e8f0/475569?text=brak+naklejki';
 
-            capInput.addEventListener('input', () => { device.capDate = capInput.value; saveToStorage(); });
-            picInput.addEventListener('input', () => { device.picName = picInput.value; saveToStorage(); });
-            notesText.addEventListener('input', () => { device.notes = notesText.value; saveToStorage(); });
+            capInput.addEventListener('input', async () => { device.capDate = capInput.value; await saveData(); });
+            picInput.addEventListener('input', async () => { device.picName = picInput.value; await saveData(); });
+            notesText.addEventListener('input', async () => { device.notes = notesText.value; await saveData(); });
 
             updatePreviewCamera.addEventListener('click', () => previewFileInput.click());
             previewFileInput.addEventListener('change', () => {
                 if (previewFileInput.files?.[0]) {
                     const reader = new FileReader();
-                    reader.onload = (e) => {
+                    reader.onload = async (e) => {
                         device.previewImg = e.target.result;
                         imgPreview.src = e.target.result;
                         previewDetailImg.src = e.target.result;
-                        saveToStorage();
+                        await saveData();
                     };
                     reader.readAsDataURL(previewFileInput.files[0]);
                 }
@@ -997,11 +1378,11 @@
             previewUploadInput.addEventListener('change', () => {
                 if (previewUploadInput.files?.[0]) {
                     const reader = new FileReader();
-                    reader.onload = (e) => {
+                    reader.onload = async (e) => {
                         device.previewImg = e.target.result;
                         imgPreview.src = e.target.result;
                         previewDetailImg.src = e.target.result;
-                        saveToStorage();
+                        await saveData();
                     };
                     reader.readAsDataURL(previewUploadInput.files[0]);
                 }
@@ -1011,10 +1392,10 @@
             stickerFileInput.addEventListener('change', () => {
                 if (stickerFileInput.files?.[0]) {
                     const reader = new FileReader();
-                    reader.onload = (e) => {
+                    reader.onload = async (e) => {
                         device.stickerImg = e.target.result;
                         stickerImg.src = e.target.result;
-                        saveToStorage();
+                        await saveData();
                     };
                     reader.readAsDataURL(stickerFileInput.files[0]);
                 }
@@ -1024,10 +1405,10 @@
             stickerUploadInput.addEventListener('change', () => {
                 if (stickerUploadInput.files?.[0]) {
                     const reader = new FileReader();
-                    reader.onload = (e) => {
+                    reader.onload = async (e) => {
                         device.stickerImg = e.target.result;
                         stickerImg.src = e.target.result;
-                        saveToStorage();
+                        await saveData();
                     };
                     reader.readAsDataURL(stickerUploadInput.files[0]);
                 }
@@ -1056,22 +1437,31 @@
                 modalOverlay.classList.add('active');
             });
 
+            // KLIKNIĘCIE W KARTĘ - pokazuje szczegóły TYLKO tego sprzętu
             card.querySelector('.card-main').addEventListener('click', (e) => {
+                e.stopPropagation();
                 if (e.target.type !== 'checkbox') {
-                    detailsDiv.classList.toggle('hidden');
+                    // Ukryj wszystkie inne szczegóły
+                    document.querySelectorAll('.details-panel.visible').forEach(panel => {
+                        panel.classList.remove('visible');
+                    });
+                    // Pokaż szczegóły tego sprzętu
+                    detailsDiv.classList.add('visible');
                 }
             });
 
-            card.querySelector('.close-details').addEventListener('click', () => {
-                detailsDiv.classList.add('hidden');
+            card.querySelector('.close-details').addEventListener('click', (e) => {
+                e.stopPropagation();
+                detailsDiv.classList.remove('visible');
             });
 
-            card.querySelector('.delete-device').addEventListener('click', () => {
-                if (confirm('Usunąć ten sprzęt?')) {
+            card.querySelector('.delete-device').addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (confirm('Czy na pewno usunąć ten sprzęt?')) {
                     devices = devices.filter(d => d.id !== device.id);
-                    saveToStorage();
+                    await saveData();
                     updateLocationFilterOptions();
-                    renderFilteredAndSorted();
+                    renderGroupedByLocation();
                 }
             });
 
@@ -1098,12 +1488,12 @@
 
         importBtn.addEventListener('click', () => importFile.click());
 
-        importFile.addEventListener('change', (e) => {
+        importFile.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = (loadEvent) => {
+            reader.onload = async (loadEvent) => {
                 try {
                     const data = new Uint8Array(loadEvent.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
@@ -1125,12 +1515,12 @@
                     }));
 
                     devices = [...devices, ...importedDevices];
-                    saveToStorage();
+                    await saveData();
                     updateLocationFilterOptions();
-                    renderFilteredAndSorted();
+                    renderGroupedByLocation();
                     alert(`Zaimportowano ${importedDevices.length} urządzeń`);
                 } catch (error) {
-                    alert('Błąd importu');
+                    alert('Błąd importu pliku Excel');
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -1139,47 +1529,29 @@
 
         locationFilter.addEventListener('change', (e) => {
             currentFilter = e.target.value;
-            renderFilteredAndSorted();
+            renderGroupedByLocation();
         });
 
         sortAscBtn.addEventListener('click', () => {
             currentSort = 'asc';
             sortAscBtn.classList.add('active');
             sortDescBtn.classList.remove('active');
-            renderFilteredAndSorted();
+            renderGroupedByLocation();
         });
 
         sortDescBtn.addEventListener('click', () => {
             currentSort = 'desc';
             sortDescBtn.classList.add('active');
             sortAscBtn.classList.remove('active');
-            renderFilteredAndSorted();
+            renderGroupedByLocation();
         });
 
         searchInput.addEventListener('input', (e) => {
             searchTerm = e.target.value;
-            renderFilteredAndSorted();
+            renderGroupedByLocation();
         });
 
-        function loadFromStorage() {
-            try {
-                const stored = localStorage.getItem(STORAGE_KEY);
-                return stored ? JSON.parse(stored) : [];
-            } catch {
-                return [];
-            }
-        }
-
-        function saveToStorage() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
-        }
-
-        function init() {
-            updateLocationFilterOptions();
-            renderFilteredAndSorted();
-        }
-
-        init();
+        initData();
     })();
 </script>
 </body>
