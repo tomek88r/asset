@@ -4,337 +4,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Asset Inventory</title>
+    <title>asset</title>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <style>
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f8fafc;
-            min-height: 100vh;
-            padding: 16px;
+            padding: 12px;
             color: #1e293b;
         }
 
-        .app-container {
+        .app {
             max-width: 1400px;
             margin: 0 auto;
-            width: 100%;
         }
 
-        /* Jednolite, rysowane logo */
+        .header {
+            background: white;
+            border-radius: 28px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid #eef2f6;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 20px 8px 12px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-            border: 1px solid #e2e8f0;
-            transition: all 0.2s ease;
-        }
-
-        .logo:hover {
-            border-color: #94a3b8;
-            transform: translateY(-1px);
+            gap: 8px;
+            background: #1e293b;
+            padding: 6px 16px 6px 12px;
+            border-radius: 40px;
+            color: white;
         }
 
         .logo-icon {
-            width: 36px;
-            height: 36px;
-            background: #1e293b;
+            font-size: 1.4rem;
             color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 1.2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .logo-icon::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 8px;
-            height: 8px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 2px;
-        }
-
-        .logo-icon::before {
-            content: '';
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            width: 12px;
-            height: 12px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 2px;
         }
 
         .logo-text {
-            font-size: 1.3rem;
-            font-weight: 500;
-            letter-spacing: -0.3px;
-            color: #0f172a;
-            position: relative;
-        }
-
-        .logo-text::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: #1e293b;
-            transform: scaleX(0);
-            transition: transform 0.2s ease;
-            transform-origin: left;
-        }
-
-        .logo:hover .logo-text::after {
-            transform: scaleX(1);
-        }
-
-        /* Header */
-        .header-bar {
-            background: white;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-            border: 1px solid #e2e8f0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            align-items: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: white;
         }
 
         .search-box {
             flex: 1;
-            min-width: 280px;
+            min-width: 200px;
         }
 
         .search-box input {
             width: 100%;
-            padding: 12px 16px;
-            border-radius: 10px;
+            padding: 10px 16px;
+            border-radius: 40px;
             border: 1px solid #e2e8f0;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             background: #f8fafc;
-            transition: all 0.2s ease;
         }
 
-        .search-box input:focus {
-            outline: none;
-            border-color: #64748b;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-        }
-
-        .filter-group {
+        .filters {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
             align-items: center;
+            gap: 8px;
         }
 
         .filter-select {
-            padding: 10px 16px;
-            border-radius: 10px;
+            padding: 8px 14px;
+            border-radius: 40px;
             border: 1px solid #e2e8f0;
-            background: #f8fafc;
-            font-size: 0.9rem;
-            min-width: 150px;
-            cursor: pointer;
-            color: #1e293b;
-            transition: all 0.2s ease;
-        }
-
-        .filter-select:hover {
-            border-color: #94a3b8;
             background: white;
+            font-size: 0.85rem;
+            min-width: 130px;
+            cursor: pointer;
         }
 
-        .sort-buttons {
+        .sort-btns {
             display: flex;
-            gap: 6px;
+            gap: 4px;
         }
 
         .sort-btn {
-            padding: 10px 16px;
-            border-radius: 10px;
+            width: 38px;
+            height: 38px;
+            border-radius: 40px;
             border: 1px solid #e2e8f0;
-            background: #f8fafc;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: #1e293b;
-            font-weight: 400;
-        }
-
-        .sort-btn:hover {
             background: white;
-            border-color: #94a3b8;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .sort-btn.active {
             background: #1e293b;
             color: white;
-            border-color: #1e293b;
         }
 
-        .excel-buttons {
+        .excel-btns {
             display: flex;
-            gap: 8px;
+            gap: 4px;
         }
 
         .excel-btn {
-            padding: 10px 20px;
-            border-radius: 10px;
+            padding: 8px 14px;
+            border-radius: 40px;
             border: 1px solid #e2e8f0;
-            background: #f8fafc;
-            font-size: 0.9rem;
+            background: white;
+            font-size: 0.85rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
-            color: #1e293b;
-            font-weight: 400;
         }
 
         .excel-btn:hover {
-            background: white;
-            border-color: #94a3b8;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.02);
-        }
-
-        .excel-btn.import:hover {
             background: #1e293b;
             color: white;
-            border-color: #1e293b;
         }
 
-        .excel-btn.export:hover {
-            background: #1e293b;
-            color: white;
-            border-color: #1e293b;
+        /* Ukryty input do importu */
+        #importFile {
+            display: none;
         }
 
-        /* Grupowanie po lokalizacjach */
         .location-group {
             margin-bottom: 24px;
-            animation: slideUp 0.3s ease-out;
         }
 
         .location-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-            padding: 8px 12px;
+            gap: 10px;
+            padding: 8px 16px;
             background: white;
-            border-radius: 12px;
+            border-radius: 40px;
+            margin-bottom: 12px;
             border: 1px solid #e2e8f0;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
             position: sticky;
-            top: 0;
-            z-index: 10;
-            backdrop-filter: blur(8px);
+            top: 8px;
+            z-index: 5;
             background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
         }
 
         .location-icon {
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
             background: #1e293b;
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
         }
 
         .location-name {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: #0f172a;
+            font-weight: 600;
+            font-size: 0.95rem;
             flex: 1;
         }
 
         .location-count {
             background: #f1f5f9;
             padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            color: #475569;
+            border-radius: 30px;
+            font-size: 0.8rem;
         }
 
-        .location-grid {
+        .cards-grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 12px;
-            padding-left: 12px;
+            padding-left: 16px;
             border-left: 2px solid #e2e8f0;
-            margin-left: 16px;
+            margin-left: 14px;
         }
 
-        @media (min-width: 600px) {
-            .location-grid {
+        @media (min-width: 640px) {
+            .cards-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
 
-        @media (min-width: 900px) {
-            .location-grid {
+        @media (min-width: 1024px) {
+            .cards-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
         }
 
-        @media (min-width: 1200px) {
-            .location-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-
-        /* Karta */
-        .inventory-card {
+        .card {
             background: white;
-            border-radius: 16px;
-            padding: 16px;
-            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 14px;
+            border: 1px solid #eef2f6;
             box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: cardAppear 0.3s ease-out;
-            animation-fill-mode: both;
+            transition: all 0.2s ease;
+            cursor: pointer;
         }
 
-        @keyframes cardAppear {
-            from { 
-                opacity: 0; 
-                transform: translateY(10px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
-        }
-
-        .inventory-card:hover {
+        .card:hover {
             transform: translateY(-2px);
             box-shadow: 0 12px 24px rgba(0,0,0,0.05);
             border-color: #cbd5e1;
@@ -343,276 +226,226 @@
         .card-main {
             display: flex;
             gap: 12px;
-            cursor: pointer;
         }
 
         .card-img {
             width: 70px;
             height: 70px;
-            border-radius: 12px;
+            border-radius: 16px;
             object-fit: cover;
-            border: 1px solid #e2e8f0;
+            border: 2px solid #e2e8f0;
             background: #f8fafc;
-            transition: all 0.2s ease;
         }
 
-        .info-preview {
+        .card.expanded .card-img {
+            width: 90px;
+            height: 90px;
+            border-color: #1e293b;
+        }
+
+        .card-info {
             flex: 1;
-            min-width: 0;
         }
 
-        .row-preview {
+        .row {
             display: flex;
             flex-wrap: wrap;
             align-items: baseline;
-            gap: 6px 8px;
-            margin-bottom: 6px;
+            gap: 6px;
+            margin-bottom: 4px;
         }
 
-        .asset-tag {
-            font-weight: 500;
-            color: #0f172a;
+        .asset-badge {
             background: #f1f5f9;
             padding: 4px 10px;
-            border-radius: 6px;
+            border-radius: 20px;
             font-size: 0.8rem;
+            font-weight: 600;
+            color: #0f172a;
         }
 
-        .sn-label {
-            color: #475569;
-            font-size: 0.8rem;
-            word-break: break-word;
+        .sn-text {
+            color: #64748b;
+            font-size: 0.75rem;
         }
 
-        .name-preview {
+        .name-text {
             font-weight: 500;
             font-size: 0.9rem;
-            color: #1e293b;
         }
 
         .loc-badge {
             background: #f1f5f9;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            color: #334155;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
             display: inline-block;
         }
 
-        .in-stack-box {
+        .stock-box {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-width: 48px;
+            min-width: 44px;
         }
 
-        .in-stack-box input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
+        .stock-box input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
             border: 2px solid #cbd5e1;
             cursor: pointer;
             accent-color: #1e293b;
         }
 
-        .in-stack-box span {
-            font-size: 0.65rem;
+        .stock-box span {
+            font-size: 0.6rem;
             color: #64748b;
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
-        /* Szczegóły - TYLKO DLA POJEDYNCZEJ KARTY */
-        .details-panel {
+        .details {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-top: 0;
+        }
+
+        .card.expanded .details {
+            max-height: 1000px;
+            opacity: 1;
             margin-top: 16px;
             padding-top: 16px;
             border-top: 1px solid #e2e8f0;
-            display: none;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .details-panel.visible {
-            display: flex;
-            animation: slideDown 0.2s ease-out;
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .detail-row {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
+            margin-bottom: 16px;
         }
 
         .detail-row label {
-            font-weight: 500;
-            color: #475569;
-            font-size: 0.8rem;
+            display: block;
+            font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
+            color: #64748b;
+            margin-bottom: 6px;
+            font-weight: 600;
         }
 
         .detail-row input, .detail-row textarea {
-            padding: 10px 12px;
-            border-radius: 8px;
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 16px;
             border: 1px solid #e2e8f0;
             background: #f8fafc;
-            font-size: 0.9rem;
-            width: 100%;
-            transition: all 0.2s ease;
+            font-size: 0.95rem;
         }
 
-        .detail-row input:focus, .detail-row textarea:focus {
-            outline: none;
-            border-color: #94a3b8;
-            background: white;
-        }
-
-        .sticker-img {
+        .sticker-image {
             width: 100%;
-            max-height: 120px;
+            max-height: 200px;
             object-fit: contain;
             background: #f8fafc;
-            border-radius: 8px;
-            padding: 4px;
+            border-radius: 16px;
+            padding: 12px;
             border: 1px solid #e2e8f0;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 8px;
             margin-top: 8px;
-            flex-wrap: wrap;
         }
 
-        .btn-edit, .btn-delete, .btn-close {
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 400;
-            cursor: pointer;
-            border: 1px solid #e2e8f0;
-            background: #f8fafc;
-            color: #1e293b;
-            transition: all 0.2s ease;
+        .action-btns {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .action-btns button {
             flex: 1;
+            padding: 14px;
+            border-radius: 30px;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-edit {
+            background: #f1f5f9;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
         }
 
         .btn-edit:hover {
             background: #1e293b;
             color: white;
-            border-color: #1e293b;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
         }
 
         .btn-delete:hover {
-            background: #dc2626;
+            background: #b91c1c;
             color: white;
-            border-color: #dc2626;
-        }
-
-        .btn-close:hover {
-            background: #e2e8f0;
-            border-color: #94a3b8;
-        }
-
-        .btn-photo-small {
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
-            background: #f8fafc;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: #1e293b;
-        }
-
-        .btn-photo-small:hover {
-            background: #e2e8f0;
-        }
-
-        .photo-source-buttons {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .photo-source-buttons button {
-            flex: 1;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 8px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .photo-source-buttons button:hover {
-            background: #e2e8f0;
         }
 
         .hidden {
             display: none !important;
         }
 
-        /* FAB */
         .fab {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
+            bottom: 20px;
+            right: 20px;
             width: 56px;
             height: 56px;
-            border-radius: 16px;
+            border-radius: 30px;
             background: #1e293b;
             color: white;
             border: none;
-            font-size: 1.5rem;
-            font-weight: 300;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            z-index: 100;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-            z-index: 1000;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid #334155;
         }
 
         .fab:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+            transform: scale(1.1);
             background: #0f172a;
         }
 
-        /* Modal */
-        .modal-overlay {
+        /* Modal ze scrollem po lewej */
+        .modal {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0,0,0,0.5);
             backdrop-filter: blur(4px);
             display: flex;
             align-items: flex-end;
             justify-content: center;
-            z-index: 2000;
+            z-index: 1000;
             visibility: hidden;
             opacity: 0;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
         }
 
         @media (min-width: 768px) {
-            .modal-overlay {
+            .modal {
                 align-items: center;
+                padding: 20px;
             }
         }
 
-        .modal-overlay.active {
+        .modal.active {
             visibility: visible;
             opacity: 1;
         }
@@ -621,28 +454,46 @@
             background: white;
             width: 100%;
             max-width: 500px;
-            border-radius: 24px 24px 0 0;
-            padding: 24px;
+            border-radius: 30px 30px 0 0;
+            padding: 24px 16px 24px 20px;
             transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 -8px 30px rgba(0,0,0,0.1);
-            border: 1px solid #e2e8f0;
-            max-height: 90vh;
+            transition: transform 0.3s ease;
+            max-height: 85vh;
             overflow-y: auto;
+            direction: rtl;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+
+        .modal-content > * {
+            direction: ltr;
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
         }
 
         @media (min-width: 768px) {
             .modal-content {
-                border-radius: 24px;
-                transform: translateY(20px) scale(0.95);
+                border-radius: 30px;
+                transform: scale(0.9);
+                padding: 24px 16px 24px 20px;
             }
-            
-            .modal-overlay.active .modal-content {
-                transform: translateY(0) scale(1);
+            .modal.active .modal-content {
+                transform: scale(1);
             }
         }
 
-        .modal-overlay.active .modal-content {
+        .modal.active .modal-content {
             transform: translateY(0);
         }
 
@@ -651,9 +502,8 @@
             align-items: center;
             gap: 12px;
             margin-bottom: 20px;
-            font-size: 1.25rem;
-            font-weight: 500;
-            color: #0f172a;
+            font-size: 1.2rem;
+            font-weight: 600;
             border-bottom: 1px solid #e2e8f0;
             padding-bottom: 16px;
             position: sticky;
@@ -662,181 +512,143 @@
             z-index: 10;
         }
 
-        .modal-header .logo-icon {
-            width: 36px;
-            height: 36px;
-            font-size: 1rem;
-        }
-
         .modal-form {
             display: flex;
             flex-direction: column;
             gap: 16px;
-            padding-bottom: 20px;
         }
 
         .modal-form input, .modal-form textarea {
             padding: 14px 16px;
-            border-radius: 12px;
+            border-radius: 30px;
             border: 1px solid #e2e8f0;
-            font-size: 1rem;
+            font-size: 0.95rem;
             background: #f8fafc;
-            transition: all 0.2s ease;
-            -webkit-appearance: none;
         }
 
-        .modal-form input:focus, .modal-form textarea:focus {
-            outline: none;
-            border-color: #64748b;
-            background: white;
-        }
-
-        .photo-buttons-modal {
+        .photo-row {
             display: flex;
             gap: 8px;
-            flex-wrap: wrap;
         }
 
-        .photo-buttons-modal button {
+        .photo-row button {
             flex: 1;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+            padding: 14px;
             border-radius: 30px;
-            padding: 14px 12px;
-            font-size: 0.95rem;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 0.9rem;
             cursor: pointer;
-            transition: all 0.2s ease;
-            color: #1e293b;
-            min-width: 120px;
         }
 
-        .photo-buttons-modal button:hover {
+        .photo-row button:hover {
             background: #e2e8f0;
         }
 
-        .thumb-row-modal {
+        .thumb-row {
             background: #f8fafc;
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 12px;
             border: 1px solid #e2e8f0;
         }
 
-        .thumb-item-modal {
+        .thumb-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 0.9rem;
         }
 
-        .thumb-item-modal img {
-            width: 50px;
-            height: 50px;
+        .thumb-item img {
+            width: 60px;
+            height: 60px;
             object-fit: cover;
-            border-radius: 10px;
+            border-radius: 12px;
             border: 1px solid #e2e8f0;
         }
 
-        .btn-submit-modal {
+        .btn-primary {
             background: #1e293b;
             color: white;
             border: none;
-            border-radius: 30px;
-            padding: 18px;
-            font-size: 1.1rem;
-            font-weight: 500;
-            margin-top: 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            -webkit-appearance: none;
-            width: 100%;
-        }
-
-        .btn-submit-modal:hover {
-            background: #0f172a;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-        }
-
-        .btn-submit-modal:active {
-            transform: translateY(0);
-        }
-
-        .close-modal-btn {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 30px;
             padding: 16px;
+            border-radius: 30px;
             font-size: 1rem;
+            font-weight: 600;
             margin-top: 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            width: 100%;
-            color: #1e293b;
-            -webkit-appearance: none;
         }
 
-        .close-modal-btn:hover {
-            background: #e2e8f0;
+        .btn-primary:hover {
+            background: #0f172a;
         }
 
-        /* Loading spinner */
+        .btn-secondary {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            padding: 14px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+
         .loading-spinner {
             display: inline-block;
             width: 40px;
             height: 40px;
-            border: 3px solid #f1f5f9;
-            border-radius: 50%;
+            border: 3px solid #e2e8f0;
             border-top-color: #1e293b;
-            animation: spin 0.8s linear infinite;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
             margin: 40px auto;
-            grid-column: 1 / -1;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        #excelImport {
-            display: none;
+        .sync-status {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-left: 8px;
         }
     </style>
 </head>
 <body>
-    <!-- Konfiguracja Firebase - tutaj wpisz swoje dane -->
+    <!-- KONFIGURACJA FIREBASE - TUTAJ WPISZ SWOJE DANE -->
     <div id="firebase-config" style="display: none;" 
-         data-api-key="AIzaSyExample"
-         data-auth-domain="your-project.firebaseapp.com"
-         data-project-id="your-project"
-         data-storage-bucket="your-project.appspot.com"
-         data-messaging-sender-id="123456789"
-         data-app-id="1:123456789:web:abc123">
+         data-api-key="AIzaSyA6MzvAXMTSoOstYud0A3l66G2bKeNqAiE"
+         data-auth-domain="asset-ddba1.firebaseapp.com"
+         data-project-id="asset-ddba1"
+         data-storage-bucket="asset-ddba1.firebasestorage.app"
+         data-messaging-sender-id="439801546860"
+         data-app-id="1:439801546860:web:3577b08668e9fd29bfb049">
     </div>
 
-<div class="app-container">
-    <div class="header-bar">
+<div class="app">
+    <div class="header">
         <div class="logo">
-            <div class="logo-icon">A</div>
-            <div class="logo-text">asset</div>
+            <span class="logo-icon">⚡</span>
+            <span class="logo-text">asset</span>
         </div>
         
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Szukaj we wszystkich polach...">
+            <input type="text" id="searchInput" placeholder="szukaj...">
         </div>
         
-        <div class="filter-group">
+        <div class="filters">
             <select id="locationFilter" class="filter-select">
-                <option value="">Wszystkie lokalizacje</option>
+                <option value="">wszystkie</option>
             </select>
             
-            <div class="sort-buttons">
-                <button id="sortAssetAsc" class="sort-btn active">Rosnąco</button>
-                <button id="sortAssetDesc" class="sort-btn">Malejąco</button>
+            <div class="sort-btns">
+                <button id="sortAsc" class="sort-btn active">↑</button>
+                <button id="sortDesc" class="sort-btn">↓</button>
             </div>
             
-            <div class="excel-buttons">
-                <button class="excel-btn export" id="exportExcel">Eksport</button>
-                <button class="excel-btn import" id="importExcelBtn">Import</button>
-                <input type="file" id="excelImport" accept=".xlsx,.xls,.csv">
+            <div class="excel-btns">
+                <button class="excel-btn" id="exportBtn">EXP</button>
+                <button class="excel-btn" id="importBtn">IMP</button>
             </div>
         </div>
     </div>
@@ -844,124 +656,110 @@
     <div id="inventoryContainer"></div>
 </div>
 
-<button class="fab" id="fabAdd">+</button>
+<button class="fab" id="fabBtn">+</button>
 
-<div class="modal-overlay" id="modalOverlay">
+<div class="modal" id="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <div class="logo-icon">A</div>
-            <span id="modalTitle">Nowy sprzęt</span>
+            <span class="logo-icon">⚡</span>
+            <span id="modalTitle">nowy sprzęt</span>
         </div>
+        
         <div class="modal-form">
-            <input type="text" id="newAsset" placeholder="Nr asset *">
-            <input type="text" id="newName" placeholder="Nazwa sprzętu">
-            <input type="text" id="newSn" placeholder="S/N">
-            <input type="text" id="newLoc" placeholder="Lokalizacja">
-            <input type="date" id="newCapDate" placeholder="Cap. date">
-            <input type="text" id="newPicName" placeholder="Osoba odpowiedzialna">
-            <textarea id="newNotes" rows="2" placeholder="Adnotacje"></textarea>
+            <input type="text" id="assetInput" placeholder="nr asset *">
+            <input type="text" id="nameInput" placeholder="nazwa">
+            <input type="text" id="snInput" placeholder="s/n">
+            <input type="text" id="locInput" placeholder="lokalizacja">
+            <input type="date" id="dateInput">
+            <input type="text" id="picInput" placeholder="osoba odpowiedzialna">
+            <textarea id="notesInput" rows="2" placeholder="adnotacje"></textarea>
 
-            <div class="photo-buttons-modal">
-                <button type="button" id="capturePreviewBtn">Aparat - zdjęcie</button>
-                <button type="button" id="uploadPreviewBtn">Dysk - zdjęcie</button>
-                <input type="file" id="previewUpload" accept="image/*" capture="environment" style="display: none;">
-                <input type="file" id="previewUploadFile" accept="image/*" style="display: none;">
+            <div class="photo-row">
+                <button type="button" id="previewCameraBtn">aparat</button>
+                <button type="button" id="previewFileBtn">dysk</button>
+                <input type="file" id="previewCamera" accept="image/*" capture="environment" style="display: none;">
+                <input type="file" id="previewFile" accept="image/*" style="display: none;">
             </div>
 
-            <div id="previewThumbContainer" class="thumb-row-modal hidden">
-                <div class="thumb-item-modal">
-                    <img id="previewThumbImg" src="#" alt="podgląd">
-                    <span>Zdjęcie dodane</span>
+            <div id="previewThumb" class="thumb-row hidden">
+                <div class="thumb-item">
+                    <img id="previewImg" src="#" alt="podgląd">
+                    <span>zdjęcie dodane</span>
                 </div>
             </div>
 
-            <div class="photo-buttons-modal">
-                <button type="button" id="captureStickerBtn">Aparat - naklejka</button>
-                <button type="button" id="uploadStickerBtn">Dysk - naklejka</button>
-                <input type="file" id="stickerUpload" accept="image/*" capture="environment" style="display: none;">
-                <input type="file" id="stickerUploadFile" accept="image/*" style="display: none;">
+            <div class="photo-row">
+                <button type="button" id="stickerCameraBtn">aparat</button>
+                <button type="button" id="stickerFileBtn">dysk</button>
+                <input type="file" id="stickerCamera" accept="image/*" capture="environment" style="display: none;">
+                <input type="file" id="stickerFile" accept="image/*" style="display: none;">
             </div>
 
-            <div id="stickerThumbContainer" class="thumb-row-modal hidden">
-                <div class="thumb-item-modal">
-                    <img id="stickerThumbImg" src="#" alt="naklejka">
-                    <span>Naklejka dodana</span>
+            <div id="stickerThumb" class="thumb-row hidden">
+                <div class="thumb-item">
+                    <img id="stickerImg" src="#" alt="naklejka">
+                    <span>naklejka dodana</span>
                 </div>
             </div>
 
-            <button type="button" class="btn-submit-modal" id="addDeviceBtn">Dodaj do listy</button>
-            <button type="button" class="close-modal-btn" id="closeModalBtn">Anuluj</button>
+            <button type="button" class="btn-primary" id="saveBtn">dodaj</button>
+            <button type="button" class="btn-secondary" id="cancelBtn">anuluj</button>
         </div>
     </div>
 </div>
 
-<template id="deviceCardTemplate">
-    <div class="inventory-card" data-id="">
+<template id="cardTemplate">
+    <div class="card" data-id="">
         <div class="card-main">
-            <img class="card-img" src="https://via.placeholder.com/70/e2e8f0/475569?text=no+img" alt="preview">
-            <div class="info-preview">
-                <div class="row-preview">
-                    <span class="asset-tag asset-preview"></span>
-                    <span class="sn-label sn-preview"></span>
+            <img class="card-img" src="https://via.placeholder.com/70/e2e8f0/64748b?text=img" alt="">
+            <div class="card-info">
+                <div class="row">
+                    <span class="asset-badge asset"></span>
+                    <span class="sn-text sn"></span>
                 </div>
-                <div class="row-preview">
-                    <span class="name-preview"></span>
+                <div class="row">
+                    <span class="name-text name"></span>
                 </div>
-                <div class="loc-badge loc-preview"></div>
+                <span class="loc-badge location"></span>
             </div>
-            <div class="in-stack-box">
-                <input type="checkbox" class="in-stack-checkbox">
-                <span>na stanie</span>
+            <div class="stock-box">
+                <input type="checkbox" class="stock-checkbox">
+                <span>stan</span>
             </div>
         </div>
-        <div class="details-panel">
+        <div class="details">
             <div class="detail-row">
-                <label>Cap. date</label>
-                <input type="date" class="cap-date">
+                <label>data</label>
+                <input type="date" class="detail-date">
             </div>
             <div class="detail-row">
-                <label>Pic name</label>
-                <input type="text" class="pic-name" placeholder="Osoba odpowiedzialna">
+                <label>osoba</label>
+                <input type="text" class="detail-pic" placeholder="osoba odpowiedzialna">
             </div>
             <div class="detail-row">
-                <label>Adnotacje</label>
-                <textarea class="notes" rows="2" placeholder="Uwagi..."></textarea>
+                <label>uwagi</label>
+                <textarea class="detail-notes" rows="2" placeholder="adnotacje..."></textarea>
             </div>
             <div class="detail-row">
-                <label>Zdjęcie poglądowe</label>
-                <img class="sticker-img preview-detail-img" src="https://via.placeholder.com/200/e2e8f0/475569?text=brak+zdjęcia" alt="preview">
-                <div class="photo-source-buttons">
-                    <button type="button" class="btn-photo-small update-preview-camera">Aparat</button>
-                    <button type="button" class="btn-photo-small update-preview-file">Dysk</button>
-                </div>
-                <input type="file" class="preview-file-input" accept="image/*" capture="environment" style="display: none;">
-                <input type="file" class="preview-upload-input" accept="image/*" style="display: none;">
+                <label>naklejka</label>
+                <img class="sticker-image detail-sticker" src="https://via.placeholder.com/300/e2e8f0/64748b?text=brak+naklejki" alt="naklejka">
             </div>
-            <div class="detail-row">
-                <label>Naklejka z asset</label>
-                <img class="sticker-img" src="https://via.placeholder.com/200/e2e8f0/475569?text=brak+naklejki" alt="sticker">
-                <div class="photo-source-buttons">
-                    <button type="button" class="btn-photo-small update-sticker-camera">Aparat</button>
-                    <button type="button" class="btn-photo-small update-sticker-file">Dysk</button>
-                </div>
-                <input type="file" class="sticker-file-input" accept="image/*" capture="environment" style="display: none;">
-                <input type="file" class="sticker-upload-input" accept="image/*" style="display: none;">
-            </div>
-            <div class="action-buttons">
-                <button type="button" class="btn-edit edit-device">Edytuj</button>
-                <button type="button" class="btn-delete delete-device">Usuń</button>
-                <button type="button" class="btn-close close-details">Zwiń</button>
+            <div class="action-btns">
+                <button class="btn-edit edit-btn">edytuj</button>
+                <button class="btn-delete delete-btn">usuń</button>
             </div>
         </div>
     </div>
 </template>
 
+<!-- Ukryty input do importu -->
+<input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display: none;">
+
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
     (function() {
-        // Konfiguracja Firebase
+        // ===== KONFIGURACJA FIREBASE =====
         const configDiv = document.getElementById('firebase-config');
-        
         const firebaseConfig = {
             apiKey: configDiv?.dataset.apiKey || "AIzaSyExample",
             authDomain: configDiv?.dataset.authDomain || "your-project.firebaseapp.com",
@@ -972,106 +770,69 @@
         };
 
         let db, storage;
-        let firebaseInitialized = false;
+        let firebaseReady = false;
 
         try {
             firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
             storage = firebase.storage();
-            firebaseInitialized = true;
-            console.log('Firebase zainicjalizowany');
+            firebaseReady = true;
+            console.log('Firebase gotowy');
         } catch (error) {
             console.error('Błąd Firebase:', error);
         }
 
-        const STORAGE_KEY = 'equipmentListV12';
+        // ===== STAN APLIKACJI =====
+        const STORAGE_KEY = 'asset_app';
         let devices = [];
         let currentFilter = '';
         let currentSort = 'asc';
         let searchTerm = '';
         let editingId = null;
 
+        // ===== ELEMENTY DOM =====
         const container = document.getElementById('inventoryContainer');
-        const template = document.getElementById('deviceCardTemplate');
-
-        const fab = document.getElementById('fabAdd');
-        const modalOverlay = document.getElementById('modalOverlay');
-        const closeModalBtn = document.getElementById('closeModalBtn');
+        const template = document.getElementById('cardTemplate');
+        const fab = document.getElementById('fabBtn');
+        const modal = document.getElementById('modal');
         const modalTitle = document.getElementById('modalTitle');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const saveBtn = document.getElementById('saveBtn');
 
-        const newAsset = document.getElementById('newAsset');
-        const newName = document.getElementById('newName');
-        const newSn = document.getElementById('newSn');
-        const newLoc = document.getElementById('newLoc');
-        const newCapDate = document.getElementById('newCapDate');
-        const newPicName = document.getElementById('newPicName');
-        const newNotes = document.getElementById('newNotes');
-        const addBtn = document.getElementById('addDeviceBtn');
+        const assetInput = document.getElementById('assetInput');
+        const nameInput = document.getElementById('nameInput');
+        const snInput = document.getElementById('snInput');
+        const locInput = document.getElementById('locInput');
+        const dateInput = document.getElementById('dateInput');
+        const picInput = document.getElementById('picInput');
+        const notesInput = document.getElementById('notesInput');
 
-        const capturePreviewBtn = document.getElementById('capturePreviewBtn');
-        const uploadPreviewBtn = document.getElementById('uploadPreviewBtn');
-        const previewUpload = document.getElementById('previewUpload');
-        const previewUploadFile = document.getElementById('previewUploadFile');
-        
-        const captureStickerBtn = document.getElementById('captureStickerBtn');
-        const uploadStickerBtn = document.getElementById('uploadStickerBtn');
-        const stickerUpload = document.getElementById('stickerUpload');
-        const stickerUploadFile = document.getElementById('stickerUploadFile');
+        const previewCameraBtn = document.getElementById('previewCameraBtn');
+        const previewFileBtn = document.getElementById('previewFileBtn');
+        const previewCamera = document.getElementById('previewCamera');
+        const previewFile = document.getElementById('previewFile');
+        const previewThumb = document.getElementById('previewThumb');
+        const previewImg = document.getElementById('previewImg');
 
-        const previewThumbContainer = document.getElementById('previewThumbContainer');
-        const stickerThumbContainer = document.getElementById('stickerThumbContainer');
-        const previewThumbImg = document.getElementById('previewThumbImg');
-        const stickerThumbImg = document.getElementById('stickerThumbImg');
+        const stickerCameraBtn = document.getElementById('stickerCameraBtn');
+        const stickerFileBtn = document.getElementById('stickerFileBtn');
+        const stickerCamera = document.getElementById('stickerCamera');
+        const stickerFile = document.getElementById('stickerFile');
+        const stickerThumb = document.getElementById('stickerThumb');
+        const stickerImg = document.getElementById('stickerImg');
 
         const locationFilter = document.getElementById('locationFilter');
-        const sortAscBtn = document.getElementById('sortAssetAsc');
-        const sortDescBtn = document.getElementById('sortAssetDesc');
+        const sortAsc = document.getElementById('sortAsc');
+        const sortDesc = document.getElementById('sortDesc');
         const searchInput = document.getElementById('searchInput');
+        const exportBtn = document.getElementById('exportBtn');
+        const importBtn = document.getElementById('importBtn');
+        const importFile = document.getElementById('importFile');
 
-        const exportBtn = document.getElementById('exportExcel');
-        const importBtn = document.getElementById('importExcelBtn');
-        const importFile = document.getElementById('excelImport');
+        let previewBase64 = '';
+        let stickerBase64 = '';
 
-        let currentPreviewBase64 = '';
-        let currentStickerBase64 = '';
-
-        // Funkcje pomocnicze
-        function safeOperation(operation) {
-            try {
-                return operation();
-            } catch (error) {
-                console.error('Błąd:', error);
-                return null;
-            }
-        }
-
-        // Firebase functions
-        async function loadFromFirestore() {
-            if (!firebaseInitialized) return loadFromStorage();
-            try {
-                const snapshot = await db.collection('devices').get();
-                return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            } catch (error) {
-                console.error('Błąd ładowania z Firestore:', error);
-                return loadFromStorage();
-            }
-        }
-
-        async function saveToFirestore() {
-            if (!firebaseInitialized) return saveToStorage();
-            try {
-                const batch = db.batch();
-                devices.forEach(device => {
-                    const docRef = db.collection('devices').doc(device.id);
-                    batch.set(docRef, device);
-                });
-                await batch.commit();
-            } catch (error) {
-                console.error('Błąd zapisu do Firestore:', error);
-                saveToStorage();
-            }
-        }
-
+        // ===== FUNKCJE POMOCNICZE =====
         function loadFromStorage() {
             try {
                 return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
@@ -1081,409 +842,393 @@
         }
 
         function saveToStorage() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
+            } catch (e) {
+                alert('Za dużo zdjęć! Usuń któreś zdjęcia.');
+                console.error('Storage error:', e);
+            }
+        }
+
+        // ===== FUNKCJE FIREBASE =====
+        async function loadFromFirebase() {
+            if (!firebaseReady) return loadFromStorage();
+            
+            try {
+                const snapshot = await db.collection('devices').get();
+                const loadedDevices = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                console.log('Załadowano z Firebase:', loadedDevices.length);
+                return loadedDevices;
+            } catch (error) {
+                console.error('Błąd ładowania z Firebase:', error);
+                return loadFromStorage();
+            }
+        }
+
+        async function saveToFirebase() {
+            if (!firebaseReady) return saveToStorage();
+            
+            try {
+                const batch = db.batch();
+                devices.forEach(device => {
+                    const docRef = db.collection('devices').doc(device.id);
+                    batch.set(docRef, device);
+                });
+                await batch.commit();
+                console.log('Zapisano do Firebase');
+            } catch (error) {
+                console.error('Błąd zapisu do Firebase:', error);
+                saveToStorage();
+            }
         }
 
         async function saveData() {
-            if (firebaseInitialized) {
-                await saveToFirestore();
+            if (firebaseReady) {
+                await saveToFirebase();
             } else {
                 saveToStorage();
             }
         }
 
-        // Inicjalizacja
-        async function initData() {
-            container.innerHTML = '<div class="loading-spinner"></div>';
-            devices = await loadFromFirestore();
-            updateLocationFilterOptions();
-            renderGroupedByLocation();
+        // ===== FUNKCJE FILTROWANIA =====
+        function matchesSearch(device, term) {
+            if (!term) return true;
+            const t = term.toLowerCase();
+            return [device.asset, device.name, device.sn, device.loc, device.picName, device.notes]
+                .some(f => f && f.toLowerCase().includes(t));
         }
 
-        // Renderowanie zgrupowane po lokalizacjach
-        function renderGroupedByLocation() {
+        function getFiltered() {
             let filtered = devices;
-            
-            if (searchTerm) {
-                filtered = filtered.filter(d => matchesSearch(d, searchTerm));
-            }
-            
-            if (currentFilter) {
-                filtered = filtered.filter(d => d.loc === currentFilter);
-            }
-
-            // Sortowanie
+            if (searchTerm) filtered = filtered.filter(d => matchesSearch(d, searchTerm));
+            if (currentFilter) filtered = filtered.filter(d => d.loc === currentFilter);
             filtered.sort((a, b) => {
-                const assetA = a.asset.toLowerCase();
-                const assetB = b.asset.toLowerCase();
-                return currentSort === 'asc' ? assetA.localeCompare(assetB) : assetB.localeCompare(assetA);
+                const a1 = a.asset.toLowerCase();
+                const b1 = b.asset.toLowerCase();
+                return currentSort === 'asc' ? a1.localeCompare(b1) : b1.localeCompare(a1);
             });
+            return filtered;
+        }
 
-            // Grupowanie po lokalizacjach
-            const grouped = {};
-            filtered.forEach(device => {
-                const loc = device.loc || 'Brak lokalizacji';
-                if (!grouped[loc]) {
-                    grouped[loc] = [];
-                }
-                grouped[loc].push(device);
+        // ===== RENDEROWANIE =====
+        function render() {
+            const filtered = getFiltered();
+            
+            const groups = {};
+            filtered.forEach(d => {
+                const loc = d.loc || 'inne';
+                if (!groups[loc]) groups[loc] = [];
+                groups[loc].push(d);
             });
-
-            // Sortowanie lokalizacji
-            const sortedLocations = Object.keys(grouped).sort();
 
             container.innerHTML = '';
-            
-            if (sortedLocations.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #64748b;">Brak sprzętu</div>';
+
+            if (Object.keys(groups).length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8">brak sprzętu</div>';
                 return;
             }
 
-            sortedLocations.forEach(location => {
-                const groupDiv = document.createElement('div');
-                groupDiv.className = 'location-group';
-                
-                // Nagłówek lokalizacji
+            Object.keys(groups).sort().forEach(loc => {
+                const group = document.createElement('div');
+                group.className = 'location-group';
+
                 const header = document.createElement('div');
                 header.className = 'location-header';
                 header.innerHTML = `
                     <div class="location-icon">📍</div>
-                    <div class="location-name">${location}</div>
-                    <div class="location-count">${grouped[location].length}</div>
+                    <div class="location-name">${loc}</div>
+                    <div class="location-count">${groups[loc].length}</div>
                 `;
-                
-                // Grid z kartami
+
                 const grid = document.createElement('div');
-                grid.className = 'location-grid';
-                
-                grouped[location].forEach(device => {
+                grid.className = 'cards-grid';
+
+                groups[loc].forEach(device => {
                     grid.appendChild(createCard(device));
                 });
-                
-                groupDiv.appendChild(header);
-                groupDiv.appendChild(grid);
-                container.appendChild(groupDiv);
+
+                group.appendChild(header);
+                group.appendChild(grid);
+                container.appendChild(group);
             });
         }
 
-        function matchesSearch(device, term) {
-            if (!term) return true;
-            const lowerTerm = term.toLowerCase();
-            return [device.asset, device.name, device.sn, device.loc, device.capDate, device.picName, device.notes]
-                .some(field => field?.toLowerCase().includes(lowerTerm));
-        }
-
-        // Event listeners
-        fab.addEventListener('click', () => {
-            editingId = null;
-            modalTitle.textContent = 'Nowy sprzęt';
-            clearForm();
-            modalOverlay.classList.add('active');
-        });
-
-        closeModalBtn.addEventListener('click', () => {
-            modalOverlay.classList.remove('active');
-            clearForm();
-        });
-
-        function clearForm() {
-            newAsset.value = '';
-            newName.value = '';
-            newSn.value = '';
-            newLoc.value = '';
-            newCapDate.value = '';
-            newPicName.value = '';
-            newNotes.value = '';
-            currentPreviewBase64 = '';
-            currentStickerBase64 = '';
-            previewThumbContainer.classList.add('hidden');
-            stickerThumbContainer.classList.add('hidden');
-            previewUpload.value = '';
-            previewUploadFile.value = '';
-            stickerUpload.value = '';
-            stickerUploadFile.value = '';
-        }
-
-        function handleImageUpload(input, callback) {
-            if (!input.files?.[0]) return;
-            const reader = new FileReader();
-            reader.onload = (e) => callback(e.target.result);
-            reader.readAsDataURL(input.files[0]);
-        }
-
-        capturePreviewBtn.addEventListener('click', () => previewUpload.click());
-        previewUpload.addEventListener('change', () => {
-            handleImageUpload(previewUpload, (base64) => {
-                currentPreviewBase64 = base64;
-                previewThumbContainer.classList.remove('hidden');
-                previewThumbImg.src = base64;
-            });
-        });
-
-        uploadPreviewBtn.addEventListener('click', () => previewUploadFile.click());
-        previewUploadFile.addEventListener('change', () => {
-            handleImageUpload(previewUploadFile, (base64) => {
-                currentPreviewBase64 = base64;
-                previewThumbContainer.classList.remove('hidden');
-                previewThumbImg.src = base64;
-            });
-        });
-
-        captureStickerBtn.addEventListener('click', () => stickerUpload.click());
-        stickerUpload.addEventListener('change', () => {
-            handleImageUpload(stickerUpload, (base64) => {
-                currentStickerBase64 = base64;
-                stickerThumbContainer.classList.remove('hidden');
-                stickerThumbImg.src = base64;
-            });
-        });
-
-        uploadStickerBtn.addEventListener('click', () => stickerUploadFile.click());
-        stickerUploadFile.addEventListener('change', () => {
-            handleImageUpload(stickerUploadFile, (base64) => {
-                currentStickerBase64 = base64;
-                stickerThumbContainer.classList.remove('hidden');
-                stickerThumbImg.src = base64;
-            });
-        });
-
-        addBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            
-            const asset = newAsset.value.trim();
-            if (!asset) {
-                alert('Numer asset jest wymagany');
-                return;
-            }
-
-            if (editingId) {
-                const index = devices.findIndex(d => d.id === editingId);
-                if (index !== -1) {
-                    devices[index] = {
-                        ...devices[index],
-                        asset,
-                        name: newName.value.trim() || '—',
-                        sn: newSn.value.trim() || '—',
-                        loc: newLoc.value.trim() || '—',
-                        capDate: newCapDate.value || '',
-                        picName: newPicName.value.trim() || '',
-                        notes: newNotes.value.trim() || '',
-                        previewImg: currentPreviewBase64 || devices[index].previewImg,
-                        stickerImg: currentStickerBase64 || devices[index].stickerImg
-                    };
-                }
-            } else {
-                devices.push({
-                    id: Date.now() + '-' + Math.random().toString(36).substr(2, 6),
-                    asset,
-                    name: newName.value.trim() || '—',
-                    sn: newSn.value.trim() || '—',
-                    loc: newLoc.value.trim() || '—',
-                    capDate: newCapDate.value || '',
-                    picName: newPicName.value.trim() || '',
-                    notes: newNotes.value.trim() || '',
-                    previewImg: currentPreviewBase64 || '',
-                    stickerImg: currentStickerBase64 || '',
-                    inStock: false
-                });
-            }
-
-            await saveData();
-            updateLocationFilterOptions();
-            renderGroupedByLocation(); // Natychmiastowe odświeżenie listy
-            modalOverlay.classList.remove('active'); // Zamknięcie modala
-            clearForm();
-            editingId = null;
-        });
-
-        function updateLocationFilterOptions() {
-            const locations = [...new Set(devices.map(d => d.loc).filter(loc => loc && loc !== '—'))];
-            locations.sort();
-            const select = locationFilter;
-            const currentVal = select.value;
-            select.innerHTML = '<option value="">Wszystkie lokalizacje</option>';
-            locations.forEach(loc => {
-                const option = document.createElement('option');
-                option.value = loc;
-                option.textContent = loc;
-                select.appendChild(option);
-            });
-            if (currentVal && locations.includes(currentVal)) {
-                select.value = currentVal;
-            }
-        }
-
+        // ===== TWORZENIE KARTY =====
         function createCard(device) {
             const clone = template.content.cloneNode(true);
-            const card = clone.querySelector('.inventory-card');
+            const card = clone.querySelector('.card');
             card.dataset.id = device.id;
 
-            const imgPreview = card.querySelector('.card-img');
-            imgPreview.src = device.previewImg || 'https://via.placeholder.com/70/e2e8f0/475569?text=no+img';
+            const img = card.querySelector('.card-img');
+            img.src = device.previewImg || 'https://via.placeholder.com/70/e2e8f0/64748b?text=img';
 
-            card.querySelector('.asset-preview').textContent = device.asset;
-            card.querySelector('.name-preview').textContent = device.name;
-            card.querySelector('.sn-preview').textContent = device.sn;
-            card.querySelector('.loc-preview').textContent = device.loc;
+            card.querySelector('.asset').textContent = device.asset;
+            card.querySelector('.name').textContent = device.name;
+            card.querySelector('.sn').textContent = device.sn;
+            card.querySelector('.location').textContent = device.loc;
 
-            const chk = card.querySelector('.in-stack-checkbox');
-            chk.checked = device.inStock;
-            chk.addEventListener('change', async (e) => {
-                device.inStock = e.target.checked;
+            const stock = card.querySelector('.stock-checkbox');
+            stock.checked = device.inStock;
+            stock.addEventListener('change', async () => {
+                device.inStock = stock.checked;
                 await saveData();
             });
 
-            const detailsDiv = card.querySelector('.details-panel');
-            const capInput = card.querySelector('.cap-date');
-            const picInput = card.querySelector('.pic-name');
-            const notesText = card.querySelector('.notes');
-            const previewDetailImg = card.querySelector('.preview-detail-img');
-            const stickerImg = card.querySelector('.sticker-img:not(.preview-detail-img)');
+            const details = card.querySelector('.details');
+            const dateField = card.querySelector('.detail-date');
+            const picField = card.querySelector('.detail-pic');
+            const notesField = card.querySelector('.detail-notes');
+            const stickerField = card.querySelector('.detail-sticker');
+
+            dateField.value = device.capDate || '';
+            picField.value = device.picName || '';
+            notesField.value = device.notes || '';
             
-            const updatePreviewCamera = card.querySelector('.update-preview-camera');
-            const updatePreviewFile = card.querySelector('.update-preview-file');
-            const previewFileInput = card.querySelector('.preview-file-input');
-            const previewUploadInput = card.querySelector('.preview-upload-input');
-            
-            const updateStickerCamera = card.querySelector('.update-sticker-camera');
-            const updateStickerFile = card.querySelector('.update-sticker-file');
-            const stickerFileInput = card.querySelector('.sticker-file-input');
-            const stickerUploadInput = card.querySelector('.sticker-upload-input');
+            if (device.stickerImg) {
+                stickerField.src = device.stickerImg;
+            }
 
-            capInput.value = device.capDate || '';
-            picInput.value = device.picName || '';
-            notesText.value = device.notes || '';
-            previewDetailImg.src = device.previewImg || 'https://via.placeholder.com/200/e2e8f0/475569?text=brak+zdjęcia';
-            stickerImg.src = device.stickerImg || 'https://via.placeholder.com/200/e2e8f0/475569?text=brak+naklejki';
+            dateField.addEventListener('input', async () => { device.capDate = dateField.value; await saveData(); });
+            picField.addEventListener('input', async () => { device.picName = picField.value; await saveData(); });
+            notesField.addEventListener('input', async () => { device.notes = notesField.value; await saveData(); });
 
-            capInput.addEventListener('input', async () => { device.capDate = capInput.value; await saveData(); });
-            picInput.addEventListener('input', async () => { device.picName = picInput.value; await saveData(); });
-            notesText.addEventListener('input', async () => { device.notes = notesText.value; await saveData(); });
-
-            updatePreviewCamera.addEventListener('click', () => previewFileInput.click());
-            previewFileInput.addEventListener('change', () => {
-                if (previewFileInput.files?.[0]) {
-                    const reader = new FileReader();
-                    reader.onload = async (e) => {
-                        device.previewImg = e.target.result;
-                        imgPreview.src = e.target.result;
-                        previewDetailImg.src = e.target.result;
-                        await saveData();
-                    };
-                    reader.readAsDataURL(previewFileInput.files[0]);
-                }
+            card.addEventListener('click', (e) => {
+                if (e.target.type === 'checkbox' || e.target.classList.contains('edit-btn') || e.target.classList.contains('delete-btn')) return;
+                
+                document.querySelectorAll('.card.expanded').forEach(c => {
+                    if (c !== card) c.classList.remove('expanded');
+                });
+                
+                card.classList.toggle('expanded');
             });
 
-            updatePreviewFile.addEventListener('click', () => previewUploadInput.click());
-            previewUploadInput.addEventListener('change', () => {
-                if (previewUploadInput.files?.[0]) {
-                    const reader = new FileReader();
-                    reader.onload = async (e) => {
-                        device.previewImg = e.target.result;
-                        imgPreview.src = e.target.result;
-                        previewDetailImg.src = e.target.result;
-                        await saveData();
-                    };
-                    reader.readAsDataURL(previewUploadInput.files[0]);
-                }
-            });
-
-            updateStickerCamera.addEventListener('click', () => stickerFileInput.click());
-            stickerFileInput.addEventListener('change', () => {
-                if (stickerFileInput.files?.[0]) {
-                    const reader = new FileReader();
-                    reader.onload = async (e) => {
-                        device.stickerImg = e.target.result;
-                        stickerImg.src = e.target.result;
-                        await saveData();
-                    };
-                    reader.readAsDataURL(stickerFileInput.files[0]);
-                }
-            });
-
-            updateStickerFile.addEventListener('click', () => stickerUploadInput.click());
-            stickerUploadInput.addEventListener('change', () => {
-                if (stickerUploadInput.files?.[0]) {
-                    const reader = new FileReader();
-                    reader.onload = async (e) => {
-                        device.stickerImg = e.target.result;
-                        stickerImg.src = e.target.result;
-                        await saveData();
-                    };
-                    reader.readAsDataURL(stickerUploadInput.files[0]);
-                }
-            });
-
-            card.querySelector('.edit-device').addEventListener('click', () => {
+            card.querySelector('.edit-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
                 editingId = device.id;
-                modalTitle.textContent = 'Edytuj sprzęt';
-                newAsset.value = device.asset;
-                newName.value = device.name === '—' ? '' : device.name;
-                newSn.value = device.sn === '—' ? '' : device.sn;
-                newLoc.value = device.loc === '—' ? '' : device.loc;
-                newCapDate.value = device.capDate || '';
-                newPicName.value = device.picName || '';
-                newNotes.value = device.notes || '';
-                currentPreviewBase64 = device.previewImg || '';
-                if (currentPreviewBase64) {
-                    previewThumbContainer.classList.remove('hidden');
-                    previewThumbImg.src = currentPreviewBase64;
+                modalTitle.textContent = 'edytuj sprzęt';
+                
+                assetInput.value = device.asset;
+                nameInput.value = device.name === '—' ? '' : device.name;
+                snInput.value = device.sn === '—' ? '' : device.sn;
+                locInput.value = device.loc === '—' ? '' : device.loc;
+                dateInput.value = device.capDate || '';
+                picInput.value = device.picName || '';
+                notesInput.value = device.notes || '';
+
+                previewBase64 = device.previewImg || '';
+                if (previewBase64) {
+                    previewThumb.classList.remove('hidden');
+                    previewImg.src = previewBase64;
+                } else {
+                    previewThumb.classList.add('hidden');
                 }
-                currentStickerBase64 = device.stickerImg || '';
-                if (currentStickerBase64) {
-                    stickerThumbContainer.classList.remove('hidden');
-                    stickerThumbImg.src = currentStickerBase64;
+
+                stickerBase64 = device.stickerImg || '';
+                if (stickerBase64) {
+                    stickerThumb.classList.remove('hidden');
+                    stickerImg.src = stickerBase64;
+                } else {
+                    stickerThumb.classList.add('hidden');
                 }
-                modalOverlay.classList.add('active');
+
+                modal.classList.add('active');
             });
 
-            // KLIKNIĘCIE W KARTĘ - pokazuje szczegóły TYLKO tego sprzętu
-            card.querySelector('.card-main').addEventListener('click', (e) => {
+            card.querySelector('.delete-btn').addEventListener('click', async (e) => {
                 e.stopPropagation();
-                if (e.target.type !== 'checkbox') {
-                    // Ukryj wszystkie inne szczegóły
-                    document.querySelectorAll('.details-panel.visible').forEach(panel => {
-                        panel.classList.remove('visible');
-                    });
-                    // Pokaż szczegóły tego sprzętu
-                    detailsDiv.classList.add('visible');
-                }
-            });
-
-            card.querySelector('.close-details').addEventListener('click', (e) => {
-                e.stopPropagation();
-                detailsDiv.classList.remove('visible');
-            });
-
-            card.querySelector('.delete-device').addEventListener('click', async (e) => {
-                e.stopPropagation();
-                if (confirm('Czy na pewno usunąć ten sprzęt?')) {
+                if (confirm('usunąć?')) {
                     devices = devices.filter(d => d.id !== device.id);
                     await saveData();
-                    updateLocationFilterOptions();
-                    renderGroupedByLocation();
+                    updateFilterOptions();
+                    render();
                 }
             });
 
             return card;
         }
 
+        // ===== AKTUALIZACJA FILTRA =====
+        function updateFilterOptions() {
+            const locs = [...new Set(devices.map(d => d.loc).filter(l => l && l !== '—'))];
+            locs.sort();
+            const curr = locationFilter.value;
+            locationFilter.innerHTML = '<option value="">wszystkie</option>';
+            locs.forEach(l => {
+                const opt = document.createElement('option');
+                opt.value = l;
+                opt.textContent = l;
+                locationFilter.appendChild(opt);
+            });
+            if (curr && locs.includes(curr)) locationFilter.value = curr;
+        }
+
+        // ===== RESET FORMULARZA =====
+        function resetForm() {
+            assetInput.value = '';
+            nameInput.value = '';
+            snInput.value = '';
+            locInput.value = '';
+            dateInput.value = '';
+            picInput.value = '';
+            notesInput.value = '';
+            
+            previewBase64 = '';
+            stickerBase64 = '';
+            previewThumb.classList.add('hidden');
+            stickerThumb.classList.add('hidden');
+            
+            previewCamera.value = '';
+            previewFile.value = '';
+            stickerCamera.value = '';
+            stickerFile.value = '';
+        }
+
+        // ===== OBSŁUGA ZDJĘĆ =====
+        function handleImageUpload(input, cb) {
+            if (!input.files?.[0]) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const fullBase64 = e.target.result;
+                const compressed = fullBase64.substring(0, 500000);
+                cb(compressed);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        previewCameraBtn.addEventListener('click', () => previewCamera.click());
+        previewCamera.addEventListener('change', () => {
+            handleImageUpload(previewCamera, (b64) => {
+                previewBase64 = b64;
+                previewThumb.classList.remove('hidden');
+                previewImg.src = b64;
+            });
+        });
+
+        previewFileBtn.addEventListener('click', () => previewFile.click());
+        previewFile.addEventListener('change', () => {
+            handleImageUpload(previewFile, (b64) => {
+                previewBase64 = b64;
+                previewThumb.classList.remove('hidden');
+                previewImg.src = b64;
+            });
+        });
+
+        stickerCameraBtn.addEventListener('click', () => stickerCamera.click());
+        stickerCamera.addEventListener('change', () => {
+            handleImageUpload(stickerCamera, (b64) => {
+                stickerBase64 = b64;
+                stickerThumb.classList.remove('hidden');
+                stickerImg.src = b64;
+            });
+        });
+
+        stickerFileBtn.addEventListener('click', () => stickerFile.click());
+        stickerFile.addEventListener('change', () => {
+            handleImageUpload(stickerFile, (b64) => {
+                stickerBase64 = b64;
+                stickerThumb.classList.remove('hidden');
+                stickerImg.src = b64;
+            });
+        });
+
+        // ===== OBSŁUGA MODALA =====
+        fab.addEventListener('click', () => {
+            editingId = null;
+            modalTitle.textContent = 'nowy sprzęt';
+            resetForm();
+            modal.classList.add('active');
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+            resetForm();
+        });
+
+        // ===== ZAPIS =====
+        saveBtn.addEventListener('click', async () => {
+            const asset = assetInput.value.trim();
+            if (!asset) {
+                alert('nr asset wymagany');
+                return;
+            }
+
+            const newDevice = {
+                id: editingId || (Date.now() + '-' + Math.random().toString(36).substr(2, 6)),
+                asset,
+                name: nameInput.value.trim() || '—',
+                sn: snInput.value.trim() || '—',
+                loc: locInput.value.trim() || '—',
+                capDate: dateInput.value || '',
+                picName: picInput.value.trim() || '',
+                notes: notesInput.value.trim() || '',
+                previewImg: previewBase64 || '',
+                stickerImg: stickerBase64 || '',
+                inStock: false
+            };
+
+            if (editingId) {
+                const idx = devices.findIndex(d => d.id === editingId);
+                if (idx !== -1) {
+                    devices[idx] = newDevice;
+                }
+            } else {
+                devices.push(newDevice);
+            }
+
+            await saveData();
+            updateFilterOptions();
+            render();
+            
+            modal.classList.remove('active');
+            resetForm();
+            editingId = null;
+        });
+
+        // ===== FILTRY =====
+        locationFilter.addEventListener('change', (e) => {
+            currentFilter = e.target.value;
+            render();
+        });
+
+        sortAsc.addEventListener('click', () => {
+            currentSort = 'asc';
+            sortAsc.classList.add('active');
+            sortDesc.classList.remove('active');
+            render();
+        });
+
+        sortDesc.addEventListener('click', () => {
+            currentSort = 'desc';
+            sortDesc.classList.add('active');
+            sortAsc.classList.remove('active');
+            render();
+        });
+
+        searchInput.addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            render();
+        });
+
+        // ===== EKSPORT/IMPORT =====
         exportBtn.addEventListener('click', () => {
             const data = devices.map(d => ({
                 'Asset': d.asset,
                 'Nazwa': d.name,
                 'S/N': d.sn,
                 'Lokalizacja': d.loc,
-                'Cap. date': d.capDate,
-                'Pic name': d.picName,
-                'Adnotacje': d.notes,
-                'Na stanie': d.inStock ? 'Tak' : 'Nie'
+                'Data': d.capDate,
+                'Osoba': d.picName,
+                'Uwagi': d.notes,
+                'Stan': d.inStock ? 'tak' : 'nie'
             }));
 
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.json_to_sheet(data);
-            XLSX.utils.book_append_sheet(wb, ws, 'Sprzęt');
-            XLSX.writeFile(wb, 'ewidencja_sprzetu.xlsx');
+            XLSX.utils.book_append_sheet(wb, ws, 'sprzęt');
+            XLSX.writeFile(wb, 'asset.xlsx');
         });
 
         importBtn.addEventListener('click', () => importFile.click());
@@ -1493,65 +1238,49 @@
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = async (loadEvent) => {
+            reader.onload = async (ev) => {
                 try {
-                    const data = new Uint8Array(loadEvent.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const rows = XLSX.utils.sheet_to_json(firstSheet);
+                    const data = new Uint8Array(ev.target.result);
+                    const wb = XLSX.read(data, { type: 'array' });
+                    const sheet = wb.Sheets[wb.SheetNames[0]];
+                    const rows = XLSX.utils.sheet_to_json(sheet);
 
-                    const importedDevices = rows.map((row, index) => ({
-                        id: Date.now() + '-' + index + '-' + Math.random().toString(36).substr(2, 6),
-                        asset: row['Asset']?.toString() || `IMPORT-${index}`,
-                        name: row['Nazwa']?.toString() || '—',
-                        sn: row['S/N']?.toString() || '—',
-                        loc: row['Lokalizacja']?.toString() || '—',
-                        capDate: row['Cap. date']?.toString() || '',
-                        picName: row['Pic name']?.toString() || '',
-                        notes: row['Adnotacje']?.toString() || '',
+                    const imported = rows.map((r, i) => ({
+                        id: Date.now() + '-' + i + '-' + Math.random().toString(36).substr(2, 6),
+                        asset: r['Asset']?.toString() || `import-${i}`,
+                        name: r['Nazwa']?.toString() || '—',
+                        sn: r['S/N']?.toString() || '—',
+                        loc: r['Lokalizacja']?.toString() || '—',
+                        capDate: r['Data']?.toString() || '',
+                        picName: r['Osoba']?.toString() || '',
+                        notes: r['Uwagi']?.toString() || '',
                         previewImg: '',
                         stickerImg: '',
-                        inStock: row['Na stanie'] === 'Tak'
+                        inStock: r['Stan'] === 'tak'
                     }));
 
-                    devices = [...devices, ...importedDevices];
+                    devices = [...devices, ...imported];
                     await saveData();
-                    updateLocationFilterOptions();
-                    renderGroupedByLocation();
-                    alert(`Zaimportowano ${importedDevices.length} urządzeń`);
-                } catch (error) {
-                    alert('Błąd importu pliku Excel');
+                    updateFilterOptions();
+                    render();
+                    alert(`import OK: ${imported.length}`);
+                } catch (err) {
+                    alert('błąd importu');
                 }
             };
             reader.readAsArrayBuffer(file);
             importFile.value = '';
         });
 
-        locationFilter.addEventListener('change', (e) => {
-            currentFilter = e.target.value;
-            renderGroupedByLocation();
-        });
+        // ===== INICJALIZACJA =====
+        async function init() {
+            container.innerHTML = '<div style="text-align:center;padding:40px;"><div class="loading-spinner"></div></div>';
+            devices = await loadFromFirebase();
+            updateFilterOptions();
+            render();
+        }
 
-        sortAscBtn.addEventListener('click', () => {
-            currentSort = 'asc';
-            sortAscBtn.classList.add('active');
-            sortDescBtn.classList.remove('active');
-            renderGroupedByLocation();
-        });
-
-        sortDescBtn.addEventListener('click', () => {
-            currentSort = 'desc';
-            sortDescBtn.classList.add('active');
-            sortAscBtn.classList.remove('active');
-            renderGroupedByLocation();
-        });
-
-        searchInput.addEventListener('input', (e) => {
-            searchTerm = e.target.value;
-            renderGroupedByLocation();
-        });
-
-        initData();
+        init();
     })();
 </script>
 </body>
