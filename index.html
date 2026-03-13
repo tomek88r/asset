@@ -603,15 +603,24 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        .firebase-status {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-left: 8px;
+            padding: 4px 8px;
+            background: #f1f5f9;
+            border-radius: 20px;
+        }
     </style>
 </head>
 <body>
     <!-- KONFIGURACJA FIREBASE - TUTAJ WPISZ SWOJE DANE -->
     <div id="firebase-config" style="display: none;" 
          data-api-key="AIzaSyBzz7jUxEYyJkMAkMyZ0T0Z0Z0Z0Z0Z0Z0"
-         data-auth-domain="your-project.firebaseapp.com"
-         data-project-id="your-project"
-         data-storage-bucket="your-project.appspot.com"
+         data-auth-domain="twoja-aplikacja.firebaseapp.com"
+         data-project-id="twoja-aplikacja"
+         data-storage-bucket="twoja-aplikacja.appspot.com"
          data-messaging-sender-id="123456789"
          data-app-id="1:123456789:web:abc123">
     </div>
@@ -642,6 +651,7 @@
                 <button class="excel-btn" id="importBtn">IMP</button>
             </div>
         </div>
+        <span id="firebaseStatus" class="firebase-status">🔄 łączenie...</span>
     </div>
 
     <div id="inventoryContainer"></div>
@@ -765,6 +775,7 @@
         const modalTitle = document.getElementById('modalTitle');
         const cancelBtn = document.getElementById('cancelBtn');
         const saveBtn = document.getElementById('saveBtn');
+        const firebaseStatus = document.getElementById('firebaseStatus');
 
         const assetInput = document.getElementById('assetInput');
         const nameInput = document.getElementById('nameInput');
@@ -820,11 +831,14 @@
                 db = firebase.firestore();
                 firebaseReady = true;
                 console.log('✅ Firebase gotowy');
+                firebaseStatus.textContent = '✅ połączono';
             } else {
                 console.log('⚠️ Brak danych Firebase, używam localStorage');
+                firebaseStatus.textContent = '💾 localStorage';
             }
         } catch (error) {
             console.error('❌ Błąd Firebase:', error);
+            firebaseStatus.textContent = '❌ błąd';
         }
 
         // ===== FUNKCJE POMOCNICZE =====
@@ -864,13 +878,11 @@
 
         async function saveToFirebase() {
             try {
-                const batch = db.batch();
-                devices.forEach(device => {
-                    const docRef = db.collection('devices').doc(device.id);
-                    batch.set(docRef, device);
-                });
-                await batch.commit();
-                console.log('📤 Zapisano do Firebase');
+                // Zapisujemy każdy dokument osobno
+                for (const device of devices) {
+                    await db.collection('devices').doc(device.id).set(device);
+                }
+                console.log('📤 Zapisano do Firebase:', devices.length);
             } catch (error) {
                 console.error('Błąd zapisu do Firebase:', error);
                 saveToStorage();
@@ -1151,7 +1163,7 @@
             resetForm();
         });
 
-        // ===== ZAPIS - POPRAWIONY Z setTimeout =====
+        // ===== ZAPIS =====
         saveBtn.addEventListener('click', async () => {
             console.log('🖱️ Kliknięto dodaj');
             
@@ -1188,15 +1200,11 @@
 
             await saveData();
             updateFilterOptions();
+            render();
             
-            // Używamy setTimeout, aby render wykonało się po wszystkich bieżących operacjach
-            setTimeout(() => {
-                console.log('🔄 Wywołuję render po dodaniu');
-                render();
-                modal.classList.remove('active');
-                resetForm();
-                editingId = null;
-            }, 0);
+            modal.classList.remove('active');
+            resetForm();
+            editingId = null;
         });
 
         // ===== FILTRY =====
@@ -1289,7 +1297,19 @@
             container.innerHTML = '<div style="text-align:center;padding:40px;"><div class="loading-spinner"></div></div>';
             
             if (firebaseReady) {
-                devices = await loadFromFirebase();
+                try {
+                    devices = await loadFromFirebase();
+                    if (devices.length === 0) {
+                        // Jeśli Firebase jest pusty, sprawdź localStorage
+                        const local = loadFromStorage();
+                        if (local.length > 0) {
+                            devices = local;
+                            await saveToFirebase(); // zapisz do Firebase
+                        }
+                    }
+                } catch (error) {
+                    devices = loadFromStorage();
+                }
             } else {
                 devices = loadFromStorage();
             }
