@@ -8,7 +8,6 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -136,7 +135,6 @@
             color: white;
         }
 
-        /* Ukryty input do importu */
         #importFile {
             display: none;
         }
@@ -420,7 +418,6 @@
             background: #0f172a;
         }
 
-        /* Modal ze scrollem po lewej */
         .modal {
             position: fixed;
             top: 0;
@@ -607,7 +604,7 @@
             to { transform: rotate(360deg); }
         }
 
-        .sync-status {
+        .firebase-status {
             font-size: 0.7rem;
             color: #64748b;
             margin-left: 8px;
@@ -617,12 +614,12 @@
 <body>
     <!-- KONFIGURACJA FIREBASE - TUTAJ WPISZ SWOJE DANE -->
     <div id="firebase-config" style="display: none;" 
-         data-api-key="AIzaSyA6MzvAXMTSoOstYud0A3l66G2bKeNqAiE"
-         data-auth-domain="asset-ddba1.firebaseapp.com"
-         data-project-id="asset-ddba1"
-         data-storage-bucket="asset-ddba1.firebasestorage.app"
-         data-messaging-sender-id="439801546860"
-         data-app-id="1:439801546860:web:3577b08668e9fd29bfb049">
+         data-api-key="AIzaSyBzz7jUxEYyJkMAkMyZ0T0Z0Z0Z0Z0Z0Z0"
+         data-auth-domain="your-project.firebaseapp.com"
+         data-project-id="your-project"
+         data-storage-bucket="your-project.appspot.com"
+         data-messaging-sender-id="123456789"
+         data-app-id="1:123456789:web:abc123">
     </div>
 
 <div class="app">
@@ -758,31 +755,7 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
     (function() {
-        // ===== KONFIGURACJA FIREBASE =====
-        const configDiv = document.getElementById('firebase-config');
-        const firebaseConfig = {
-            apiKey: configDiv?.dataset.apiKey || "AIzaSyExample",
-            authDomain: configDiv?.dataset.authDomain || "your-project.firebaseapp.com",
-            projectId: configDiv?.dataset.projectId || "your-project",
-            storageBucket: configDiv?.dataset.storageBucket || "your-project.appspot.com",
-            messagingSenderId: configDiv?.dataset.messagingSenderId || "123456789",
-            appId: configDiv?.dataset.appId || "1:123456789:web:abc123"
-        };
-
-        let db, storage;
-        let firebaseReady = false;
-
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-            storage = firebase.storage();
-            firebaseReady = true;
-            console.log('Firebase gotowy');
-        } catch (error) {
-            console.error('Błąd Firebase:', error);
-        }
-
-        // ===== STAN APLIKACJI =====
+        // ===== STAN APLIKACJI (najpierw definiujemy) =====
         const STORAGE_KEY = 'asset_app';
         let devices = [];
         let currentFilter = '';
@@ -832,6 +805,34 @@
         let previewBase64 = '';
         let stickerBase64 = '';
 
+        // ===== KONFIGURACJA FIREBASE =====
+        const configDiv = document.getElementById('firebase-config');
+        const firebaseConfig = {
+            apiKey: configDiv?.dataset.apiKey || "AIzaSyExample",
+            authDomain: configDiv?.dataset.authDomain || "your-project.firebaseapp.com",
+            projectId: configDiv?.dataset.projectId || "your-project",
+            storageBucket: configDiv?.dataset.storageBucket || "your-project.appspot.com",
+            messagingSenderId: configDiv?.dataset.messagingSenderId || "123456789",
+            appId: configDiv?.dataset.appId || "1:123456789:web:abc123"
+        };
+
+        let db;
+        let firebaseReady = false;
+
+        // Próba inicjalizacji Firebase
+        try {
+            if (firebaseConfig.apiKey !== "AIzaSyExample" && firebaseConfig.projectId !== "your-project") {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                firebaseReady = true;
+                console.log('✅ Firebase gotowy');
+            } else {
+                console.log('⚠️ Brak danych Firebase, używam localStorage');
+            }
+        } catch (error) {
+            console.error('❌ Błąd Firebase:', error);
+        }
+
         // ===== FUNKCJE POMOCNICZE =====
         function loadFromStorage() {
             try {
@@ -844,6 +845,7 @@
         function saveToStorage() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
+                console.log('💾 Zapisano w localStorage');
             } catch (e) {
                 alert('Za dużo zdjęć! Usuń któreś zdjęcia.');
                 console.error('Storage error:', e);
@@ -852,16 +854,14 @@
 
         // ===== FUNKCJE FIREBASE =====
         async function loadFromFirebase() {
-            if (!firebaseReady) return loadFromStorage();
-            
             try {
                 const snapshot = await db.collection('devices').get();
-                const loadedDevices = snapshot.docs.map(doc => ({
+                const loaded = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 }));
-                console.log('Załadowano z Firebase:', loadedDevices.length);
-                return loadedDevices;
+                console.log('📥 Załadowano z Firebase:', loaded.length);
+                return loaded;
             } catch (error) {
                 console.error('Błąd ładowania z Firebase:', error);
                 return loadFromStorage();
@@ -869,8 +869,6 @@
         }
 
         async function saveToFirebase() {
-            if (!firebaseReady) return saveToStorage();
-            
             try {
                 const batch = db.batch();
                 devices.forEach(device => {
@@ -878,7 +876,7 @@
                     batch.set(docRef, device);
                 });
                 await batch.commit();
-                console.log('Zapisano do Firebase');
+                console.log('📤 Zapisano do Firebase');
             } catch (error) {
                 console.error('Błąd zapisu do Firebase:', error);
                 saveToStorage();
@@ -991,9 +989,20 @@
                 stickerField.src = device.stickerImg;
             }
 
-            dateField.addEventListener('input', async () => { device.capDate = dateField.value; await saveData(); });
-            picField.addEventListener('input', async () => { device.picName = picField.value; await saveData(); });
-            notesField.addEventListener('input', async () => { device.notes = notesField.value; await saveData(); });
+            dateField.addEventListener('input', async () => { 
+                device.capDate = dateField.value; 
+                await saveData(); 
+            });
+            
+            picField.addEventListener('input', async () => { 
+                device.picName = picField.value; 
+                await saveData(); 
+            });
+            
+            notesField.addEventListener('input', async () => { 
+                device.notes = notesField.value; 
+                await saveData(); 
+            });
 
             card.addEventListener('click', (e) => {
                 if (e.target.type === 'checkbox' || e.target.classList.contains('edit-btn') || e.target.classList.contains('delete-btn')) return;
@@ -1092,7 +1101,7 @@
             const reader = new FileReader();
             reader.onload = (e) => {
                 const fullBase64 = e.target.result;
-                const compressed = fullBase64.substring(0, 500000);
+                const compressed = fullBase64.substring(0, 300000);
                 cb(compressed);
             };
             reader.readAsDataURL(input.files[0]);
@@ -1149,6 +1158,8 @@
 
         // ===== ZAPIS =====
         saveBtn.addEventListener('click', async () => {
+            console.log('🖱️ Kliknięto dodaj');
+            
             const asset = assetInput.value.trim();
             if (!asset) {
                 alert('nr asset wymagany');
@@ -1173,9 +1184,11 @@
                 const idx = devices.findIndex(d => d.id === editingId);
                 if (idx !== -1) {
                     devices[idx] = newDevice;
+                    console.log('✏️ Zaktualizowano sprzęt');
                 }
             } else {
                 devices.push(newDevice);
+                console.log('➕ Dodano nowy sprzęt');
             }
 
             await saveData();
@@ -1275,7 +1288,13 @@
         // ===== INICJALIZACJA =====
         async function init() {
             container.innerHTML = '<div style="text-align:center;padding:40px;"><div class="loading-spinner"></div></div>';
-            devices = await loadFromFirebase();
+            
+            if (firebaseReady) {
+                devices = await loadFromFirebase();
+            } else {
+                devices = loadFromStorage();
+            }
+            
             updateFilterOptions();
             render();
         }
