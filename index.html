@@ -603,12 +603,6 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-
-        .firebase-status {
-            font-size: 0.7rem;
-            color: #64748b;
-            margin-left: 8px;
-        }
     </style>
 </head>
 <body>
@@ -755,7 +749,7 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
     (function() {
-        // ===== STAN APLIKACJI (najpierw definiujemy) =====
+        // ===== STAN APLIKACJI =====
         const STORAGE_KEY = 'asset_app';
         let devices = [];
         let currentFilter = '';
@@ -913,6 +907,7 @@
 
         // ===== RENDEROWANIE =====
         function render() {
+            console.log('🎨 Renderowanie, liczba urządzeń:', devices.length);
             const filtered = getFiltered();
             
             const groups = {};
@@ -1156,7 +1151,7 @@
             resetForm();
         });
 
-        // ===== ZAPIS =====
+        // ===== ZAPIS - POPRAWIONY Z setTimeout =====
         saveBtn.addEventListener('click', async () => {
             console.log('🖱️ Kliknięto dodaj');
             
@@ -1188,16 +1183,20 @@
                 }
             } else {
                 devices.push(newDevice);
-                console.log('➕ Dodano nowy sprzęt');
+                console.log('➕ Dodano nowy sprzęt, lista liczy:', devices.length);
             }
 
             await saveData();
             updateFilterOptions();
-            render();
             
-            modal.classList.remove('active');
-            resetForm();
-            editingId = null;
+            // Używamy setTimeout, aby render wykonało się po wszystkich bieżących operacjach
+            setTimeout(() => {
+                console.log('🔄 Wywołuję render po dodaniu');
+                render();
+                modal.classList.remove('active');
+                resetForm();
+                editingId = null;
+            }, 0);
         });
 
         // ===== FILTRY =====
