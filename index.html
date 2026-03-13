@@ -17,8 +17,8 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8fafc;
-            padding: 12px;
+            background: #f1f5f9;
+            padding: 8px;
             color: #1e293b;
         }
 
@@ -27,83 +27,91 @@
             margin: 0 auto;
         }
 
+        /* KOMPAKTOWY HEADER - wszystko w jednej linii */
         .header {
             background: white;
-            border-radius: 28px;
-            padding: 12px 16px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            border: 1px solid #eef2f6;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo {
+            border-radius: 40px;
+            padding: 6px 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border: 1px solid #e2e8f0;
             display: flex;
             align-items: center;
             gap: 8px;
+            min-height: 48px;
+        }
+
+        /* NOWE LOGO - biały laptop/monitor na ciemnym tle */
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background: #1e293b;
-            padding: 6px 16px 6px 12px;
-            border-radius: 40px;
+            padding: 6px;
+            border-radius: 30px;
             color: white;
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
         }
 
-        .logo-icon {
-            font-size: 1.4rem;
-            color: white;
-        }
-
-        .logo-text {
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: white;
+        .logo svg {
+            width: 22px;
+            height: 22px;
+            fill: white;
         }
 
         .search-box {
             flex: 1;
-            min-width: 200px;
+            min-width: 120px;
         }
 
         .search-box input {
             width: 100%;
-            padding: 10px 16px;
-            border-radius: 40px;
+            padding: 8px 12px;
+            border-radius: 30px;
             border: 1px solid #e2e8f0;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             background: #f8fafc;
+            height: 36px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #1e293b;
+            background: white;
         }
 
         .filters {
             display: flex;
-            flex-wrap: wrap;
             align-items: center;
-            gap: 8px;
+            gap: 4px;
+            flex-shrink: 0;
         }
 
         .filter-select {
-            padding: 8px 14px;
-            border-radius: 40px;
+            padding: 6px 10px;
+            border-radius: 30px;
             border: 1px solid #e2e8f0;
             background: white;
-            font-size: 0.85rem;
-            min-width: 130px;
+            font-size: 0.8rem;
+            min-width: 100px;
             cursor: pointer;
+            height: 36px;
         }
 
         .sort-btns {
             display: flex;
-            gap: 4px;
+            gap: 2px;
         }
 
         .sort-btn {
-            width: 38px;
-            height: 38px;
-            border-radius: 40px;
+            width: 36px;
+            height: 36px;
+            border-radius: 30px;
             border: 1px solid #e2e8f0;
             background: white;
-            font-size: 1.1rem;
+            font-size: 1rem;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -113,84 +121,90 @@
         .sort-btn.active {
             background: #1e293b;
             color: white;
+            border-color: #1e293b;
         }
 
-        .excel-btns {
+        .action-btns {
             display: flex;
             gap: 4px;
         }
 
-        .excel-btn {
-            padding: 8px 14px;
-            border-radius: 40px;
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 30px;
             border: 1px solid #e2e8f0;
             background: white;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 500;
             cursor: pointer;
+            height: 36px;
+            display: flex;
+            align-items: center;
         }
 
-        .excel-btn:hover {
+        .action-btn:hover {
             background: #1e293b;
             color: white;
+            border-color: #1e293b;
         }
 
         #importFile {
             display: none;
         }
 
+        /* MNIEJSZE KARTY NA TELEFONIE */
         .location-group {
-            margin-bottom: 24px;
+            margin-bottom: 16px;
         }
 
         .location-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 16px;
+            gap: 8px;
+            padding: 6px 12px;
             background: white;
-            border-radius: 40px;
-            margin-bottom: 12px;
+            border-radius: 30px;
+            margin-bottom: 8px;
             border: 1px solid #e2e8f0;
             position: sticky;
-            top: 8px;
+            top: 4px;
             z-index: 5;
-            background: rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.95);
             backdrop-filter: blur(8px);
+            font-size: 0.85rem;
         }
 
         .location-icon {
-            width: 30px;
-            height: 30px;
+            width: 26px;
+            height: 26px;
             background: #1e293b;
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 30px;
-            font-size: 0.9rem;
+            border-radius: 26px;
+            font-size: 0.8rem;
         }
 
         .location-name {
             font-weight: 600;
-            font-size: 0.95rem;
             flex: 1;
         }
 
         .location-count {
             background: #f1f5f9;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
         }
 
         .cards-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 12px;
-            padding-left: 16px;
+            gap: 8px;
+            padding-left: 12px;
             border-left: 2px solid #e2e8f0;
-            margin-left: 14px;
+            margin-left: 12px;
         }
 
         @media (min-width: 640px) {
@@ -207,37 +221,37 @@
 
         .card {
             background: white;
-            border-radius: 20px;
-            padding: 14px;
-            border: 1px solid #eef2f6;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            border-radius: 18px;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
             transition: all 0.2s ease;
             cursor: pointer;
         }
 
         .card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.05);
-            border-color: #cbd5e1;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+            border-color: #94a3b8;
         }
 
         .card-main {
             display: flex;
-            gap: 12px;
+            gap: 8px;
         }
 
         .card-img {
-            width: 70px;
-            height: 70px;
-            border-radius: 16px;
+            width: 55px;
+            height: 55px;
+            border-radius: 12px;
             object-fit: cover;
             border: 2px solid #e2e8f0;
             background: #f8fafc;
         }
 
         .card.expanded .card-img {
-            width: 90px;
-            height: 90px;
+            width: 70px;
+            height: 70px;
             border-color: #1e293b;
         }
 
@@ -249,34 +263,33 @@
             display: flex;
             flex-wrap: wrap;
             align-items: baseline;
-            gap: 6px;
-            margin-bottom: 4px;
+            gap: 4px;
+            margin-bottom: 3px;
         }
 
         .asset-badge {
             background: #f1f5f9;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 16px;
+            font-size: 0.7rem;
             font-weight: 600;
-            color: #0f172a;
         }
 
         .sn-text {
             color: #64748b;
-            font-size: 0.75rem;
+            font-size: 0.65rem;
         }
 
         .name-text {
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
         .loc-badge {
             background: #f1f5f9;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 16px;
+            font-size: 0.65rem;
             display: inline-block;
         }
 
@@ -284,20 +297,20 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-width: 44px;
+            min-width: 38px;
         }
 
         .stock-box input[type="checkbox"] {
-            width: 22px;
-            height: 22px;
-            border-radius: 6px;
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
             border: 2px solid #cbd5e1;
             cursor: pointer;
             accent-color: #1e293b;
         }
 
         .stock-box span {
-            font-size: 0.6rem;
+            font-size: 0.5rem;
             color: #64748b;
             margin-top: 2px;
         }
@@ -311,58 +324,58 @@
         }
 
         .card.expanded .details {
-            max-height: 1000px;
+            max-height: 800px;
             opacity: 1;
-            margin-top: 16px;
-            padding-top: 16px;
+            margin-top: 10px;
+            padding-top: 10px;
             border-top: 1px solid #e2e8f0;
         }
 
         .detail-row {
-            margin-bottom: 16px;
+            margin-bottom: 10px;
         }
 
         .detail-row label {
             display: block;
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             text-transform: uppercase;
             color: #64748b;
-            margin-bottom: 6px;
+            margin-bottom: 3px;
             font-weight: 600;
         }
 
         .detail-row input, .detail-row textarea {
             width: 100%;
-            padding: 12px 14px;
-            border-radius: 16px;
+            padding: 8px 10px;
+            border-radius: 14px;
             border: 1px solid #e2e8f0;
             background: #f8fafc;
-            font-size: 0.95rem;
+            font-size: 0.8rem;
         }
 
         .sticker-image {
             width: 100%;
-            max-height: 200px;
+            max-height: 150px;
             object-fit: contain;
             background: #f8fafc;
-            border-radius: 16px;
-            padding: 12px;
+            border-radius: 14px;
+            padding: 8px;
             border: 1px solid #e2e8f0;
-            margin-top: 8px;
+            margin-top: 5px;
         }
 
         .action-btns {
             display: flex;
-            gap: 12px;
-            margin-top: 20px;
+            gap: 8px;
+            margin-top: 12px;
         }
 
         .action-btns button {
             flex: 1;
-            padding: 14px;
-            border-radius: 30px;
+            padding: 8px;
+            border-radius: 25px;
             border: none;
-            font-size: 0.95rem;
+            font-size: 0.8rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -396,17 +409,17 @@
 
         .fab {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 56px;
-            height: 56px;
+            bottom: 16px;
+            right: 16px;
+            width: 48px;
+            height: 48px;
             border-radius: 30px;
             background: #1e293b;
             color: white;
             border: none;
-            font-size: 2rem;
+            font-size: 1.8rem;
             cursor: pointer;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             z-index: 100;
             display: flex;
             align-items: center;
@@ -452,7 +465,7 @@
             width: 100%;
             max-width: 500px;
             border-radius: 30px 30px 0 0;
-            padding: 24px 16px 24px 20px;
+            padding: 20px 16px;
             transform: translateY(100%);
             transition: transform 0.3s ease;
             max-height: 85vh;
@@ -483,7 +496,7 @@
             .modal-content {
                 border-radius: 30px;
                 transform: scale(0.9);
-                padding: 24px 16px 24px 20px;
+                padding: 24px 20px;
             }
             .modal.active .modal-content {
                 transform: scale(1);
@@ -497,12 +510,12 @@
         .modal-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-            font-size: 1.2rem;
+            gap: 10px;
+            margin-bottom: 16px;
+            font-size: 1.1rem;
             font-weight: 600;
             border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 16px;
+            padding-bottom: 12px;
             position: sticky;
             top: 0;
             background: white;
@@ -512,54 +525,51 @@
         .modal-form {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
         }
 
         .modal-form input, .modal-form textarea {
-            padding: 14px 16px;
-            border-radius: 30px;
+            padding: 10px 14px;
+            border-radius: 25px;
             border: 1px solid #e2e8f0;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             background: #f8fafc;
         }
 
         .photo-row {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         .photo-row button {
             flex: 1;
-            padding: 14px;
-            border-radius: 30px;
+            padding: 10px;
+            border-radius: 25px;
             border: 1px solid #e2e8f0;
             background: #f8fafc;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             cursor: pointer;
-        }
-
-        .photo-row button:hover {
-            background: #e2e8f0;
         }
 
         .thumb-row {
             background: #f8fafc;
-            border-radius: 20px;
-            padding: 12px;
+            border-radius: 18px;
+            padding: 10px;
             border: 1px solid #e2e8f0;
         }
 
         .thumb-item {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
+            font-size: 0.8rem;
         }
 
         .thumb-item img {
-            width: 60px;
-            height: 60px;
+            width: 45px;
+            height: 45px;
             object-fit: cover;
-            border-radius: 12px;
+            border-radius: 10px;
             border: 1px solid #e2e8f0;
         }
 
@@ -567,50 +577,37 @@
             background: #1e293b;
             color: white;
             border: none;
-            padding: 16px;
+            padding: 14px;
             border-radius: 30px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 600;
             margin-top: 8px;
             cursor: pointer;
         }
 
-        .btn-primary:hover {
-            background: #0f172a;
-        }
-
         .btn-secondary {
             background: #f1f5f9;
             border: 1px solid #e2e8f0;
-            padding: 14px;
+            padding: 12px;
             border-radius: 30px;
-            font-size: 0.95rem;
-            margin-top: 8px;
+            font-size: 0.9rem;
+            margin-top: 6px;
             cursor: pointer;
         }
 
         .loading-spinner {
             display: inline-block;
-            width: 40px;
-            height: 40px;
+            width: 30px;
+            height: 30px;
             border: 3px solid #e2e8f0;
             border-top-color: #1e293b;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 40px auto;
+            margin: 30px auto;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
-        }
-
-        .firebase-status {
-            font-size: 0.7rem;
-            color: #64748b;
-            margin-left: 8px;
-            padding: 4px 8px;
-            background: #f1f5f9;
-            border-radius: 20px;
         }
     </style>
 </head>
@@ -628,8 +625,12 @@
 <div class="app">
     <div class="header">
         <div class="logo">
-            <span class="logo-icon">⚡</span>
-            <span class="logo-text">asset</span>
+            <svg viewBox="0 0 24 24">
+                <rect x="4" y="6" width="16" height="12" rx="2" stroke="white" stroke-width="1.5" fill="none"/>
+                <line x1="8" y1="18" x2="16" y2="18" stroke="white" stroke-width="1.5"/>
+                <line x1="12" y1="18" x2="12" y2="20" stroke="white" stroke-width="1.5"/>
+                <line x1="9" y1="20" x2="15" y2="20" stroke="white" stroke-width="1.5"/>
+            </svg>
         </div>
         
         <div class="search-box">
@@ -646,12 +647,11 @@
                 <button id="sortDesc" class="sort-btn">↓</button>
             </div>
             
-            <div class="excel-btns">
-                <button class="excel-btn" id="exportBtn">EXP</button>
-                <button class="excel-btn" id="importBtn">IMP</button>
+            <div class="action-btns">
+                <button class="action-btn" id="exportBtn">EXP</button>
+                <button class="action-btn" id="importBtn">IMP</button>
             </div>
         </div>
-        <span id="firebaseStatus" class="firebase-status">🔄 łączenie...</span>
     </div>
 
     <div id="inventoryContainer"></div>
@@ -662,8 +662,7 @@
 <div class="modal" id="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <span class="logo-icon">⚡</span>
-            <span id="modalTitle">nowy sprzęt</span>
+            <span>nowy sprzęt</span>
         </div>
         
         <div class="modal-form">
@@ -712,7 +711,7 @@
 <template id="cardTemplate">
     <div class="card" data-id="">
         <div class="card-main">
-            <img class="card-img" src="https://via.placeholder.com/70/e2e8f0/64748b?text=img" alt="">
+            <img class="card-img" src="https://via.placeholder.com/55/e2e8f0/64748b?text=img" alt="">
             <div class="card-info">
                 <div class="row">
                     <span class="asset-badge asset"></span>
@@ -735,7 +734,7 @@
             </div>
             <div class="detail-row">
                 <label>osoba</label>
-                <input type="text" class="detail-pic" placeholder="osoba odpowiedzialna">
+                <input type="text" class="detail-pic" placeholder="osoba">
             </div>
             <div class="detail-row">
                 <label>uwagi</label>
@@ -743,7 +742,7 @@
             </div>
             <div class="detail-row">
                 <label>naklejka</label>
-                <img class="sticker-image detail-sticker" src="https://via.placeholder.com/300/e2e8f0/64748b?text=brak+naklejki" alt="naklejka">
+                <img class="sticker-image detail-sticker" src="https://via.placeholder.com/250/e2e8f0/64748b?text=brak" alt="naklejka">
             </div>
             <div class="action-btns">
                 <button class="btn-edit edit-btn">edytuj</button>
@@ -761,8 +760,10 @@
 (function() {
     "use strict";
     
+    console.log('Aplikacja startuje...');
+    
     // ===== STAN APLIKACJI =====
-    const STORAGE_KEY = 'asset_app';
+    var STORAGE_KEY = 'asset_app';
     var devices = [];
     var currentFilter = '';
     var currentSort = 'asc';
@@ -774,10 +775,9 @@
     var template = document.getElementById('cardTemplate');
     var fab = document.getElementById('fabBtn');
     var modal = document.getElementById('modal');
-    var modalTitle = document.getElementById('modalTitle');
+    var modalTitle = document.querySelector('.modal-header span');
     var cancelBtn = document.getElementById('cancelBtn');
     var saveBtn = document.getElementById('saveBtn');
-    var firebaseStatus = document.getElementById('firebaseStatus');
 
     var assetInput = document.getElementById('assetInput');
     var nameInput = document.getElementById('nameInput');
@@ -826,37 +826,25 @@
     var db;
     var firebaseReady = false;
 
-    // Próba inicjalizacji Firebase
-    try {
-        if (firebaseConfig.apiKey !== "AIzaSyExample" && firebaseConfig.projectId !== "your-project") {
+    // Sprawdź czy mamy prawdziwe dane Firebase
+    if (firebaseConfig.apiKey !== "AIzaSyExample" && firebaseConfig.projectId !== "your-project") {
+        try {
             firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
-            
-            // Sprawdź połączenie
-            db.collection('test').limit(1).get()
-                .then(function() {
-                    firebaseReady = true;
-                    console.log('✅ Firebase gotowy');
-                    firebaseStatus.textContent = '✅ online';
-                })
-                .catch(function(error) {
-                    console.error('❌ Błąd Firebase:', error);
-                    firebaseStatus.textContent = '❌ offline (sprawdź API)';
-                    firebaseReady = false;
-                });
-        } else {
-            console.log('⚠️ Brak danych Firebase, używam localStorage');
-            firebaseStatus.textContent = '💾 localStorage';
+            firebaseReady = true;
+            console.log('Firebase gotowy');
+        } catch (e) {
+            console.error('Błąd Firebase:', e);
         }
-    } catch (error) {
-        console.error('❌ Błąd inicjalizacji Firebase:', error);
-        firebaseStatus.textContent = '❌ błąd';
+    } else {
+        console.log('Brak danych Firebase, używam localStorage');
     }
 
     // ===== FUNKCJE POMOCNICZE =====
     function loadFromStorage() {
         try {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            var data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : [];
         } catch (e) {
             return [];
         }
@@ -865,51 +853,73 @@
     function saveToStorage() {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
-            console.log('💾 Zapisano w localStorage');
         } catch (e) {
             alert('Za dużo zdjęć! Usuń któreś zdjęcia.');
-            console.error('Storage error:', e);
         }
     }
 
     // ===== FUNKCJE FIREBASE =====
-    async function loadFromFirebase() {
-        try {
-            var snapshot = await db.collection('devices').get();
-            var loaded = snapshot.docs.map(function(doc) {
-                return {
-                    id: doc.id,
-                    ...doc.data()
-                };
+    function loadFromFirebase() {
+        return db.collection('devices').get()
+            .then(function(snapshot) {
+                var loaded = [];
+                snapshot.forEach(function(doc) {
+                    loaded.push({
+                        id: doc.id,
+                        asset: doc.data().asset,
+                        name: doc.data().name,
+                        sn: doc.data().sn,
+                        loc: doc.data().loc,
+                        capDate: doc.data().capDate,
+                        picName: doc.data().picName,
+                        notes: doc.data().notes,
+                        previewImg: doc.data().previewImg,
+                        stickerImg: doc.data().stickerImg,
+                        inStock: doc.data().inStock || false
+                    });
+                });
+                console.log('Załadowano z Firebase:', loaded.length);
+                return loaded;
+            })
+            .catch(function(error) {
+                console.error('Błąd ładowania z Firebase:', error);
+                return loadFromStorage();
             });
-            console.log('📥 Załadowano z Firebase:', loaded.length);
-            return loaded;
-        } catch (error) {
-            console.error('Błąd ładowania z Firebase:', error);
-            return loadFromStorage();
-        }
     }
 
-    async function saveToFirebase() {
-        try {
-            var batch = db.batch();
-            devices.forEach(function(device) {
-                var docRef = db.collection('devices').doc(device.id);
-                batch.set(docRef, device);
+    function saveToFirebase() {
+        var promises = [];
+        devices.forEach(function(device) {
+            var docRef = db.collection('devices').doc(device.id);
+            promises.push(docRef.set(device));
+        });
+        return Promise.all(promises)
+            .then(function() {
+                console.log('Zapisano do Firebase:', devices.length);
+            })
+            .catch(function(error) {
+                console.error('Błąd zapisu do Firebase:', error);
+                saveToStorage();
             });
-            await batch.commit();
-            console.log('📤 Zapisano do Firebase:', devices.length);
-        } catch (error) {
-            console.error('Błąd zapisu do Firebase:', error);
-            saveToStorage();
-        }
     }
 
-    async function saveData() {
+    // POPRAWIONE USUWANIE Z FIREBASE
+    function deleteFromFirebase(deviceId) {
+        return db.collection('devices').doc(deviceId).delete()
+            .then(function() {
+                console.log('Usunięto z Firebase:', deviceId);
+            })
+            .catch(function(error) {
+                console.error('Błąd usuwania z Firebase:', error);
+            });
+    }
+
+    function saveData() {
         if (firebaseReady) {
-            await saveToFirebase();
+            return saveToFirebase();
         } else {
             saveToStorage();
+            return Promise.resolve();
         }
     }
 
@@ -922,9 +932,13 @@
     }
 
     function getFiltered() {
-        var filtered = devices;
-        if (searchTerm) filtered = filtered.filter(function(d) { return matchesSearch(d, searchTerm); });
-        if (currentFilter) filtered = filtered.filter(function(d) { return d.loc === currentFilter; });
+        var filtered = devices.slice();
+        if (searchTerm) {
+            filtered = filtered.filter(function(d) { return matchesSearch(d, searchTerm); });
+        }
+        if (currentFilter) {
+            filtered = filtered.filter(function(d) { return d.loc === currentFilter; });
+        }
         filtered.sort(function(a, b) {
             var a1 = a.asset.toLowerCase();
             var b1 = b.asset.toLowerCase();
@@ -935,7 +949,6 @@
 
     // ===== RENDEROWANIE =====
     function render() {
-        console.log('🎨 Renderowanie, liczba urządzeń:', devices.length);
         var filtered = getFiltered();
         
         var groups = {};
@@ -948,7 +961,7 @@
         container.innerHTML = '';
 
         if (Object.keys(groups).length === 0) {
-            container.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8">brak sprzętu</div>';
+            container.innerHTML = '<div style="text-align:center;padding:30px;color:#94a3b8;font-size:0.9rem;">brak sprzętu</div>';
             return;
         }
 
@@ -980,7 +993,7 @@
         card.dataset.id = device.id;
 
         var img = card.querySelector('.card-img');
-        img.src = device.previewImg || 'https://via.placeholder.com/70/e2e8f0/64748b?text=img';
+        img.src = device.previewImg || 'https://via.placeholder.com/55/e2e8f0/64748b?text=img';
 
         card.querySelector('.asset').textContent = device.asset;
         card.querySelector('.name').textContent = device.name;
@@ -989,9 +1002,9 @@
 
         var stock = card.querySelector('.stock-checkbox');
         stock.checked = device.inStock;
-        stock.addEventListener('change', async function() {
+        stock.addEventListener('change', function() {
             device.inStock = stock.checked;
-            await saveData();
+            saveData();
         });
 
         var details = card.querySelector('.details');
@@ -1008,19 +1021,19 @@
             stickerField.src = device.stickerImg;
         }
 
-        dateField.addEventListener('input', async function() { 
+        dateField.addEventListener('input', function() { 
             device.capDate = dateField.value; 
-            await saveData(); 
+            saveData(); 
         });
         
-        picField.addEventListener('input', async function() { 
+        picField.addEventListener('input', function() { 
             device.picName = picField.value; 
-            await saveData(); 
+            saveData(); 
         });
         
-        notesField.addEventListener('input', async function() { 
+        notesField.addEventListener('input', function() { 
             device.notes = notesField.value; 
-            await saveData(); 
+            saveData(); 
         });
 
         card.addEventListener('click', function(e) {
@@ -1065,13 +1078,27 @@
             modal.classList.add('active');
         });
 
-        card.querySelector('.delete-btn').addEventListener('click', async function(e) {
+        // POPRAWIONE USUWANIE
+        card.querySelector('.delete-btn').addEventListener('click', function(e) {
             e.stopPropagation();
             if (confirm('usunąć?')) {
-                devices = devices.filter(function(d) { return d.id !== device.id; });
-                await saveData();
-                updateFilterOptions();
-                render();
+                var deviceId = device.id;
+                
+                // Usuń z lokalnej tablicy
+                devices = devices.filter(function(d) { return d.id !== deviceId; });
+                
+                if (firebaseReady) {
+                    // Usuń z Firebase
+                    deleteFromFirebase(deviceId).then(function() {
+                        updateFilterOptions();
+                        render();
+                    });
+                } else {
+                    // Tylko localStorage
+                    saveToStorage();
+                    updateFilterOptions();
+                    render();
+                }
             }
         });
 
@@ -1125,7 +1152,7 @@
         var reader = new FileReader();
         reader.onload = function(e) {
             var fullBase64 = e.target.result;
-            var compressed = fullBase64.substring(0, 300000);
+            var compressed = fullBase64.substring(0, 200000);
             cb(compressed);
         };
         reader.readAsDataURL(input.files[0]);
@@ -1181,9 +1208,7 @@
     });
 
     // ===== ZAPIS =====
-    saveBtn.addEventListener('click', async function() {
-        console.log('🖱️ Kliknięto dodaj');
-        
+    saveBtn.addEventListener('click', function() {
         var asset = assetInput.value.trim();
         if (!asset) {
             alert('nr asset wymagany');
@@ -1214,16 +1239,15 @@
             }
             if (idx !== -1) {
                 devices[idx] = newDevice;
-                console.log('✏️ Zaktualizowano sprzęt');
             }
         } else {
             devices.push(newDevice);
-            console.log('➕ Dodano nowy sprzęt, lista liczy:', devices.length);
         }
 
-        await saveData();
-        updateFilterOptions();
-        render();
+        saveData().then(function() {
+            updateFilterOptions();
+            render();
+        });
         
         modal.classList.remove('active');
         resetForm();
@@ -1278,12 +1302,12 @@
 
     importBtn.addEventListener('click', function() { importFile.click(); });
 
-    importFile.addEventListener('change', async function(e) {
+    importFile.addEventListener('change', function(e) {
         var file = e.target.files[0];
         if (!file) return;
 
         var reader = new FileReader();
-        reader.onload = async function(ev) {
+        reader.onload = function(ev) {
             try {
                 var data = new Uint8Array(ev.target.result);
                 var wb = XLSX.read(data, { type: 'array' });
@@ -1307,10 +1331,11 @@
                 });
 
                 devices = devices.concat(imported);
-                await saveData();
-                updateFilterOptions();
-                render();
-                alert('import OK: ' + imported.length);
+                saveData().then(function() {
+                    updateFilterOptions();
+                    render();
+                    alert('import OK: ' + imported.length);
+                });
             } catch (err) {
                 alert('błąd importu');
             }
@@ -1320,25 +1345,23 @@
     });
 
     // ===== INICJALIZACJA =====
-    async function init() {
-        container.innerHTML = '<div style="text-align:center;padding:40px;"><div class="loading-spinner"></div></div>';
+    function init() {
+        container.innerHTML = '<div style="text-align:center;padding:30px;"><div class="loading-spinner"></div></div>';
         
         if (firebaseReady) {
-            try {
-                devices = await loadFromFirebase();
-            } catch (error) {
-                devices = loadFromStorage();
-            }
+            loadFromFirebase().then(function(loaded) {
+                devices = loaded;
+                updateFilterOptions();
+                render();
+            });
         } else {
             devices = loadFromStorage();
+            updateFilterOptions();
+            render();
         }
-        
-        updateFilterOptions();
-        render();
     }
 
-    // Poczekaj chwilę na sprawdzenie Firebase
-    setTimeout(init, 1000);
+    init();
 })();
 </script>
 </body>
