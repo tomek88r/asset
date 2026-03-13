@@ -617,12 +617,12 @@
 <body>
     <!-- KONFIGURACJA FIREBASE - TUTAJ WPISZ SWOJE DANE -->
     <div id="firebase-config" style="display: none;" 
-         data-api-key="AIzaSyBzz7jUxEYyJkMAkMyZ0T0Z0Z0Z0Z0Z0Z0"
-         data-auth-domain="twoja-aplikacja.firebaseapp.com"
-         data-project-id="twoja-aplikacja"
-         data-storage-bucket="twoja-aplikacja.appspot.com"
-         data-messaging-sender-id="123456789"
-         data-app-id="1:123456789:web:abc123">
+         data-api-key="AIzaSyA6MzvAXMTSoOstYud0A3l66G2bKeNqAiE",
+         data-auth-domain="asset-ddba1.firebaseapp.com",
+         data-project-id="asset-ddba1",
+         data-storage-bucket="asset-ddba1.firebasestorage.app",
+         data-messaging-sender-id="439801546860",
+         data-app-id="1:439801546860:web:3577b08668e9fd29bfb049">
     </div>
 
 <div class="app">
@@ -758,482 +758,507 @@
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
-    (function() {
-        // ===== STAN APLIKACJI =====
-        const STORAGE_KEY = 'asset_app';
-        let devices = [];
-        let currentFilter = '';
-        let currentSort = 'asc';
-        let searchTerm = '';
-        let editingId = null;
+(function() {
+    "use strict";
+    
+    // ===== STAN APLIKACJI =====
+    const STORAGE_KEY = 'asset_app';
+    var devices = [];
+    var currentFilter = '';
+    var currentSort = 'asc';
+    var searchTerm = '';
+    var editingId = null;
 
-        // ===== ELEMENTY DOM =====
-        const container = document.getElementById('inventoryContainer');
-        const template = document.getElementById('cardTemplate');
-        const fab = document.getElementById('fabBtn');
-        const modal = document.getElementById('modal');
-        const modalTitle = document.getElementById('modalTitle');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const saveBtn = document.getElementById('saveBtn');
-        const firebaseStatus = document.getElementById('firebaseStatus');
+    // ===== ELEMENTY DOM =====
+    var container = document.getElementById('inventoryContainer');
+    var template = document.getElementById('cardTemplate');
+    var fab = document.getElementById('fabBtn');
+    var modal = document.getElementById('modal');
+    var modalTitle = document.getElementById('modalTitle');
+    var cancelBtn = document.getElementById('cancelBtn');
+    var saveBtn = document.getElementById('saveBtn');
+    var firebaseStatus = document.getElementById('firebaseStatus');
 
-        const assetInput = document.getElementById('assetInput');
-        const nameInput = document.getElementById('nameInput');
-        const snInput = document.getElementById('snInput');
-        const locInput = document.getElementById('locInput');
-        const dateInput = document.getElementById('dateInput');
-        const picInput = document.getElementById('picInput');
-        const notesInput = document.getElementById('notesInput');
+    var assetInput = document.getElementById('assetInput');
+    var nameInput = document.getElementById('nameInput');
+    var snInput = document.getElementById('snInput');
+    var locInput = document.getElementById('locInput');
+    var dateInput = document.getElementById('dateInput');
+    var picInput = document.getElementById('picInput');
+    var notesInput = document.getElementById('notesInput');
 
-        const previewCameraBtn = document.getElementById('previewCameraBtn');
-        const previewFileBtn = document.getElementById('previewFileBtn');
-        const previewCamera = document.getElementById('previewCamera');
-        const previewFile = document.getElementById('previewFile');
-        const previewThumb = document.getElementById('previewThumb');
-        const previewImg = document.getElementById('previewImg');
+    var previewCameraBtn = document.getElementById('previewCameraBtn');
+    var previewFileBtn = document.getElementById('previewFileBtn');
+    var previewCamera = document.getElementById('previewCamera');
+    var previewFile = document.getElementById('previewFile');
+    var previewThumb = document.getElementById('previewThumb');
+    var previewImg = document.getElementById('previewImg');
 
-        const stickerCameraBtn = document.getElementById('stickerCameraBtn');
-        const stickerFileBtn = document.getElementById('stickerFileBtn');
-        const stickerCamera = document.getElementById('stickerCamera');
-        const stickerFile = document.getElementById('stickerFile');
-        const stickerThumb = document.getElementById('stickerThumb');
-        const stickerImg = document.getElementById('stickerImg');
+    var stickerCameraBtn = document.getElementById('stickerCameraBtn');
+    var stickerFileBtn = document.getElementById('stickerFileBtn');
+    var stickerCamera = document.getElementById('stickerCamera');
+    var stickerFile = document.getElementById('stickerFile');
+    var stickerThumb = document.getElementById('stickerThumb');
+    var stickerImg = document.getElementById('stickerImg');
 
-        const locationFilter = document.getElementById('locationFilter');
-        const sortAsc = document.getElementById('sortAsc');
-        const sortDesc = document.getElementById('sortDesc');
-        const searchInput = document.getElementById('searchInput');
-        const exportBtn = document.getElementById('exportBtn');
-        const importBtn = document.getElementById('importBtn');
-        const importFile = document.getElementById('importFile');
+    var locationFilter = document.getElementById('locationFilter');
+    var sortAsc = document.getElementById('sortAsc');
+    var sortDesc = document.getElementById('sortDesc');
+    var searchInput = document.getElementById('searchInput');
+    var exportBtn = document.getElementById('exportBtn');
+    var importBtn = document.getElementById('importBtn');
+    var importFile = document.getElementById('importFile');
 
-        let previewBase64 = '';
-        let stickerBase64 = '';
+    var previewBase64 = '';
+    var stickerBase64 = '';
 
-        // ===== KONFIGURACJA FIREBASE =====
-        const configDiv = document.getElementById('firebase-config');
-        const firebaseConfig = {
-            apiKey: "AIzaSyA6MzvAXMTSoOstYud0A3l66G2bKeNqAiE",
-            authDomain: "asset-ddba1.firebaseapp.com",
-            projectId: "asset-ddba1",
-            storageBucket: "asset-ddba1.firebasestorage.app",
-            messagingSenderId: "439801546860",
-            appId: "1:439801546860:web:3577b08668e9fd29bfb049"
+    // ===== KONFIGURACJA FIREBASE =====
+    var configDiv = document.getElementById('firebase-config');
+    var firebaseConfig = {
+        apiKey: configDiv ? configDiv.dataset.apiKey : "AIzaSyExample",
+        authDomain: configDiv ? configDiv.dataset.authDomain : "your-project.firebaseapp.com",
+        projectId: configDiv ? configDiv.dataset.projectId : "your-project",
+        storageBucket: configDiv ? configDiv.dataset.storageBucket : "your-project.appspot.com",
+        messagingSenderId: configDiv ? configDiv.dataset.messagingSenderId : "123456789",
+        appId: configDiv ? configDiv.dataset.appId : "1:123456789:web:abc123"
+    };
 
-        let db;
-        let firebaseReady = false;
+    var db;
+    var firebaseReady = false;
 
-        // Próba inicjalizacji Firebase
+    // Próba inicjalizacji Firebase
+    try {
+        if (firebaseConfig.apiKey !== "AIzaSyExample" && firebaseConfig.projectId !== "your-project") {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            
+            // Sprawdź połączenie
+            db.collection('test').limit(1).get()
+                .then(function() {
+                    firebaseReady = true;
+                    console.log('✅ Firebase gotowy');
+                    firebaseStatus.textContent = '✅ online';
+                })
+                .catch(function(error) {
+                    console.error('❌ Błąd Firebase:', error);
+                    firebaseStatus.textContent = '❌ offline (sprawdź API)';
+                    firebaseReady = false;
+                });
+        } else {
+            console.log('⚠️ Brak danych Firebase, używam localStorage');
+            firebaseStatus.textContent = '💾 localStorage';
+        }
+    } catch (error) {
+        console.error('❌ Błąd inicjalizacji Firebase:', error);
+        firebaseStatus.textContent = '❌ błąd';
+    }
+
+    // ===== FUNKCJE POMOCNICZE =====
+    function loadFromStorage() {
         try {
-            if (firebaseConfig.apiKey !== "AIzaSyExample" && firebaseConfig.projectId !== "your-project") {
-                firebase.initializeApp(firebaseConfig);
-                db = firebase.firestore();
-                firebaseReady = true;
-                console.log('✅ Firebase gotowy');
-                firebaseStatus.textContent = '✅ połączono';
-            } else {
-                console.log('⚠️ Brak danych Firebase, używam localStorage');
-                firebaseStatus.textContent = '💾 localStorage';
-            }
-        } catch (error) {
-            console.error('❌ Błąd Firebase:', error);
-            firebaseStatus.textContent = '❌ błąd';
+            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        } catch (e) {
+            return [];
         }
+    }
 
-        // ===== FUNKCJE POMOCNICZE =====
-        function loadFromStorage() {
-            try {
-                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-            } catch {
-                return [];
-            }
+    function saveToStorage() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
+            console.log('💾 Zapisano w localStorage');
+        } catch (e) {
+            alert('Za dużo zdjęć! Usuń któreś zdjęcia.');
+            console.error('Storage error:', e);
         }
+    }
 
-        function saveToStorage() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
-                console.log('💾 Zapisano w localStorage');
-            } catch (e) {
-                alert('Za dużo zdjęć! Usuń któreś zdjęcia.');
-                console.error('Storage error:', e);
-            }
-        }
-
-        // ===== FUNKCJE FIREBASE =====
-        async function loadFromFirebase() {
-            try {
-                const snapshot = await db.collection('devices').get();
-                const loaded = snapshot.docs.map(doc => ({
+    // ===== FUNKCJE FIREBASE =====
+    async function loadFromFirebase() {
+        try {
+            var snapshot = await db.collection('devices').get();
+            var loaded = snapshot.docs.map(function(doc) {
+                return {
                     id: doc.id,
                     ...doc.data()
-                }));
-                console.log('📥 Załadowano z Firebase:', loaded.length);
-                return loaded;
-            } catch (error) {
-                console.error('Błąd ładowania z Firebase:', error);
-                return loadFromStorage();
-            }
+                };
+            });
+            console.log('📥 Załadowano z Firebase:', loaded.length);
+            return loaded;
+        } catch (error) {
+            console.error('Błąd ładowania z Firebase:', error);
+            return loadFromStorage();
+        }
+    }
+
+    async function saveToFirebase() {
+        try {
+            var batch = db.batch();
+            devices.forEach(function(device) {
+                var docRef = db.collection('devices').doc(device.id);
+                batch.set(docRef, device);
+            });
+            await batch.commit();
+            console.log('📤 Zapisano do Firebase:', devices.length);
+        } catch (error) {
+            console.error('Błąd zapisu do Firebase:', error);
+            saveToStorage();
+        }
+    }
+
+    async function saveData() {
+        if (firebaseReady) {
+            await saveToFirebase();
+        } else {
+            saveToStorage();
+        }
+    }
+
+    // ===== FUNKCJE FILTROWANIA =====
+    function matchesSearch(device, term) {
+        if (!term) return true;
+        var t = term.toLowerCase();
+        return [device.asset, device.name, device.sn, device.loc, device.picName, device.notes]
+            .some(function(f) { return f && f.toLowerCase().includes(t); });
+    }
+
+    function getFiltered() {
+        var filtered = devices;
+        if (searchTerm) filtered = filtered.filter(function(d) { return matchesSearch(d, searchTerm); });
+        if (currentFilter) filtered = filtered.filter(function(d) { return d.loc === currentFilter; });
+        filtered.sort(function(a, b) {
+            var a1 = a.asset.toLowerCase();
+            var b1 = b.asset.toLowerCase();
+            return currentSort === 'asc' ? a1.localeCompare(b1) : b1.localeCompare(a1);
+        });
+        return filtered;
+    }
+
+    // ===== RENDEROWANIE =====
+    function render() {
+        console.log('🎨 Renderowanie, liczba urządzeń:', devices.length);
+        var filtered = getFiltered();
+        
+        var groups = {};
+        filtered.forEach(function(d) {
+            var loc = d.loc || 'inne';
+            if (!groups[loc]) groups[loc] = [];
+            groups[loc].push(d);
+        });
+
+        container.innerHTML = '';
+
+        if (Object.keys(groups).length === 0) {
+            container.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8">brak sprzętu</div>';
+            return;
         }
 
-        async function saveToFirebase() {
-            try {
-                // Zapisujemy każdy dokument osobno
-                for (const device of devices) {
-                    await db.collection('devices').doc(device.id).set(device);
-                }
-                console.log('📤 Zapisano do Firebase:', devices.length);
-            } catch (error) {
-                console.error('Błąd zapisu do Firebase:', error);
-                saveToStorage();
-            }
+        Object.keys(groups).sort().forEach(function(loc) {
+            var group = document.createElement('div');
+            group.className = 'location-group';
+
+            var header = document.createElement('div');
+            header.className = 'location-header';
+            header.innerHTML = '<div class="location-icon">📍</div><div class="location-name">' + loc + '</div><div class="location-count">' + groups[loc].length + '</div>';
+
+            var grid = document.createElement('div');
+            grid.className = 'cards-grid';
+
+            groups[loc].forEach(function(device) {
+                grid.appendChild(createCard(device));
+            });
+
+            group.appendChild(header);
+            group.appendChild(grid);
+            container.appendChild(group);
+        });
+    }
+
+    // ===== TWORZENIE KARTY =====
+    function createCard(device) {
+        var clone = template.content.cloneNode(true);
+        var card = clone.querySelector('.card');
+        card.dataset.id = device.id;
+
+        var img = card.querySelector('.card-img');
+        img.src = device.previewImg || 'https://via.placeholder.com/70/e2e8f0/64748b?text=img';
+
+        card.querySelector('.asset').textContent = device.asset;
+        card.querySelector('.name').textContent = device.name;
+        card.querySelector('.sn').textContent = device.sn;
+        card.querySelector('.location').textContent = device.loc;
+
+        var stock = card.querySelector('.stock-checkbox');
+        stock.checked = device.inStock;
+        stock.addEventListener('change', async function() {
+            device.inStock = stock.checked;
+            await saveData();
+        });
+
+        var details = card.querySelector('.details');
+        var dateField = card.querySelector('.detail-date');
+        var picField = card.querySelector('.detail-pic');
+        var notesField = card.querySelector('.detail-notes');
+        var stickerField = card.querySelector('.detail-sticker');
+
+        dateField.value = device.capDate || '';
+        picField.value = device.picName || '';
+        notesField.value = device.notes || '';
+        
+        if (device.stickerImg) {
+            stickerField.src = device.stickerImg;
         }
 
-        async function saveData() {
-            if (firebaseReady) {
-                await saveToFirebase();
+        dateField.addEventListener('input', async function() { 
+            device.capDate = dateField.value; 
+            await saveData(); 
+        });
+        
+        picField.addEventListener('input', async function() { 
+            device.picName = picField.value; 
+            await saveData(); 
+        });
+        
+        notesField.addEventListener('input', async function() { 
+            device.notes = notesField.value; 
+            await saveData(); 
+        });
+
+        card.addEventListener('click', function(e) {
+            if (e.target.type === 'checkbox' || e.target.classList.contains('edit-btn') || e.target.classList.contains('delete-btn')) return;
+            
+            document.querySelectorAll('.card.expanded').forEach(function(c) {
+                if (c !== card) c.classList.remove('expanded');
+            });
+            
+            card.classList.toggle('expanded');
+        });
+
+        card.querySelector('.edit-btn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            editingId = device.id;
+            modalTitle.textContent = 'edytuj sprzęt';
+            
+            assetInput.value = device.asset;
+            nameInput.value = device.name === '—' ? '' : device.name;
+            snInput.value = device.sn === '—' ? '' : device.sn;
+            locInput.value = device.loc === '—' ? '' : device.loc;
+            dateInput.value = device.capDate || '';
+            picInput.value = device.picName || '';
+            notesInput.value = device.notes || '';
+
+            previewBase64 = device.previewImg || '';
+            if (previewBase64) {
+                previewThumb.classList.remove('hidden');
+                previewImg.src = previewBase64;
             } else {
-                saveToStorage();
-            }
-        }
-
-        // ===== FUNKCJE FILTROWANIA =====
-        function matchesSearch(device, term) {
-            if (!term) return true;
-            const t = term.toLowerCase();
-            return [device.asset, device.name, device.sn, device.loc, device.picName, device.notes]
-                .some(f => f && f.toLowerCase().includes(t));
-        }
-
-        function getFiltered() {
-            let filtered = devices;
-            if (searchTerm) filtered = filtered.filter(d => matchesSearch(d, searchTerm));
-            if (currentFilter) filtered = filtered.filter(d => d.loc === currentFilter);
-            filtered.sort((a, b) => {
-                const a1 = a.asset.toLowerCase();
-                const b1 = b.asset.toLowerCase();
-                return currentSort === 'asc' ? a1.localeCompare(b1) : b1.localeCompare(a1);
-            });
-            return filtered;
-        }
-
-        // ===== RENDEROWANIE =====
-        function render() {
-            console.log('🎨 Renderowanie, liczba urządzeń:', devices.length);
-            const filtered = getFiltered();
-            
-            const groups = {};
-            filtered.forEach(d => {
-                const loc = d.loc || 'inne';
-                if (!groups[loc]) groups[loc] = [];
-                groups[loc].push(d);
-            });
-
-            container.innerHTML = '';
-
-            if (Object.keys(groups).length === 0) {
-                container.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8">brak sprzętu</div>';
-                return;
+                previewThumb.classList.add('hidden');
             }
 
-            Object.keys(groups).sort().forEach(loc => {
-                const group = document.createElement('div');
-                group.className = 'location-group';
-
-                const header = document.createElement('div');
-                header.className = 'location-header';
-                header.innerHTML = `
-                    <div class="location-icon">📍</div>
-                    <div class="location-name">${loc}</div>
-                    <div class="location-count">${groups[loc].length}</div>
-                `;
-
-                const grid = document.createElement('div');
-                grid.className = 'cards-grid';
-
-                groups[loc].forEach(device => {
-                    grid.appendChild(createCard(device));
-                });
-
-                group.appendChild(header);
-                group.appendChild(grid);
-                container.appendChild(group);
-            });
-        }
-
-        // ===== TWORZENIE KARTY =====
-        function createCard(device) {
-            const clone = template.content.cloneNode(true);
-            const card = clone.querySelector('.card');
-            card.dataset.id = device.id;
-
-            const img = card.querySelector('.card-img');
-            img.src = device.previewImg || 'https://via.placeholder.com/70/e2e8f0/64748b?text=img';
-
-            card.querySelector('.asset').textContent = device.asset;
-            card.querySelector('.name').textContent = device.name;
-            card.querySelector('.sn').textContent = device.sn;
-            card.querySelector('.location').textContent = device.loc;
-
-            const stock = card.querySelector('.stock-checkbox');
-            stock.checked = device.inStock;
-            stock.addEventListener('change', async () => {
-                device.inStock = stock.checked;
-                await saveData();
-            });
-
-            const details = card.querySelector('.details');
-            const dateField = card.querySelector('.detail-date');
-            const picField = card.querySelector('.detail-pic');
-            const notesField = card.querySelector('.detail-notes');
-            const stickerField = card.querySelector('.detail-sticker');
-
-            dateField.value = device.capDate || '';
-            picField.value = device.picName || '';
-            notesField.value = device.notes || '';
-            
-            if (device.stickerImg) {
-                stickerField.src = device.stickerImg;
-            }
-
-            dateField.addEventListener('input', async () => { 
-                device.capDate = dateField.value; 
-                await saveData(); 
-            });
-            
-            picField.addEventListener('input', async () => { 
-                device.picName = picField.value; 
-                await saveData(); 
-            });
-            
-            notesField.addEventListener('input', async () => { 
-                device.notes = notesField.value; 
-                await saveData(); 
-            });
-
-            card.addEventListener('click', (e) => {
-                if (e.target.type === 'checkbox' || e.target.classList.contains('edit-btn') || e.target.classList.contains('delete-btn')) return;
-                
-                document.querySelectorAll('.card.expanded').forEach(c => {
-                    if (c !== card) c.classList.remove('expanded');
-                });
-                
-                card.classList.toggle('expanded');
-            });
-
-            card.querySelector('.edit-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                editingId = device.id;
-                modalTitle.textContent = 'edytuj sprzęt';
-                
-                assetInput.value = device.asset;
-                nameInput.value = device.name === '—' ? '' : device.name;
-                snInput.value = device.sn === '—' ? '' : device.sn;
-                locInput.value = device.loc === '—' ? '' : device.loc;
-                dateInput.value = device.capDate || '';
-                picInput.value = device.picName || '';
-                notesInput.value = device.notes || '';
-
-                previewBase64 = device.previewImg || '';
-                if (previewBase64) {
-                    previewThumb.classList.remove('hidden');
-                    previewImg.src = previewBase64;
-                } else {
-                    previewThumb.classList.add('hidden');
-                }
-
-                stickerBase64 = device.stickerImg || '';
-                if (stickerBase64) {
-                    stickerThumb.classList.remove('hidden');
-                    stickerImg.src = stickerBase64;
-                } else {
-                    stickerThumb.classList.add('hidden');
-                }
-
-                modal.classList.add('active');
-            });
-
-            card.querySelector('.delete-btn').addEventListener('click', async (e) => {
-                e.stopPropagation();
-                if (confirm('usunąć?')) {
-                    devices = devices.filter(d => d.id !== device.id);
-                    await saveData();
-                    updateFilterOptions();
-                    render();
-                }
-            });
-
-            return card;
-        }
-
-        // ===== AKTUALIZACJA FILTRA =====
-        function updateFilterOptions() {
-            const locs = [...new Set(devices.map(d => d.loc).filter(l => l && l !== '—'))];
-            locs.sort();
-            const curr = locationFilter.value;
-            locationFilter.innerHTML = '<option value="">wszystkie</option>';
-            locs.forEach(l => {
-                const opt = document.createElement('option');
-                opt.value = l;
-                opt.textContent = l;
-                locationFilter.appendChild(opt);
-            });
-            if (curr && locs.includes(curr)) locationFilter.value = curr;
-        }
-
-        // ===== RESET FORMULARZA =====
-        function resetForm() {
-            assetInput.value = '';
-            nameInput.value = '';
-            snInput.value = '';
-            locInput.value = '';
-            dateInput.value = '';
-            picInput.value = '';
-            notesInput.value = '';
-            
-            previewBase64 = '';
-            stickerBase64 = '';
-            previewThumb.classList.add('hidden');
-            stickerThumb.classList.add('hidden');
-            
-            previewCamera.value = '';
-            previewFile.value = '';
-            stickerCamera.value = '';
-            stickerFile.value = '';
-        }
-
-        // ===== OBSŁUGA ZDJĘĆ =====
-        function handleImageUpload(input, cb) {
-            if (!input.files?.[0]) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const fullBase64 = e.target.result;
-                const compressed = fullBase64.substring(0, 300000);
-                cb(compressed);
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-
-        previewCameraBtn.addEventListener('click', () => previewCamera.click());
-        previewCamera.addEventListener('change', () => {
-            handleImageUpload(previewCamera, (b64) => {
-                previewBase64 = b64;
-                previewThumb.classList.remove('hidden');
-                previewImg.src = b64;
-            });
-        });
-
-        previewFileBtn.addEventListener('click', () => previewFile.click());
-        previewFile.addEventListener('change', () => {
-            handleImageUpload(previewFile, (b64) => {
-                previewBase64 = b64;
-                previewThumb.classList.remove('hidden');
-                previewImg.src = b64;
-            });
-        });
-
-        stickerCameraBtn.addEventListener('click', () => stickerCamera.click());
-        stickerCamera.addEventListener('change', () => {
-            handleImageUpload(stickerCamera, (b64) => {
-                stickerBase64 = b64;
+            stickerBase64 = device.stickerImg || '';
+            if (stickerBase64) {
                 stickerThumb.classList.remove('hidden');
-                stickerImg.src = b64;
-            });
-        });
+                stickerImg.src = stickerBase64;
+            } else {
+                stickerThumb.classList.add('hidden');
+            }
 
-        stickerFileBtn.addEventListener('click', () => stickerFile.click());
-        stickerFile.addEventListener('change', () => {
-            handleImageUpload(stickerFile, (b64) => {
-                stickerBase64 = b64;
-                stickerThumb.classList.remove('hidden');
-                stickerImg.src = b64;
-            });
-        });
-
-        // ===== OBSŁUGA MODALA =====
-        fab.addEventListener('click', () => {
-            editingId = null;
-            modalTitle.textContent = 'nowy sprzęt';
-            resetForm();
             modal.classList.add('active');
         });
 
-        cancelBtn.addEventListener('click', () => {
-            modal.classList.remove('active');
-            resetForm();
+        card.querySelector('.delete-btn').addEventListener('click', async function(e) {
+            e.stopPropagation();
+            if (confirm('usunąć?')) {
+                devices = devices.filter(function(d) { return d.id !== device.id; });
+                await saveData();
+                updateFilterOptions();
+                render();
+            }
         });
 
-        // ===== ZAPIS =====
-        saveBtn.addEventListener('click', async () => {
-            console.log('🖱️ Kliknięto dodaj');
-            
-            const asset = assetInput.value.trim();
-            if (!asset) {
-                alert('nr asset wymagany');
-                return;
+        return card;
+    }
+
+    // ===== AKTUALIZACJA FILTRA =====
+    function updateFilterOptions() {
+        var locs = [];
+        devices.forEach(function(d) {
+            if (d.loc && d.loc !== '—' && locs.indexOf(d.loc) === -1) {
+                locs.push(d.loc);
             }
+        });
+        locs.sort();
+        var curr = locationFilter.value;
+        locationFilter.innerHTML = '<option value="">wszystkie</option>';
+        locs.forEach(function(l) {
+            var opt = document.createElement('option');
+            opt.value = l;
+            opt.textContent = l;
+            locationFilter.appendChild(opt);
+        });
+        if (curr && locs.indexOf(curr) !== -1) locationFilter.value = curr;
+    }
 
-            const newDevice = {
-                id: editingId || (Date.now() + '-' + Math.random().toString(36).substr(2, 6)),
-                asset,
-                name: nameInput.value.trim() || '—',
-                sn: snInput.value.trim() || '—',
-                loc: locInput.value.trim() || '—',
-                capDate: dateInput.value || '',
-                picName: picInput.value.trim() || '',
-                notes: notesInput.value.trim() || '',
-                previewImg: previewBase64 || '',
-                stickerImg: stickerBase64 || '',
-                inStock: false
-            };
+    // ===== RESET FORMULARZA =====
+    function resetForm() {
+        assetInput.value = '';
+        nameInput.value = '';
+        snInput.value = '';
+        locInput.value = '';
+        dateInput.value = '';
+        picInput.value = '';
+        notesInput.value = '';
+        
+        previewBase64 = '';
+        stickerBase64 = '';
+        previewThumb.classList.add('hidden');
+        stickerThumb.classList.add('hidden');
+        
+        previewCamera.value = '';
+        previewFile.value = '';
+        stickerCamera.value = '';
+        stickerFile.value = '';
+    }
 
-            if (editingId) {
-                const idx = devices.findIndex(d => d.id === editingId);
-                if (idx !== -1) {
-                    devices[idx] = newDevice;
-                    console.log('✏️ Zaktualizowano sprzęt');
+    // ===== OBSŁUGA ZDJĘĆ =====
+    function handleImageUpload(input, cb) {
+        if (!input.files || !input.files[0]) return;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var fullBase64 = e.target.result;
+            var compressed = fullBase64.substring(0, 300000);
+            cb(compressed);
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    previewCameraBtn.addEventListener('click', function() { previewCamera.click(); });
+    previewCamera.addEventListener('change', function() {
+        handleImageUpload(previewCamera, function(b64) {
+            previewBase64 = b64;
+            previewThumb.classList.remove('hidden');
+            previewImg.src = b64;
+        });
+    });
+
+    previewFileBtn.addEventListener('click', function() { previewFile.click(); });
+    previewFile.addEventListener('change', function() {
+        handleImageUpload(previewFile, function(b64) {
+            previewBase64 = b64;
+            previewThumb.classList.remove('hidden');
+            previewImg.src = b64;
+        });
+    });
+
+    stickerCameraBtn.addEventListener('click', function() { stickerCamera.click(); });
+    stickerCamera.addEventListener('change', function() {
+        handleImageUpload(stickerCamera, function(b64) {
+            stickerBase64 = b64;
+            stickerThumb.classList.remove('hidden');
+            stickerImg.src = b64;
+        });
+    });
+
+    stickerFileBtn.addEventListener('click', function() { stickerFile.click(); });
+    stickerFile.addEventListener('change', function() {
+        handleImageUpload(stickerFile, function(b64) {
+            stickerBase64 = b64;
+            stickerThumb.classList.remove('hidden');
+            stickerImg.src = b64;
+        });
+    });
+
+    // ===== OBSŁUGA MODALA =====
+    fab.addEventListener('click', function() {
+        editingId = null;
+        modalTitle.textContent = 'nowy sprzęt';
+        resetForm();
+        modal.classList.add('active');
+    });
+
+    cancelBtn.addEventListener('click', function() {
+        modal.classList.remove('active');
+        resetForm();
+    });
+
+    // ===== ZAPIS =====
+    saveBtn.addEventListener('click', async function() {
+        console.log('🖱️ Kliknięto dodaj');
+        
+        var asset = assetInput.value.trim();
+        if (!asset) {
+            alert('nr asset wymagany');
+            return;
+        }
+
+        var newDevice = {
+            id: editingId || (Date.now() + '-' + Math.random().toString(36).substr(2, 6)),
+            asset: asset,
+            name: nameInput.value.trim() || '—',
+            sn: snInput.value.trim() || '—',
+            loc: locInput.value.trim() || '—',
+            capDate: dateInput.value || '',
+            picName: picInput.value.trim() || '',
+            notes: notesInput.value.trim() || '',
+            previewImg: previewBase64 || '',
+            stickerImg: stickerBase64 || '',
+            inStock: false
+        };
+
+        if (editingId) {
+            var idx = -1;
+            for (var i = 0; i < devices.length; i++) {
+                if (devices[i].id === editingId) {
+                    idx = i;
+                    break;
                 }
-            } else {
-                devices.push(newDevice);
-                console.log('➕ Dodano nowy sprzęt, lista liczy:', devices.length);
             }
+            if (idx !== -1) {
+                devices[idx] = newDevice;
+                console.log('✏️ Zaktualizowano sprzęt');
+            }
+        } else {
+            devices.push(newDevice);
+            console.log('➕ Dodano nowy sprzęt, lista liczy:', devices.length);
+        }
 
-            await saveData();
-            updateFilterOptions();
-            render();
-            
-            modal.classList.remove('active');
-            resetForm();
-            editingId = null;
-        });
+        await saveData();
+        updateFilterOptions();
+        render();
+        
+        modal.classList.remove('active');
+        resetForm();
+        editingId = null;
+    });
 
-        // ===== FILTRY =====
-        locationFilter.addEventListener('change', (e) => {
-            currentFilter = e.target.value;
-            render();
-        });
+    // ===== FILTRY =====
+    locationFilter.addEventListener('change', function(e) {
+        currentFilter = e.target.value;
+        render();
+    });
 
-        sortAsc.addEventListener('click', () => {
-            currentSort = 'asc';
-            sortAsc.classList.add('active');
-            sortDesc.classList.remove('active');
-            render();
-        });
+    sortAsc.addEventListener('click', function() {
+        currentSort = 'asc';
+        sortAsc.classList.add('active');
+        sortDesc.classList.remove('active');
+        render();
+    });
 
-        sortDesc.addEventListener('click', () => {
-            currentSort = 'desc';
-            sortDesc.classList.add('active');
-            sortAsc.classList.remove('active');
-            render();
-        });
+    sortDesc.addEventListener('click', function() {
+        currentSort = 'desc';
+        sortDesc.classList.add('active');
+        sortAsc.classList.remove('active');
+        render();
+    });
 
-        searchInput.addEventListener('input', (e) => {
-            searchTerm = e.target.value;
-            render();
-        });
+    searchInput.addEventListener('input', function(e) {
+        searchTerm = e.target.value;
+        render();
+    });
 
-        // ===== EKSPORT/IMPORT =====
-        exportBtn.addEventListener('click', () => {
-            const data = devices.map(d => ({
+    // ===== EKSPORT/IMPORT =====
+    exportBtn.addEventListener('click', function() {
+        var data = devices.map(function(d) {
+            return {
                 'Asset': d.asset,
                 'Nazwa': d.name,
                 'S/N': d.sn,
@@ -1242,84 +1267,79 @@
                 'Osoba': d.picName,
                 'Uwagi': d.notes,
                 'Stan': d.inStock ? 'tak' : 'nie'
-            }));
-
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet(data);
-            XLSX.utils.book_append_sheet(wb, ws, 'sprzęt');
-            XLSX.writeFile(wb, 'asset.xlsx');
+            };
         });
 
-        importBtn.addEventListener('click', () => importFile.click());
+        var wb = XLSX.utils.book_new();
+        var ws = XLSX.utils.json_to_sheet(data);
+        XLSX.utils.book_append_sheet(wb, ws, 'sprzęt');
+        XLSX.writeFile(wb, 'asset.xlsx');
+    });
 
-        importFile.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+    importBtn.addEventListener('click', function() { importFile.click(); });
 
-            const reader = new FileReader();
-            reader.onload = async (ev) => {
-                try {
-                    const data = new Uint8Array(ev.target.result);
-                    const wb = XLSX.read(data, { type: 'array' });
-                    const sheet = wb.Sheets[wb.SheetNames[0]];
-                    const rows = XLSX.utils.sheet_to_json(sheet);
+    importFile.addEventListener('change', async function(e) {
+        var file = e.target.files[0];
+        if (!file) return;
 
-                    const imported = rows.map((r, i) => ({
+        var reader = new FileReader();
+        reader.onload = async function(ev) {
+            try {
+                var data = new Uint8Array(ev.target.result);
+                var wb = XLSX.read(data, { type: 'array' });
+                var sheet = wb.Sheets[wb.SheetNames[0]];
+                var rows = XLSX.utils.sheet_to_json(sheet);
+
+                var imported = rows.map(function(r, i) {
+                    return {
                         id: Date.now() + '-' + i + '-' + Math.random().toString(36).substr(2, 6),
-                        asset: r['Asset']?.toString() || `import-${i}`,
-                        name: r['Nazwa']?.toString() || '—',
-                        sn: r['S/N']?.toString() || '—',
-                        loc: r['Lokalizacja']?.toString() || '—',
-                        capDate: r['Data']?.toString() || '',
-                        picName: r['Osoba']?.toString() || '',
-                        notes: r['Uwagi']?.toString() || '',
+                        asset: (r['Asset'] && r['Asset'].toString()) || ('import-' + i),
+                        name: (r['Nazwa'] && r['Nazwa'].toString()) || '—',
+                        sn: (r['S/N'] && r['S/N'].toString()) || '—',
+                        loc: (r['Lokalizacja'] && r['Lokalizacja'].toString()) || '—',
+                        capDate: (r['Data'] && r['Data'].toString()) || '',
+                        picName: (r['Osoba'] && r['Osoba'].toString()) || '',
+                        notes: (r['Uwagi'] && r['Uwagi'].toString()) || '',
                         previewImg: '',
                         stickerImg: '',
                         inStock: r['Stan'] === 'tak'
-                    }));
+                    };
+                });
 
-                    devices = [...devices, ...imported];
-                    await saveData();
-                    updateFilterOptions();
-                    render();
-                    alert(`import OK: ${imported.length}`);
-                } catch (err) {
-                    alert('błąd importu');
-                }
-            };
-            reader.readAsArrayBuffer(file);
-            importFile.value = '';
-        });
+                devices = devices.concat(imported);
+                await saveData();
+                updateFilterOptions();
+                render();
+                alert('import OK: ' + imported.length);
+            } catch (err) {
+                alert('błąd importu');
+            }
+        };
+        reader.readAsArrayBuffer(file);
+        importFile.value = '';
+    });
 
-        // ===== INICJALIZACJA =====
-        async function init() {
-            container.innerHTML = '<div style="text-align:center;padding:40px;"><div class="loading-spinner"></div></div>';
-            
-            if (firebaseReady) {
-                try {
-                    devices = await loadFromFirebase();
-                    if (devices.length === 0) {
-                        // Jeśli Firebase jest pusty, sprawdź localStorage
-                        const local = loadFromStorage();
-                        if (local.length > 0) {
-                            devices = local;
-                            await saveToFirebase(); // zapisz do Firebase
-                        }
-                    }
-                } catch (error) {
-                    devices = loadFromStorage();
-                }
-            } else {
+    // ===== INICJALIZACJA =====
+    async function init() {
+        container.innerHTML = '<div style="text-align:center;padding:40px;"><div class="loading-spinner"></div></div>';
+        
+        if (firebaseReady) {
+            try {
+                devices = await loadFromFirebase();
+            } catch (error) {
                 devices = loadFromStorage();
             }
-            
-            updateFilterOptions();
-            render();
+        } else {
+            devices = loadFromStorage();
         }
+        
+        updateFilterOptions();
+        render();
+    }
 
-        init();
-    })();
+    // Poczekaj chwilę na sprawdzenie Firebase
+    setTimeout(init, 1000);
+})();
 </script>
 </body>
 </html>
-
