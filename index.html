@@ -138,11 +138,6 @@
             white-space: nowrap;
         }
 
-        .action-btn:hover {
-            background: #1e293b;
-            color: white;
-        }
-
         #importFile {
             display: none;
         }
@@ -216,11 +211,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
             transition: all 0.2s ease;
             cursor: pointer;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
         }
 
         .card-main {
@@ -373,25 +363,10 @@
             border: 1px solid #e2e8f0;
         }
 
-        .btn-edit:hover {
-            background: #1e293b;
-            color: white;
-        }
-
         .btn-delete {
             background: #fee2e2;
             color: #b91c1c;
             border: 1px solid #fecaca;
-        }
-
-        .btn-delete:hover {
-            background: #b91c1c;
-            color: white;
-        }
-
-        .uploading {
-            opacity: 0.5;
-            pointer-events: none;
         }
 
         .hidden {
@@ -536,15 +511,6 @@
             -webkit-appearance: none;
         }
 
-        .btn-primary:hover:not(:disabled) {
-            background: #0f172a;
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
         .btn-secondary {
             background: #f1f5f9;
             border: 1px solid #e2e8f0;
@@ -569,13 +535,6 @@
 
         @keyframes spin {
             to { transform: rotate(360deg); }
-        }
-
-        .upload-status {
-            font-size: 0.7rem;
-            color: #64748b;
-            text-align: center;
-            margin-top: 4px;
         }
     </style>
 </head>
@@ -670,8 +629,6 @@
                 </div>
             </div>
 
-            <div id="uploadStatus" class="upload-status hidden"></div>
-
             <button type="button" class="btn-primary" id="saveBtn">dodaj</button>
             <button type="button" class="btn-secondary" id="cancelBtn">anuluj</button>
         </div>
@@ -741,7 +698,6 @@
     var currentSort = 'asc';
     var searchTerm = '';
     var editingId = null;
-    var uploadingCount = 0;
 
     var container = document.getElementById('inventoryContainer');
     var template = document.getElementById('cardTemplate');
@@ -750,7 +706,6 @@
     var modalTitle = document.getElementById('modalTitle');
     var cancelBtn = document.getElementById('cancelBtn');
     var saveBtn = document.getElementById('saveBtn');
-    var uploadStatus = document.getElementById('uploadStatus');
 
     var assetInput = document.getElementById('assetInput');
     var nameInput = document.getElementById('nameInput');
@@ -781,6 +736,9 @@
     var exportBtn = document.getElementById('exportBtn');
     var importBtn = document.getElementById('importBtn');
     var importFile = document.getElementById('importFile');
+
+    var previewBase64 = '';
+    var stickerBase64 = '';
 
     var configDiv = document.getElementById('firebase-config');
     var firebaseConfig = {
@@ -822,6 +780,7 @@
     function saveToStorage() {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
+            console.log('Zapisano w localStorage');
         } catch (e) {
             alert('Za dużo danych! Usuń któreś wpisy.');
         }
@@ -846,6 +805,7 @@
                         inStock: doc.data().inStock || false
                     });
                 });
+                console.log('Załadowano z Firebase:', loaded.length);
                 return loaded;
             })
             .catch(function(error) {
@@ -869,40 +829,16 @@
 
     function uploadToFirebase(file, path) {
         return new Promise(function(resolve, reject) {
-            if (!firebaseReady) {
-                reject('Firebase nie gotowy');
-                return;
-            }
-            
-            var storageRef = storage.ref();
-            var fileRef = storageRef.child(path);
-            var uploadTask = fileRef.put(file);
-            
-            uploadTask.on('state_changed',
-                function(snapshot) {
-                    var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    uploadStatus.textContent = 'Ładowanie: ' + Math.round(progress) + '%';
-                    uploadStatus.classList.remove('hidden');
-                },
-                function(error) {
-                    reject(error);
-                },
-                function() {
-                    uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-                        resolve(downloadURL);
-                    });
-                }
-            );
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                resolve(e.target.result);
+            };
+            reader.readAsDataURL(file);
         });
     }
 
     function deleteImageFromFirebase(url) {
-        if (!firebaseReady || !url) return Promise.resolve();
-        
-        var storageRef = storage.refFromURL(url);
-        return storageRef.delete().catch(function(error) {
-            console.log('Nie można usunąć zdjęcia:', error);
-        });
+        return Promise.resolve();
     }
 
     function saveData() {
@@ -1076,18 +1012,10 @@
             e.stopPropagation();
             if (confirm('usunąć?')) {
                 var deviceId = device.id;
-                var previewUrl = device.previewImg;
-                var stickerUrl = device.stickerImg;
-                
                 devices = devices.filter(function(d) { return d.id !== deviceId; });
                 
-                var promises = [];
                 if (firebaseReady) {
-                    promises.push(deleteFromFirebase(deviceId));
-                    if (previewUrl) promises.push(deleteImageFromFirebase(previewUrl));
-                    if (stickerUrl) promises.push(deleteImageFromFirebase(stickerUrl));
-                    
-                    Promise.all(promises).then(function() {
+                    deleteFromFirebase(deviceId).then(function() {
                         updateFilterOptions();
                         render();
                     });
@@ -1134,44 +1062,27 @@
         stickerBase64 = '';
         previewThumb.classList.add('hidden');
         stickerThumb.classList.add('hidden');
-        uploadStatus.classList.add('hidden');
         
         previewCamera.value = '';
         previewFile.value = '';
         stickerCamera.value = '';
         stickerFile.value = '';
-        
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'dodaj';
     }
 
-    function handleImageUpload(input, type) {
-        return new Promise(function(resolve, reject) {
-            if (!input.files || !input.files[0]) {
-                resolve('');
-                return;
-            }
-            
-            var file = input.files[0];
-            var fileExt = file.name.split('.').pop();
-            var fileName = type + '_' + Date.now() + '.' + fileExt;
-            
-            if (firebaseReady) {
-                uploadToFirebase(file, 'images/' + fileName)
-                    .then(function(url) {
-                        resolve(url);
-                    })
-                    .catch(function(error) {
-                        reject(error);
-                    });
-            } else {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    resolve(e.target.result);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+    function handleImageUpload(input, cb) {
+        if (!input.files || !input.files[0]) return;
+        var file = input.files[0];
+        
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Zdjęcie jest za duże! Maksymalny rozmiar to 5MB.');
+            return;
+        }
+        
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            cb(e.target.result);
+        };
+        reader.readAsDataURL(file);
     }
 
     previewCameraBtn.addEventListener('click', function(e) { 
@@ -1180,13 +1091,10 @@
     });
     
     previewCamera.addEventListener('change', function() {
-        handleImageUpload(previewCamera, 'preview').then(function(url) {
-            previewBase64 = url;
+        handleImageUpload(previewCamera, function(b64) {
+            previewBase64 = b64;
             previewThumb.classList.remove('hidden');
-            previewImg.src = url;
-            uploadStatus.classList.add('hidden');
-        }).catch(function(error) {
-            alert('Błąd ładowania zdjęcia: ' + error);
+            previewImg.src = b64;
         });
     });
 
@@ -1196,13 +1104,10 @@
     });
     
     previewFile.addEventListener('change', function() {
-        handleImageUpload(previewFile, 'preview').then(function(url) {
-            previewBase64 = url;
+        handleImageUpload(previewFile, function(b64) {
+            previewBase64 = b64;
             previewThumb.classList.remove('hidden');
-            previewImg.src = url;
-            uploadStatus.classList.add('hidden');
-        }).catch(function(error) {
-            alert('Błąd ładowania zdjęcia: ' + error);
+            previewImg.src = b64;
         });
     });
 
@@ -1212,13 +1117,10 @@
     });
     
     stickerCamera.addEventListener('change', function() {
-        handleImageUpload(stickerCamera, 'sticker').then(function(url) {
-            stickerBase64 = url;
+        handleImageUpload(stickerCamera, function(b64) {
+            stickerBase64 = b64;
             stickerThumb.classList.remove('hidden');
-            stickerImg.src = url;
-            uploadStatus.classList.add('hidden');
-        }).catch(function(error) {
-            alert('Błąd ładowania zdjęcia: ' + error);
+            stickerImg.src = b64;
         });
     });
 
@@ -1228,13 +1130,10 @@
     });
     
     stickerFile.addEventListener('change', function() {
-        handleImageUpload(stickerFile, 'sticker').then(function(url) {
-            stickerBase64 = url;
+        handleImageUpload(stickerFile, function(b64) {
+            stickerBase64 = b64;
             stickerThumb.classList.remove('hidden');
-            stickerImg.src = url;
-            uploadStatus.classList.add('hidden');
-        }).catch(function(error) {
-            alert('Błąd ładowania zdjęcia: ' + error);
+            stickerImg.src = b64;
         });
     });
 
@@ -1256,9 +1155,6 @@
             alert('nr asset wymagany');
             return;
         }
-
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'zapisywanie...';
 
         var newDevice = {
             id: editingId || (Date.now() + '-' + Math.random().toString(36).substr(2, 6)),
@@ -1292,14 +1188,11 @@
         saveData().then(function() {
             updateFilterOptions();
             render();
-            modal.classList.remove('active');
-            resetForm();
-            editingId = null;
-        }).catch(function(error) {
-            alert('Błąd zapisu: ' + error);
-            saveBtn.disabled = false;
-            saveBtn.textContent = 'dodaj';
         });
+        
+        modal.classList.remove('active');
+        resetForm();
+        editingId = null;
     });
 
     locationFilter.addEventListener('change', function(e) {
