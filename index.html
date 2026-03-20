@@ -18,7 +18,7 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f1f5f9;
-            padding: 6px;
+            padding: 8px;
             color: #1e293b;
         }
 
@@ -28,19 +28,37 @@
             width: 100%;
         }
 
+        /* KOMPAKTOWY HEADER - wszystko w jednej linii, przewijalny na małych ekranach */
         .header {
             background: white;
             border-radius: 40px;
-            padding: 4px 8px;
+            padding: 6px 12px;
             margin-bottom: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.03);
             border: 1px solid #e2e8f0;
             display: flex;
             align-items: center;
-            gap: 6px;
-            min-height: 44px;
-            width: 100%;
-            flex-wrap: nowrap;
+            gap: 8px;
+            min-height: 48px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+
+        .header::-webkit-scrollbar {
+            height: 3px;
+        }
+
+        .header::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+
+        .header::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 10px;
         }
 
         .logo {
@@ -48,65 +66,65 @@
             align-items: center;
             justify-content: center;
             background: #1e293b;
-            padding: 5px;
+            padding: 6px;
             border-radius: 30px;
             color: white;
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             flex-shrink: 0;
         }
 
         .logo svg {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             fill: white;
         }
 
         .search-box {
             flex: 1;
-            min-width: 80px;
+            min-width: 100px;
         }
 
         .search-box input {
             width: 100%;
-            padding: 6px 10px;
+            padding: 8px 12px;
             border-radius: 30px;
             border: 1px solid #e2e8f0;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             background: #f8fafc;
-            height: 32px;
+            height: 36px;
         }
 
         .filters {
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 6px;
             flex-shrink: 0;
         }
 
         .filter-select {
-            padding: 4px 6px;
+            padding: 6px 10px;
             border-radius: 30px;
             border: 1px solid #e2e8f0;
             background: white;
-            font-size: 0.7rem;
-            min-width: 75px;
+            font-size: 0.75rem;
+            min-width: 80px;
             cursor: pointer;
-            height: 32px;
+            height: 36px;
         }
 
         .sort-btns {
             display: flex;
-            gap: 2px;
+            gap: 4px;
         }
 
         .sort-btn {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 30px;
             border: 1px solid #e2e8f0;
             background: white;
-            font-size: 0.9rem;
+            font-size: 1rem;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -120,18 +138,19 @@
 
         .action-btns {
             display: flex;
-            gap: 2px;
+            gap: 4px;
+            flex-shrink: 0;
         }
 
         .action-btn {
-            padding: 4px 8px;
+            padding: 6px 12px;
             border-radius: 30px;
             border: 1px solid #e2e8f0;
             background: white;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 500;
             cursor: pointer;
-            height: 32px;
+            height: 36px;
             display: flex;
             align-items: center;
             white-space: nowrap;
@@ -766,6 +785,29 @@
         console.log('Brak danych Firebase, używam localStorage');
     }
 
+    // ===== FUNKCJA KOMPRESJI ZDJĘĆ (bez przycinania, tylko gorsza jakość) =====
+    function compressImage(file, quality, callback) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var img = new Image();
+            img.onload = function() {
+                var canvas = document.createElement('canvas');
+                // Zachowaj oryginalne wymiary - nie przycinaj
+                canvas.width = img.width;
+                canvas.height = img.height;
+                
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, img.width, img.height);
+                
+                // Kompresja tylko przez jakość (quality 0.1 - 1.0)
+                var compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                callback(compressedDataUrl);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
     function loadFromStorage() {
         try {
             var data = localStorage.getItem(STORAGE_KEY);
@@ -784,16 +826,9 @@
         }
     }
 
-    function updateDevicesAndRender(newDevices) {
-        devices = newDevices;
-        updateFilterOptions();
-        render();
-    }
-
     function startFirebaseListener() {
         if (!firebaseReady) return;
         
-        // Real-time listener - automatycznie aktualizuje listę gdy zmienia się w Firebase
         unsubscribe = db.collection('devices').onSnapshot(function(snapshot) {
             var loaded = [];
             snapshot.forEach(function(doc) {
@@ -1088,20 +1123,20 @@
         stickerFile.value = '';
     }
 
+    // Obsługa zdjęć z kompresją (jakość 0.6 - 60% jakości, ale pełne wymiary)
     function handleImageUpload(input, cb) {
         if (!input.files || !input.files[0]) return;
         var file = input.files[0];
         
-        if (file.size > 5 * 1024 * 1024) {
-            alert('Zdjęcie jest za duże! Maksymalny rozmiar to 5MB.');
+        if (file.size > 10 * 1024 * 1024) {
+            alert('Zdjęcie jest za duże! Maksymalny rozmiar to 10MB.');
             return;
         }
         
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            cb(e.target.result);
-        };
-        reader.readAsDataURL(file);
+        // Kompresja z jakością 0.6 (60%) - zachowuje pełne wymiary
+        compressImage(file, 0.6, function(compressed) {
+            cb(compressed);
+        });
     }
 
     previewCameraBtn.addEventListener('click', function(e) { 
@@ -1205,7 +1240,6 @@
         }
 
         saveData().then(function() {
-            // Po zapisie lista odświeży się automatycznie przez listener
             if (!firebaseReady) {
                 updateFilterOptions();
                 render();
@@ -1309,7 +1343,6 @@
         container.innerHTML = '<div style="text-align:center;padding:20px;"><div class="loading-spinner"></div></div>';
         
         if (firebaseReady) {
-            // Uruchom real-time listener
             startFirebaseListener();
         } else {
             devices = loadFromStorage();
