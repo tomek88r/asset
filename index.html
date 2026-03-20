@@ -18,86 +18,82 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f1f5f9;
-            padding: 8px;
+            padding: 6px;
             color: #1e293b;
         }
 
         .app {
             max-width: 1400px;
             margin: 0 auto;
+            width: 100%;
         }
 
-        /* KOMPAKTOWY HEADER - wszystko w jednej linii */
+        /* KOMPAKTOWY HEADER - wszystko w jednej linii, bez przewijania */
         .header {
             background: white;
             border-radius: 40px;
-            padding: 6px 12px;
-            margin-bottom: 16px;
+            padding: 4px 8px;
+            margin-bottom: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.03);
             border: 1px solid #e2e8f0;
             display: flex;
             align-items: center;
-            gap: 8px;
-            min-height: 48px;
+            gap: 6px;
+            min-height: 44px;
+            width: 100%;
+            flex-wrap: nowrap;
         }
 
-        /* NOWE LOGO - biały laptop/monitor na ciemnym tle */
         .logo {
             display: flex;
             align-items: center;
             justify-content: center;
             background: #1e293b;
-            padding: 6px;
+            padding: 5px;
             border-radius: 30px;
             color: white;
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             flex-shrink: 0;
         }
 
         .logo svg {
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             fill: white;
         }
 
         .search-box {
             flex: 1;
-            min-width: 120px;
+            min-width: 80px;
         }
 
         .search-box input {
             width: 100%;
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: 30px;
             border: 1px solid #e2e8f0;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             background: #f8fafc;
-            height: 36px;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: #1e293b;
-            background: white;
+            height: 32px;
         }
 
         .filters {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
             flex-shrink: 0;
         }
 
         .filter-select {
-            padding: 6px 10px;
+            padding: 4px 6px;
             border-radius: 30px;
             border: 1px solid #e2e8f0;
             background: white;
-            font-size: 0.8rem;
-            min-width: 100px;
+            font-size: 0.7rem;
+            min-width: 75px;
             cursor: pointer;
-            height: 36px;
+            height: 32px;
         }
 
         .sort-btns {
@@ -106,84 +102,74 @@
         }
 
         .sort-btn {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 30px;
             border: 1px solid #e2e8f0;
             background: white;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .sort-btn.active {
-            background: #1e293b;
-            color: white;
-            border-color: #1e293b;
-        }
-
         .action-btns {
             display: flex;
-            gap: 4px;
+            gap: 2px;
         }
 
         .action-btn {
-            padding: 6px 12px;
+            padding: 4px 8px;
             border-radius: 30px;
             border: 1px solid #e2e8f0;
             background: white;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-weight: 500;
             cursor: pointer;
-            height: 36px;
+            height: 32px;
             display: flex;
             align-items: center;
-        }
-
-        .action-btn:hover {
-            background: #1e293b;
-            color: white;
-            border-color: #1e293b;
+            white-space: nowrap;
         }
 
         #importFile {
             display: none;
         }
 
-        /* MNIEJSZE KARTY NA TELEFONIE */
+        /* MNIEJSZE NAGŁÓWKI LOKALIZACJI */
         .location-group {
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .location-header {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 6px 12px;
+            gap: 6px;
+            padding: 4px 10px;
             background: white;
-            border-radius: 30px;
-            margin-bottom: 8px;
+            border-radius: 25px;
+            margin-bottom: 6px;
             border: 1px solid #e2e8f0;
             position: sticky;
-            top: 4px;
+            top: 0;
             z-index: 5;
             background: rgba(255,255,255,0.95);
             backdrop-filter: blur(8px);
-            font-size: 0.85rem;
+            font-size: 0.75rem;
+            height: 34px;
         }
 
         .location-icon {
-            width: 26px;
-            height: 26px;
+            width: 22px;
+            height: 22px;
             background: #1e293b;
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 26px;
-            font-size: 0.8rem;
+            border-radius: 22px;
+            font-size: 0.7rem;
         }
 
         .location-name {
@@ -193,18 +179,18 @@
 
         .location-count {
             background: #f1f5f9;
-            padding: 3px 8px;
-            border-radius: 20px;
-            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 16px;
+            font-size: 0.65rem;
         }
 
         .cards-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 8px;
-            padding-left: 12px;
+            gap: 6px;
+            padding-left: 8px;
             border-left: 2px solid #e2e8f0;
-            margin-left: 12px;
+            margin-left: 8px;
         }
 
         @media (min-width: 640px) {
@@ -213,46 +199,33 @@
             }
         }
 
-        @media (min-width: 1024px) {
-            .cards-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
         .card {
             background: white;
-            border-radius: 18px;
-            padding: 10px;
+            border-radius: 16px;
+            padding: 8px;
             border: 1px solid #e2e8f0;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
             transition: all 0.2s ease;
             cursor: pointer;
         }
 
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
-            border-color: #94a3b8;
-        }
-
         .card-main {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         .card-img {
-            width: 55px;
-            height: 55px;
-            border-radius: 12px;
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
             object-fit: cover;
             border: 2px solid #e2e8f0;
             background: #f8fafc;
         }
 
         .card.expanded .card-img {
-            width: 70px;
-            height: 70px;
-            border-color: #1e293b;
+            width: 60px;
+            height: 60px;
         }
 
         .card-info {
@@ -263,33 +236,33 @@
             display: flex;
             flex-wrap: wrap;
             align-items: baseline;
-            gap: 4px;
-            margin-bottom: 3px;
+            gap: 3px;
+            margin-bottom: 2px;
         }
 
         .asset-badge {
             background: #f1f5f9;
-            padding: 3px 8px;
-            border-radius: 16px;
-            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 14px;
+            font-size: 0.65rem;
             font-weight: 600;
         }
 
         .sn-text {
             color: #64748b;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
         }
 
         .name-text {
             font-weight: 500;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
 
         .loc-badge {
             background: #f1f5f9;
-            padding: 3px 8px;
-            border-radius: 16px;
-            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 14px;
+            font-size: 0.6rem;
             display: inline-block;
         }
 
@@ -297,22 +270,22 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-width: 38px;
+            min-width: 34px;
         }
 
         .stock-box input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            border-radius: 4px;
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
             border: 2px solid #cbd5e1;
             cursor: pointer;
             accent-color: #1e293b;
         }
 
         .stock-box span {
-            font-size: 0.5rem;
+            font-size: 0.45rem;
             color: #64748b;
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
         .details {
@@ -324,61 +297,60 @@
         }
 
         .card.expanded .details {
-            max-height: 800px;
+            max-height: 700px;
             opacity: 1;
-            margin-top: 10px;
-            padding-top: 10px;
+            margin-top: 8px;
+            padding-top: 8px;
             border-top: 1px solid #e2e8f0;
         }
 
         .detail-row {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .detail-row label {
             display: block;
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             text-transform: uppercase;
             color: #64748b;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
             font-weight: 600;
         }
 
         .detail-row input, .detail-row textarea {
             width: 100%;
-            padding: 8px 10px;
-            border-radius: 14px;
+            padding: 6px 8px;
+            border-radius: 12px;
             border: 1px solid #e2e8f0;
             background: #f8fafc;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
         }
 
         .sticker-image {
             width: 100%;
-            max-height: 150px;
+            max-height: 120px;
             object-fit: contain;
             background: #f8fafc;
-            border-radius: 14px;
-            padding: 8px;
+            border-radius: 12px;
+            padding: 6px;
             border: 1px solid #e2e8f0;
-            margin-top: 5px;
+            margin-top: 4px;
         }
 
         .action-btns {
             display: flex;
-            gap: 8px;
-            margin-top: 12px;
+            gap: 6px;
+            margin-top: 8px;
         }
 
         .action-btns button {
             flex: 1;
-            padding: 8px;
-            border-radius: 25px;
+            padding: 6px;
+            border-radius: 20px;
             border: none;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
         }
 
         .btn-edit {
@@ -387,20 +359,10 @@
             border: 1px solid #e2e8f0;
         }
 
-        .btn-edit:hover {
-            background: #1e293b;
-            color: white;
-        }
-
         .btn-delete {
             background: #fee2e2;
             color: #b91c1c;
             border: 1px solid #fecaca;
-        }
-
-        .btn-delete:hover {
-            background: #b91c1c;
-            color: white;
         }
 
         .hidden {
@@ -409,28 +371,24 @@
 
         .fab {
             position: fixed;
-            bottom: 16px;
-            right: 16px;
-            width: 48px;
-            height: 48px;
+            bottom: 12px;
+            right: 12px;
+            width: 44px;
+            height: 44px;
             border-radius: 30px;
             background: #1e293b;
             color: white;
             border: none;
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             z-index: 100;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .fab:hover {
-            transform: scale(1.1);
-            background: #0f172a;
-        }
-
+        /* POPRAWIONY MODAL */
         .modal {
             position: fixed;
             top: 0;
@@ -448,13 +406,6 @@
             transition: all 0.3s ease;
         }
 
-        @media (min-width: 768px) {
-            .modal {
-                align-items: center;
-                padding: 20px;
-            }
-        }
-
         .modal.active {
             visibility: visible;
             opacity: 1;
@@ -464,43 +415,12 @@
             background: white;
             width: 100%;
             max-width: 500px;
-            border-radius: 30px 30px 0 0;
-            padding: 20px 16px;
+            border-radius: 24px 24px 0 0;
+            padding: 16px 14px;
             transform: translateY(100%);
             transition: transform 0.3s ease;
             max-height: 85vh;
             overflow-y: auto;
-            direction: rtl;
-            scrollbar-width: thin;
-            scrollbar-color: #cbd5e1 transparent;
-        }
-
-        .modal-content > * {
-            direction: ltr;
-        }
-
-        .modal-content::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .modal-content::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .modal-content::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-
-        @media (min-width: 768px) {
-            .modal-content {
-                border-radius: 30px;
-                transform: scale(0.9);
-                padding: 24px 20px;
-            }
-            .modal.active .modal-content {
-                transform: scale(1);
-            }
         }
 
         .modal.active .modal-content {
@@ -510,12 +430,12 @@
         .modal-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 16px;
-            font-size: 1.1rem;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 1rem;
             font-weight: 600;
             border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 12px;
+            padding-bottom: 10px;
             position: sticky;
             top: 0;
             background: white;
@@ -525,51 +445,53 @@
         .modal-form {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
 
         .modal-form input, .modal-form textarea {
-            padding: 10px 14px;
-            border-radius: 25px;
+            padding: 8px 12px;
+            border-radius: 20px;
             border: 1px solid #e2e8f0;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             background: #f8fafc;
+            -webkit-appearance: none;
         }
 
         .photo-row {
             display: flex;
-            gap: 6px;
+            gap: 5px;
         }
 
         .photo-row button {
             flex: 1;
-            padding: 10px;
-            border-radius: 25px;
+            padding: 8px;
+            border-radius: 20px;
             border: 1px solid #e2e8f0;
             background: #f8fafc;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             cursor: pointer;
+            -webkit-appearance: none;
         }
 
         .thumb-row {
             background: #f8fafc;
-            border-radius: 18px;
-            padding: 10px;
+            border-radius: 16px;
+            padding: 8px;
             border: 1px solid #e2e8f0;
         }
 
         .thumb-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 0.8rem;
+            gap: 8px;
+            font-size: 0.75rem;
         }
 
         .thumb-item img {
-            width: 45px;
-            height: 45px;
+            width: 40px;
+            height: 40px;
             object-fit: cover;
-            border-radius: 10px;
+            border-radius: 8px;
             border: 1px solid #e2e8f0;
         }
 
@@ -577,33 +499,35 @@
             background: #1e293b;
             color: white;
             border: none;
-            padding: 14px;
-            border-radius: 30px;
-            font-size: 0.95rem;
+            padding: 12px;
+            border-radius: 25px;
+            font-size: 0.9rem;
             font-weight: 600;
-            margin-top: 8px;
+            margin-top: 6px;
             cursor: pointer;
+            -webkit-appearance: none;
         }
 
         .btn-secondary {
             background: #f1f5f9;
             border: 1px solid #e2e8f0;
-            padding: 12px;
-            border-radius: 30px;
-            font-size: 0.9rem;
-            margin-top: 6px;
+            padding: 10px;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            margin-top: 4px;
             cursor: pointer;
+            -webkit-appearance: none;
         }
 
         .loading-spinner {
             display: inline-block;
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             border: 3px solid #e2e8f0;
             border-top-color: #1e293b;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 30px auto;
+            margin: 20px auto;
         }
 
         @keyframes spin {
@@ -614,12 +538,12 @@
 <body>
     <!-- KONFIGURACJA FIREBASE - TUTAJ WPISZ SWOJE DANE -->
     <div id="firebase-config" style="display: none;" 
-         data-api-key="AIzaSyA6MzvAXMTSoOstYud0A3l66G2bKeNqAiE",
-         data-auth-domain="asset-ddba1.firebaseapp.com",
-         data-project-id="asset-ddba1",
-         data-storage-bucket="asset-ddba1.firebasestorage.app",
-         data-messaging-sender-id="439801546860",
-         data-app-id="1:439801546860:web:3577b08668e9fd29bfb049">
+         data-api-key="AIzaSyBzz7jUxEYyJkMAkMyZ0T0Z0Z0Z0Z0Z0Z0"
+         data-auth-domain="twoja-aplikacja.firebaseapp.com"
+         data-project-id="twoja-aplikacja"
+         data-storage-bucket="twoja-aplikacja.appspot.com"
+         data-messaging-sender-id="123456789"
+         data-app-id="1:123456789:web:abc123">
     </div>
 
 <div class="app">
@@ -662,7 +586,7 @@
 <div class="modal" id="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <span>nowy sprzęt</span>
+            <span id="modalTitle">nowy sprzęt</span>
         </div>
         
         <div class="modal-form">
@@ -711,7 +635,7 @@
 <template id="cardTemplate">
     <div class="card" data-id="">
         <div class="card-main">
-            <img class="card-img" src="https://via.placeholder.com/55/e2e8f0/64748b?text=img" alt="">
+            <img class="card-img" src="https://via.placeholder.com/48/e2e8f0/64748b?text=img" alt="">
             <div class="card-info">
                 <div class="row">
                     <span class="asset-badge asset"></span>
@@ -742,7 +666,7 @@
             </div>
             <div class="detail-row">
                 <label>naklejka</label>
-                <img class="sticker-image detail-sticker" src="https://via.placeholder.com/250/e2e8f0/64748b?text=brak" alt="naklejka">
+                <img class="sticker-image detail-sticker" src="https://via.placeholder.com/200/e2e8f0/64748b?text=brak" alt="naklejka">
             </div>
             <div class="action-btns">
                 <button class="btn-edit edit-btn">edytuj</button>
@@ -752,7 +676,6 @@
     </div>
 </template>
 
-<!-- Ukryty input do importu -->
 <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display: none;">
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -762,7 +685,6 @@
     
     console.log('Aplikacja startuje...');
     
-    // ===== STAN APLIKACJI =====
     var STORAGE_KEY = 'asset_app';
     var devices = [];
     var currentFilter = '';
@@ -770,12 +692,11 @@
     var searchTerm = '';
     var editingId = null;
 
-    // ===== ELEMENTY DOM =====
     var container = document.getElementById('inventoryContainer');
     var template = document.getElementById('cardTemplate');
     var fab = document.getElementById('fabBtn');
     var modal = document.getElementById('modal');
-    var modalTitle = document.querySelector('.modal-header span');
+    var modalTitle = document.getElementById('modalTitle');
     var cancelBtn = document.getElementById('cancelBtn');
     var saveBtn = document.getElementById('saveBtn');
 
@@ -812,7 +733,6 @@
     var previewBase64 = '';
     var stickerBase64 = '';
 
-    // ===== KONFIGURACJA FIREBASE =====
     var configDiv = document.getElementById('firebase-config');
     var firebaseConfig = {
         apiKey: configDiv ? configDiv.dataset.apiKey : "AIzaSyExample",
@@ -826,7 +746,6 @@
     var db;
     var firebaseReady = false;
 
-    // Sprawdź czy mamy prawdziwe dane Firebase
     if (firebaseConfig.apiKey !== "AIzaSyExample" && firebaseConfig.projectId !== "your-project") {
         try {
             firebase.initializeApp(firebaseConfig);
@@ -840,7 +759,6 @@
         console.log('Brak danych Firebase, używam localStorage');
     }
 
-    // ===== FUNKCJE POMOCNICZE =====
     function loadFromStorage() {
         try {
             var data = localStorage.getItem(STORAGE_KEY);
@@ -858,7 +776,6 @@
         }
     }
 
-    // ===== FUNKCJE FIREBASE =====
     function loadFromFirebase() {
         return db.collection('devices').get()
             .then(function(snapshot) {
@@ -878,7 +795,6 @@
                         inStock: doc.data().inStock || false
                     });
                 });
-                console.log('Załadowano z Firebase:', loaded.length);
                 return loaded;
             })
             .catch(function(error) {
@@ -893,25 +809,11 @@
             var docRef = db.collection('devices').doc(device.id);
             promises.push(docRef.set(device));
         });
-        return Promise.all(promises)
-            .then(function() {
-                console.log('Zapisano do Firebase:', devices.length);
-            })
-            .catch(function(error) {
-                console.error('Błąd zapisu do Firebase:', error);
-                saveToStorage();
-            });
+        return Promise.all(promises);
     }
 
-    // POPRAWIONE USUWANIE Z FIREBASE
     function deleteFromFirebase(deviceId) {
-        return db.collection('devices').doc(deviceId).delete()
-            .then(function() {
-                console.log('Usunięto z Firebase:', deviceId);
-            })
-            .catch(function(error) {
-                console.error('Błąd usuwania z Firebase:', error);
-            });
+        return db.collection('devices').doc(deviceId).delete();
     }
 
     function saveData() {
@@ -923,7 +825,6 @@
         }
     }
 
-    // ===== FUNKCJE FILTROWANIA =====
     function matchesSearch(device, term) {
         if (!term) return true;
         var t = term.toLowerCase();
@@ -947,7 +848,6 @@
         return filtered;
     }
 
-    // ===== RENDEROWANIE =====
     function render() {
         var filtered = getFiltered();
         
@@ -961,7 +861,7 @@
         container.innerHTML = '';
 
         if (Object.keys(groups).length === 0) {
-            container.innerHTML = '<div style="text-align:center;padding:30px;color:#94a3b8;font-size:0.9rem;">brak sprzętu</div>';
+            container.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.8rem;">brak sprzętu</div>';
             return;
         }
 
@@ -986,14 +886,13 @@
         });
     }
 
-    // ===== TWORZENIE KARTY =====
     function createCard(device) {
         var clone = template.content.cloneNode(true);
         var card = clone.querySelector('.card');
         card.dataset.id = device.id;
 
         var img = card.querySelector('.card-img');
-        img.src = device.previewImg || 'https://via.placeholder.com/55/e2e8f0/64748b?text=img';
+        img.src = device.previewImg || 'https://via.placeholder.com/48/e2e8f0/64748b?text=img';
 
         card.querySelector('.asset').textContent = device.asset;
         card.querySelector('.name').textContent = device.name;
@@ -1078,23 +977,18 @@
             modal.classList.add('active');
         });
 
-        // POPRAWIONE USUWANIE
         card.querySelector('.delete-btn').addEventListener('click', function(e) {
             e.stopPropagation();
             if (confirm('usunąć?')) {
                 var deviceId = device.id;
-                
-                // Usuń z lokalnej tablicy
                 devices = devices.filter(function(d) { return d.id !== deviceId; });
                 
                 if (firebaseReady) {
-                    // Usuń z Firebase
                     deleteFromFirebase(deviceId).then(function() {
                         updateFilterOptions();
                         render();
                     });
                 } else {
-                    // Tylko localStorage
                     saveToStorage();
                     updateFilterOptions();
                     render();
@@ -1105,7 +999,6 @@
         return card;
     }
 
-    // ===== AKTUALIZACJA FILTRA =====
     function updateFilterOptions() {
         var locs = [];
         devices.forEach(function(d) {
@@ -1125,7 +1018,6 @@
         if (curr && locs.indexOf(curr) !== -1) locationFilter.value = curr;
     }
 
-    // ===== RESET FORMULARZA =====
     function resetForm() {
         assetInput.value = '';
         nameInput.value = '';
@@ -1146,19 +1038,22 @@
         stickerFile.value = '';
     }
 
-    // ===== OBSŁUGA ZDJĘĆ =====
     function handleImageUpload(input, cb) {
         if (!input.files || !input.files[0]) return;
         var reader = new FileReader();
         reader.onload = function(e) {
             var fullBase64 = e.target.result;
-            var compressed = fullBase64.substring(0, 200000);
+            var compressed = fullBase64.substring(0, 150000);
             cb(compressed);
         };
         reader.readAsDataURL(input.files[0]);
     }
 
-    previewCameraBtn.addEventListener('click', function() { previewCamera.click(); });
+    previewCameraBtn.addEventListener('click', function(e) { 
+        e.preventDefault();
+        previewCamera.click(); 
+    });
+    
     previewCamera.addEventListener('change', function() {
         handleImageUpload(previewCamera, function(b64) {
             previewBase64 = b64;
@@ -1167,7 +1062,11 @@
         });
     });
 
-    previewFileBtn.addEventListener('click', function() { previewFile.click(); });
+    previewFileBtn.addEventListener('click', function(e) { 
+        e.preventDefault();
+        previewFile.click(); 
+    });
+    
     previewFile.addEventListener('change', function() {
         handleImageUpload(previewFile, function(b64) {
             previewBase64 = b64;
@@ -1176,7 +1075,11 @@
         });
     });
 
-    stickerCameraBtn.addEventListener('click', function() { stickerCamera.click(); });
+    stickerCameraBtn.addEventListener('click', function(e) { 
+        e.preventDefault();
+        stickerCamera.click(); 
+    });
+    
     stickerCamera.addEventListener('change', function() {
         handleImageUpload(stickerCamera, function(b64) {
             stickerBase64 = b64;
@@ -1185,7 +1088,11 @@
         });
     });
 
-    stickerFileBtn.addEventListener('click', function() { stickerFile.click(); });
+    stickerFileBtn.addEventListener('click', function(e) { 
+        e.preventDefault();
+        stickerFile.click(); 
+    });
+    
     stickerFile.addEventListener('change', function() {
         handleImageUpload(stickerFile, function(b64) {
             stickerBase64 = b64;
@@ -1194,7 +1101,6 @@
         });
     });
 
-    // ===== OBSŁUGA MODALA =====
     fab.addEventListener('click', function() {
         editingId = null;
         modalTitle.textContent = 'nowy sprzęt';
@@ -1207,7 +1113,6 @@
         resetForm();
     });
 
-    // ===== ZAPIS =====
     saveBtn.addEventListener('click', function() {
         var asset = assetInput.value.trim();
         if (!asset) {
@@ -1254,7 +1159,6 @@
         editingId = null;
     });
 
-    // ===== FILTRY =====
     locationFilter.addEventListener('change', function(e) {
         currentFilter = e.target.value;
         render();
@@ -1279,7 +1183,6 @@
         render();
     });
 
-    // ===== EKSPORT/IMPORT =====
     exportBtn.addEventListener('click', function() {
         var data = devices.map(function(d) {
             return {
@@ -1344,9 +1247,8 @@
         importFile.value = '';
     });
 
-    // ===== INICJALIZACJA =====
     function init() {
-        container.innerHTML = '<div style="text-align:center;padding:30px;"><div class="loading-spinner"></div></div>';
+        container.innerHTML = '<div style="text-align:center;padding:20px;"><div class="loading-spinner"></div></div>';
         
         if (firebaseReady) {
             loadFromFirebase().then(function(loaded) {
