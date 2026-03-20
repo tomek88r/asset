@@ -28,19 +28,18 @@
             width: 100%;
         }
 
-        /* HEADER - responsywny, dopasowuje się do szerokości */
+        /* HEADER - jeden rząd, flex, dopasowanie */
         .header {
             background: white;
             border-radius: 40px;
-            padding: 6px 12px;
-            margin-bottom: 12px;
+            padding: 6px 10px;
+            margin-bottom: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.03);
             border: 1px solid #e2e8f0;
             display: flex;
-            flex-wrap: wrap;
             align-items: center;
-            justify-content: space-between;
-            gap: 8px;
+            gap: 6px;
+            width: 100%;
         }
 
         .logo {
@@ -48,64 +47,59 @@
             align-items: center;
             justify-content: center;
             background: #1e293b;
-            padding: 6px;
+            padding: 5px;
             border-radius: 30px;
             color: white;
-            width: 36px;
-            height: 36px;
+            width: 34px;
+            height: 34px;
             flex-shrink: 0;
         }
 
         .logo svg {
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             fill: white;
         }
 
         .search-box {
             flex: 1;
-            min-width: 120px;
+            min-width: 0;
         }
 
         .search-box input {
             width: 100%;
-            padding: 8px 12px;
-            border-radius: 30px;
-            border: 1px solid #e2e8f0;
-            font-size: 0.8rem;
-            background: #f8fafc;
-            height: 36px;
-        }
-
-        .filters {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .filter-select {
             padding: 6px 10px;
             border-radius: 30px;
             border: 1px solid #e2e8f0;
+            font-size: 0.7rem;
+            background: #f8fafc;
+            height: 34px;
+        }
+
+        .filter-select {
+            padding: 5px 8px;
+            border-radius: 30px;
+            border: 1px solid #e2e8f0;
             background: white;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             cursor: pointer;
-            height: 36px;
+            height: 34px;
+            flex-shrink: 0;
         }
 
         .sort-btns {
             display: flex;
-            gap: 4px;
+            gap: 3px;
+            flex-shrink: 0;
         }
 
         .sort-btn {
-            width: 36px;
-            height: 36px;
+            width: 34px;
+            height: 34px;
             border-radius: 30px;
             border: 1px solid #e2e8f0;
             background: white;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -119,18 +113,19 @@
 
         .action-btns {
             display: flex;
-            gap: 4px;
+            gap: 3px;
+            flex-shrink: 0;
         }
 
         .action-btn {
-            padding: 6px 12px;
+            padding: 5px 10px;
             border-radius: 30px;
             border: 1px solid #e2e8f0;
             background: white;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 500;
             cursor: pointer;
-            height: 36px;
+            height: 34px;
             display: flex;
             align-items: center;
             white-space: nowrap;
@@ -138,11 +133,11 @@
 
         /* Data ostatniej aktualizacji */
         .last-update {
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             color: #64748b;
             text-align: right;
-            margin-top: 4px;
-            padding: 0 8px;
+            margin-bottom: 8px;
+            padding: 0 4px;
         }
 
         #importFile {
@@ -431,27 +426,15 @@
             transition: transform 0.3s ease;
             max-height: 85vh;
             overflow-y: auto;
-            /* Usuwamy pasek boczny, zostawiamy tylko przewijanie */
-            scrollbar-width: thin;
+            scrollbar-width: none;
+        }
+
+        .modal-content::-webkit-scrollbar {
+            display: none;
         }
 
         .modal.active .modal-content {
             transform: translateY(0);
-        }
-
-        /* Stylizacja paska przewijania - cienki i dyskretny */
-        .modal-content::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .modal-content::-webkit-scrollbar-track {
-            background: #e2e8f0;
-            border-radius: 10px;
-        }
-
-        .modal-content::-webkit-scrollbar-thumb {
-            background: #94a3b8;
-            border-radius: 10px;
         }
 
         .modal-header {
@@ -588,20 +571,18 @@
             <input type="text" id="searchInput" placeholder="szukaj...">
         </div>
         
-        <div class="filters">
-            <select id="locationFilter" class="filter-select">
-                <option value="">wszystkie</option>
-            </select>
-            
-            <div class="sort-btns">
-                <button id="sortAsc" class="sort-btn active">↑</button>
-                <button id="sortDesc" class="sort-btn">↓</button>
-            </div>
-            
-            <div class="action-btns">
-                <button class="action-btn" id="exportBtn">EXP</button>
-                <button class="action-btn" id="importBtn">IMP</button>
-            </div>
+        <select id="locationFilter" class="filter-select">
+            <option value="">wszystkie</option>
+        </select>
+        
+        <div class="sort-btns">
+            <button id="sortAsc" class="sort-btn active">↑</button>
+            <button id="sortDesc" class="sort-btn">↓</button>
+        </div>
+        
+        <div class="action-btns">
+            <button class="action-btn" id="exportBtn">EXP</button>
+            <button class="action-btn" id="importBtn">IMP</button>
         </div>
     </div>
     <div id="lastUpdate" class="last-update"></div>
@@ -1005,6 +986,7 @@
         stock.addEventListener('change', function() {
             device.inStock = stock.checked;
             saveData();
+            updateLastUpdateTime();
         });
 
         var details = card.querySelector('.details');
@@ -1027,17 +1009,20 @@
 
         dateField.addEventListener('input', function() { 
             device.capDate = dateField.value; 
-            saveData(); 
+            saveData();
+            updateLastUpdateTime();
         });
         
         picField.addEventListener('input', function() { 
             device.picName = picField.value; 
-            saveData(); 
+            saveData();
+            updateLastUpdateTime();
         });
         
         notesField.addEventListener('input', function() { 
             device.notes = notesField.value; 
-            saveData(); 
+            saveData();
+            updateLastUpdateTime();
         });
 
         card.addEventListener('click', function(e) {
@@ -1092,6 +1077,7 @@
                     deleteFromFirebase(deviceId).then(function() {
                         updateFilterOptions();
                         render();
+                        updateLastUpdateTime();
                     });
                 } else {
                     saveToStorage();
