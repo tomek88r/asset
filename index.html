@@ -8,6 +8,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -28,7 +29,6 @@
             width: 100%;
         }
 
-        /* KOMPAKTOWY HEADER - wszystko w jednej linii, bez przewijania */
         .header {
             background: white;
             border-radius: 40px;
@@ -114,6 +114,11 @@
             justify-content: center;
         }
 
+        .sort-btn.active {
+            background: #1e293b;
+            color: white;
+        }
+
         .action-btns {
             display: flex;
             gap: 2px;
@@ -133,11 +138,15 @@
             white-space: nowrap;
         }
 
+        .action-btn:hover {
+            background: #1e293b;
+            color: white;
+        }
+
         #importFile {
             display: none;
         }
 
-        /* MNIEJSZE NAGŁÓWKI LOKALIZACJI */
         .location-group {
             margin-bottom: 12px;
         }
@@ -207,6 +216,11 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
             transition: all 0.2s ease;
             cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
         }
 
         .card-main {
@@ -297,7 +311,7 @@
         }
 
         .card.expanded .details {
-            max-height: 700px;
+            max-height: 800px;
             opacity: 1;
             margin-top: 8px;
             padding-top: 8px;
@@ -328,11 +342,11 @@
 
         .sticker-image {
             width: 100%;
-            max-height: 120px;
+            max-height: 180px;
             object-fit: contain;
             background: #f8fafc;
             border-radius: 12px;
-            padding: 6px;
+            padding: 4px;
             border: 1px solid #e2e8f0;
             margin-top: 4px;
         }
@@ -359,10 +373,25 @@
             border: 1px solid #e2e8f0;
         }
 
+        .btn-edit:hover {
+            background: #1e293b;
+            color: white;
+        }
+
         .btn-delete {
             background: #fee2e2;
             color: #b91c1c;
             border: 1px solid #fecaca;
+        }
+
+        .btn-delete:hover {
+            background: #b91c1c;
+            color: white;
+        }
+
+        .uploading {
+            opacity: 0.5;
+            pointer-events: none;
         }
 
         .hidden {
@@ -388,7 +417,6 @@
             justify-content: center;
         }
 
-        /* POPRAWIONY MODAL */
         .modal {
             position: fixed;
             top: 0;
@@ -488,8 +516,8 @@
         }
 
         .thumb-item img {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             object-fit: cover;
             border-radius: 8px;
             border: 1px solid #e2e8f0;
@@ -506,6 +534,15 @@
             margin-top: 6px;
             cursor: pointer;
             -webkit-appearance: none;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #0f172a;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .btn-secondary {
@@ -532,6 +569,13 @@
 
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+
+        .upload-status {
+            font-size: 0.7rem;
+            color: #64748b;
+            text-align: center;
+            margin-top: 4px;
         }
     </style>
 </head>
@@ -608,7 +652,7 @@
             <div id="previewThumb" class="thumb-row hidden">
                 <div class="thumb-item">
                     <img id="previewImg" src="#" alt="podgląd">
-                    <span>zdjęcie dodane</span>
+                    <span>zdjęcie wybrane</span>
                 </div>
             </div>
 
@@ -622,9 +666,11 @@
             <div id="stickerThumb" class="thumb-row hidden">
                 <div class="thumb-item">
                     <img id="stickerImg" src="#" alt="naklejka">
-                    <span>naklejka dodana</span>
+                    <span>zdjęcie wybrane</span>
                 </div>
             </div>
+
+            <div id="uploadStatus" class="upload-status hidden"></div>
 
             <button type="button" class="btn-primary" id="saveBtn">dodaj</button>
             <button type="button" class="btn-secondary" id="cancelBtn">anuluj</button>
@@ -665,6 +711,10 @@
                 <textarea class="detail-notes" rows="2" placeholder="adnotacje..."></textarea>
             </div>
             <div class="detail-row">
+                <label>zdjęcie poglądowe</label>
+                <img class="sticker-image detail-preview" src="https://via.placeholder.com/200/e2e8f0/64748b?text=brak" alt="preview">
+            </div>
+            <div class="detail-row">
                 <label>naklejka</label>
                 <img class="sticker-image detail-sticker" src="https://via.placeholder.com/200/e2e8f0/64748b?text=brak" alt="naklejka">
             </div>
@@ -691,6 +741,7 @@
     var currentSort = 'asc';
     var searchTerm = '';
     var editingId = null;
+    var uploadingCount = 0;
 
     var container = document.getElementById('inventoryContainer');
     var template = document.getElementById('cardTemplate');
@@ -699,6 +750,7 @@
     var modalTitle = document.getElementById('modalTitle');
     var cancelBtn = document.getElementById('cancelBtn');
     var saveBtn = document.getElementById('saveBtn');
+    var uploadStatus = document.getElementById('uploadStatus');
 
     var assetInput = document.getElementById('assetInput');
     var nameInput = document.getElementById('nameInput');
@@ -730,9 +782,6 @@
     var importBtn = document.getElementById('importBtn');
     var importFile = document.getElementById('importFile');
 
-    var previewBase64 = '';
-    var stickerBase64 = '';
-
     var configDiv = document.getElementById('firebase-config');
     var firebaseConfig = {
         apiKey: configDiv ? configDiv.dataset.apiKey : "AIzaSyExample",
@@ -744,12 +793,14 @@
     };
 
     var db;
+    var storage;
     var firebaseReady = false;
 
     if (firebaseConfig.apiKey !== "AIzaSyExample" && firebaseConfig.projectId !== "your-project") {
         try {
             firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
+            storage = firebase.storage();
             firebaseReady = true;
             console.log('Firebase gotowy');
         } catch (e) {
@@ -772,7 +823,7 @@
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
         } catch (e) {
-            alert('Za dużo zdjęć! Usuń któreś zdjęcia.');
+            alert('Za dużo danych! Usuń któreś wpisy.');
         }
     }
 
@@ -790,8 +841,8 @@
                         capDate: doc.data().capDate,
                         picName: doc.data().picName,
                         notes: doc.data().notes,
-                        previewImg: doc.data().previewImg,
-                        stickerImg: doc.data().stickerImg,
+                        previewImg: doc.data().previewImg || '',
+                        stickerImg: doc.data().stickerImg || '',
                         inStock: doc.data().inStock || false
                     });
                 });
@@ -814,6 +865,44 @@
 
     function deleteFromFirebase(deviceId) {
         return db.collection('devices').doc(deviceId).delete();
+    }
+
+    function uploadToFirebase(file, path) {
+        return new Promise(function(resolve, reject) {
+            if (!firebaseReady) {
+                reject('Firebase nie gotowy');
+                return;
+            }
+            
+            var storageRef = storage.ref();
+            var fileRef = storageRef.child(path);
+            var uploadTask = fileRef.put(file);
+            
+            uploadTask.on('state_changed',
+                function(snapshot) {
+                    var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    uploadStatus.textContent = 'Ładowanie: ' + Math.round(progress) + '%';
+                    uploadStatus.classList.remove('hidden');
+                },
+                function(error) {
+                    reject(error);
+                },
+                function() {
+                    uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                        resolve(downloadURL);
+                    });
+                }
+            );
+        });
+    }
+
+    function deleteImageFromFirebase(url) {
+        if (!firebaseReady || !url) return Promise.resolve();
+        
+        var storageRef = storage.refFromURL(url);
+        return storageRef.delete().catch(function(error) {
+            console.log('Nie można usunąć zdjęcia:', error);
+        });
     }
 
     function saveData() {
@@ -892,7 +981,9 @@
         card.dataset.id = device.id;
 
         var img = card.querySelector('.card-img');
-        img.src = device.previewImg || 'https://via.placeholder.com/48/e2e8f0/64748b?text=img';
+        if (device.previewImg) {
+            img.src = device.previewImg;
+        }
 
         card.querySelector('.asset').textContent = device.asset;
         card.querySelector('.name').textContent = device.name;
@@ -910,12 +1001,16 @@
         var dateField = card.querySelector('.detail-date');
         var picField = card.querySelector('.detail-pic');
         var notesField = card.querySelector('.detail-notes');
+        var previewField = card.querySelector('.detail-preview');
         var stickerField = card.querySelector('.detail-sticker');
 
         dateField.value = device.capDate || '';
         picField.value = device.picName || '';
         notesField.value = device.notes || '';
         
+        if (device.previewImg) {
+            previewField.src = device.previewImg;
+        }
         if (device.stickerImg) {
             stickerField.src = device.stickerImg;
         }
@@ -981,10 +1076,18 @@
             e.stopPropagation();
             if (confirm('usunąć?')) {
                 var deviceId = device.id;
+                var previewUrl = device.previewImg;
+                var stickerUrl = device.stickerImg;
+                
                 devices = devices.filter(function(d) { return d.id !== deviceId; });
                 
+                var promises = [];
                 if (firebaseReady) {
-                    deleteFromFirebase(deviceId).then(function() {
+                    promises.push(deleteFromFirebase(deviceId));
+                    if (previewUrl) promises.push(deleteImageFromFirebase(previewUrl));
+                    if (stickerUrl) promises.push(deleteImageFromFirebase(stickerUrl));
+                    
+                    Promise.all(promises).then(function() {
                         updateFilterOptions();
                         render();
                     });
@@ -1031,22 +1134,44 @@
         stickerBase64 = '';
         previewThumb.classList.add('hidden');
         stickerThumb.classList.add('hidden');
+        uploadStatus.classList.add('hidden');
         
         previewCamera.value = '';
         previewFile.value = '';
         stickerCamera.value = '';
         stickerFile.value = '';
+        
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'dodaj';
     }
 
-    function handleImageUpload(input, cb) {
-        if (!input.files || !input.files[0]) return;
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            var fullBase64 = e.target.result;
-            var compressed = fullBase64.substring(0, 150000);
-            cb(compressed);
-        };
-        reader.readAsDataURL(input.files[0]);
+    function handleImageUpload(input, type) {
+        return new Promise(function(resolve, reject) {
+            if (!input.files || !input.files[0]) {
+                resolve('');
+                return;
+            }
+            
+            var file = input.files[0];
+            var fileExt = file.name.split('.').pop();
+            var fileName = type + '_' + Date.now() + '.' + fileExt;
+            
+            if (firebaseReady) {
+                uploadToFirebase(file, 'images/' + fileName)
+                    .then(function(url) {
+                        resolve(url);
+                    })
+                    .catch(function(error) {
+                        reject(error);
+                    });
+            } else {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     }
 
     previewCameraBtn.addEventListener('click', function(e) { 
@@ -1055,10 +1180,13 @@
     });
     
     previewCamera.addEventListener('change', function() {
-        handleImageUpload(previewCamera, function(b64) {
-            previewBase64 = b64;
+        handleImageUpload(previewCamera, 'preview').then(function(url) {
+            previewBase64 = url;
             previewThumb.classList.remove('hidden');
-            previewImg.src = b64;
+            previewImg.src = url;
+            uploadStatus.classList.add('hidden');
+        }).catch(function(error) {
+            alert('Błąd ładowania zdjęcia: ' + error);
         });
     });
 
@@ -1068,10 +1196,13 @@
     });
     
     previewFile.addEventListener('change', function() {
-        handleImageUpload(previewFile, function(b64) {
-            previewBase64 = b64;
+        handleImageUpload(previewFile, 'preview').then(function(url) {
+            previewBase64 = url;
             previewThumb.classList.remove('hidden');
-            previewImg.src = b64;
+            previewImg.src = url;
+            uploadStatus.classList.add('hidden');
+        }).catch(function(error) {
+            alert('Błąd ładowania zdjęcia: ' + error);
         });
     });
 
@@ -1081,10 +1212,13 @@
     });
     
     stickerCamera.addEventListener('change', function() {
-        handleImageUpload(stickerCamera, function(b64) {
-            stickerBase64 = b64;
+        handleImageUpload(stickerCamera, 'sticker').then(function(url) {
+            stickerBase64 = url;
             stickerThumb.classList.remove('hidden');
-            stickerImg.src = b64;
+            stickerImg.src = url;
+            uploadStatus.classList.add('hidden');
+        }).catch(function(error) {
+            alert('Błąd ładowania zdjęcia: ' + error);
         });
     });
 
@@ -1094,10 +1228,13 @@
     });
     
     stickerFile.addEventListener('change', function() {
-        handleImageUpload(stickerFile, function(b64) {
-            stickerBase64 = b64;
+        handleImageUpload(stickerFile, 'sticker').then(function(url) {
+            stickerBase64 = url;
             stickerThumb.classList.remove('hidden');
-            stickerImg.src = b64;
+            stickerImg.src = url;
+            uploadStatus.classList.add('hidden');
+        }).catch(function(error) {
+            alert('Błąd ładowania zdjęcia: ' + error);
         });
     });
 
@@ -1119,6 +1256,9 @@
             alert('nr asset wymagany');
             return;
         }
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'zapisywanie...';
 
         var newDevice = {
             id: editingId || (Date.now() + '-' + Math.random().toString(36).substr(2, 6)),
@@ -1152,11 +1292,14 @@
         saveData().then(function() {
             updateFilterOptions();
             render();
+            modal.classList.remove('active');
+            resetForm();
+            editingId = null;
+        }).catch(function(error) {
+            alert('Błąd zapisu: ' + error);
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'dodaj';
         });
-        
-        modal.classList.remove('active');
-        resetForm();
-        editingId = null;
     });
 
     locationFilter.addEventListener('change', function(e) {
