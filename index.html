@@ -28,7 +28,7 @@
             width: 100%;
         }
 
-        /* KOMPAKTOWY HEADER - wszystko w jednej linii, przewijalny na małych ekranach */
+        /* HEADER - responsywny, dopasowuje się do szerokości */
         .header {
             background: white;
             border-radius: 40px;
@@ -37,28 +37,10 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.03);
             border: 1px solid #e2e8f0;
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
+            justify-content: space-between;
             gap: 8px;
-            min-height: 48px;
-            overflow-x: auto;
-            overflow-y: hidden;
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: thin;
-        }
-
-        .header::-webkit-scrollbar {
-            height: 3px;
-        }
-
-        .header::-webkit-scrollbar-track {
-            background: #e2e8f0;
-            border-radius: 10px;
-        }
-
-        .header::-webkit-scrollbar-thumb {
-            background: #94a3b8;
-            border-radius: 10px;
         }
 
         .logo {
@@ -82,7 +64,7 @@
 
         .search-box {
             flex: 1;
-            min-width: 100px;
+            min-width: 120px;
         }
 
         .search-box input {
@@ -99,7 +81,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            flex-shrink: 0;
+            flex-wrap: wrap;
         }
 
         .filter-select {
@@ -108,7 +90,6 @@
             border: 1px solid #e2e8f0;
             background: white;
             font-size: 0.75rem;
-            min-width: 80px;
             cursor: pointer;
             height: 36px;
         }
@@ -139,7 +120,6 @@
         .action-btns {
             display: flex;
             gap: 4px;
-            flex-shrink: 0;
         }
 
         .action-btn {
@@ -154,6 +134,15 @@
             display: flex;
             align-items: center;
             white-space: nowrap;
+        }
+
+        /* Data ostatniej aktualizacji */
+        .last-update {
+            font-size: 0.6rem;
+            color: #64748b;
+            text-align: right;
+            margin-top: 4px;
+            padding: 0 8px;
         }
 
         #importFile {
@@ -442,10 +431,27 @@
             transition: transform 0.3s ease;
             max-height: 85vh;
             overflow-y: auto;
+            /* Usuwamy pasek boczny, zostawiamy tylko przewijanie */
+            scrollbar-width: thin;
         }
 
         .modal.active .modal-content {
             transform: translateY(0);
+        }
+
+        /* Stylizacja paska przewijania - cienki i dyskretny */
+        .modal-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 10px;
         }
 
         .modal-header {
@@ -598,6 +604,7 @@
             </div>
         </div>
     </div>
+    <div id="lastUpdate" class="last-update"></div>
 
     <div id="inventoryContainer"></div>
 </div>
@@ -725,6 +732,7 @@
     var modalTitle = document.getElementById('modalTitle');
     var cancelBtn = document.getElementById('cancelBtn');
     var saveBtn = document.getElementById('saveBtn');
+    var lastUpdateEl = document.getElementById('lastUpdate');
 
     var assetInput = document.getElementById('assetInput');
     var nameInput = document.getElementById('nameInput');
@@ -785,21 +793,31 @@
         console.log('Brak danych Firebase, używam localStorage');
     }
 
-    // ===== FUNKCJA KOMPRESJI ZDJĘĆ (bez przycinania, tylko gorsza jakość) =====
+    function updateLastUpdateTime() {
+        var now = new Date();
+        var formatted = now.toLocaleString('pl-PL', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        lastUpdateEl.textContent = 'ostatnia aktualizacja: ' + formatted;
+    }
+
     function compressImage(file, quality, callback) {
         var reader = new FileReader();
         reader.onload = function(e) {
             var img = new Image();
             img.onload = function() {
                 var canvas = document.createElement('canvas');
-                // Zachowaj oryginalne wymiary - nie przycinaj
                 canvas.width = img.width;
                 canvas.height = img.height;
                 
                 var ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, img.width, img.height);
                 
-                // Kompresja tylko przez jakość (quality 0.1 - 1.0)
                 var compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
                 callback(compressedDataUrl);
             };
@@ -821,6 +839,7 @@
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
             console.log('Zapisano w localStorage');
+            updateLastUpdateTime();
         } catch (e) {
             alert('Za dużo danych! Usuń któreś wpisy.');
         }
@@ -850,6 +869,7 @@
             devices = loaded;
             updateFilterOptions();
             render();
+            updateLastUpdateTime();
         }, function(error) {
             console.error('Błąd listenera Firebase:', error);
         });
@@ -1123,7 +1143,6 @@
         stickerFile.value = '';
     }
 
-    // Obsługa zdjęć z kompresją (jakość 0.6 - 60% jakości, ale pełne wymiary)
     function handleImageUpload(input, cb) {
         if (!input.files || !input.files[0]) return;
         var file = input.files[0];
@@ -1133,7 +1152,6 @@
             return;
         }
         
-        // Kompresja z jakością 0.6 (60%) - zachowuje pełne wymiary
         compressImage(file, 0.6, function(compressed) {
             cb(compressed);
         });
@@ -1244,6 +1262,7 @@
                 updateFilterOptions();
                 render();
             }
+            updateLastUpdateTime();
         });
         
         modal.classList.remove('active');
@@ -1329,6 +1348,7 @@
                 saveData().then(function() {
                     updateFilterOptions();
                     render();
+                    updateLastUpdateTime();
                     alert('import OK: ' + imported.length);
                 });
             } catch (err) {
@@ -1348,6 +1368,7 @@
             devices = loadFromStorage();
             updateFilterOptions();
             render();
+            updateLastUpdateTime();
         }
     }
 
