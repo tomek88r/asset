@@ -8,7 +8,6 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -698,6 +697,7 @@
     var currentSort = 'asc';
     var searchTerm = '';
     var editingId = null;
+    var unsubscribe = null;
 
     var container = document.getElementById('inventoryContainer');
     var template = document.getElementById('cardTemplate');
@@ -751,14 +751,12 @@
     };
 
     var db;
-    var storage;
     var firebaseReady = false;
 
     if (firebaseConfig.apiKey !== "AIzaSyExample" && firebaseConfig.projectId !== "your-project") {
         try {
             firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
-            storage = firebase.storage();
             firebaseReady = true;
             console.log('Firebase gotowy');
         } catch (e) {
@@ -786,6 +784,42 @@
         }
     }
 
+    function updateDevicesAndRender(newDevices) {
+        devices = newDevices;
+        updateFilterOptions();
+        render();
+    }
+
+    function startFirebaseListener() {
+        if (!firebaseReady) return;
+        
+        // Real-time listener - automatycznie aktualizuje listę gdy zmienia się w Firebase
+        unsubscribe = db.collection('devices').onSnapshot(function(snapshot) {
+            var loaded = [];
+            snapshot.forEach(function(doc) {
+                loaded.push({
+                    id: doc.id,
+                    asset: doc.data().asset,
+                    name: doc.data().name,
+                    sn: doc.data().sn,
+                    loc: doc.data().loc,
+                    capDate: doc.data().capDate,
+                    picName: doc.data().picName,
+                    notes: doc.data().notes,
+                    previewImg: doc.data().previewImg || '',
+                    stickerImg: doc.data().stickerImg || '',
+                    inStock: doc.data().inStock || false
+                });
+            });
+            console.log('Real-time update z Firebase:', loaded.length);
+            devices = loaded;
+            updateFilterOptions();
+            render();
+        }, function(error) {
+            console.error('Błąd listenera Firebase:', error);
+        });
+    }
+
     function loadFromFirebase() {
         return db.collection('devices').get()
             .then(function(snapshot) {
@@ -805,7 +839,6 @@
                         inStock: doc.data().inStock || false
                     });
                 });
-                console.log('Załadowano z Firebase:', loaded.length);
                 return loaded;
             })
             .catch(function(error) {
@@ -825,20 +858,6 @@
 
     function deleteFromFirebase(deviceId) {
         return db.collection('devices').doc(deviceId).delete();
-    }
-
-    function uploadToFirebase(file, path) {
-        return new Promise(function(resolve, reject) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                resolve(e.target.result);
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
-    function deleteImageFromFirebase(url) {
-        return Promise.resolve();
     }
 
     function saveData() {
@@ -1186,8 +1205,11 @@
         }
 
         saveData().then(function() {
-            updateFilterOptions();
-            render();
+            // Po zapisie lista odświeży się automatycznie przez listener
+            if (!firebaseReady) {
+                updateFilterOptions();
+                render();
+            }
         });
         
         modal.classList.remove('active');
@@ -1287,11 +1309,8 @@
         container.innerHTML = '<div style="text-align:center;padding:20px;"><div class="loading-spinner"></div></div>';
         
         if (firebaseReady) {
-            loadFromFirebase().then(function(loaded) {
-                devices = loaded;
-                updateFilterOptions();
-                render();
-            });
+            // Uruchom real-time listener
+            startFirebaseListener();
         } else {
             devices = loadFromStorage();
             updateFilterOptions();
