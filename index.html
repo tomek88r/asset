@@ -28,7 +28,6 @@
             width: 100%;
         }
 
-        /* HEADER - jeden rząd */
         .header {
             background: white;
             border-radius: 40px;
@@ -42,7 +41,6 @@
             width: 100%;
         }
 
-        /* NOWE LOGO - tekstowe */
         .logo {
             display: flex;
             align-items: center;
@@ -128,7 +126,6 @@
             white-space: nowrap;
         }
 
-        /* Data ostatniej aktualizacji */
         .last-update {
             font-size: 0.55rem;
             color: #64748b;
@@ -781,18 +778,29 @@
         lastUpdateTimestamp = now.getTime();
     }
 
-    function compressImage(file, quality, callback) {
+    // POPRAWNIE DZIAŁAJĄCA KOMPRESJA ZDJĘĆ
+    function compressImage(file, maxWidth, quality, callback) {
         var reader = new FileReader();
         reader.onload = function(e) {
             var img = new Image();
             img.onload = function() {
                 var canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
+                var width = img.width;
+                var height = img.height;
+                
+                // Oblicz nowe wymiary zachowując proporcje
+                if (width > maxWidth) {
+                    height = Math.round(height * (maxWidth / width));
+                    width = maxWidth;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
                 
                 var ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, img.width, img.height);
+                ctx.drawImage(img, 0, 0, width, height);
                 
+                // Kompresja do JPEG z zadaną jakością
                 var compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
                 callback(compressedDataUrl);
             };
@@ -1138,6 +1146,7 @@
         stickerFile.value = '';
     }
 
+    // POPRAWIONA OBSŁUGA ZDJĘĆ - dla aparatu i dysku
     function handleImageUpload(input, cb) {
         if (!input.files || !input.files[0]) return;
         var file = input.files[0];
@@ -1147,7 +1156,8 @@
             return;
         }
         
-        compressImage(file, 0.6, function(compressed) {
+        // Kompresja do max 800px szerokości, jakość 0.7
+        compressImage(file, 800, 0.7, function(compressed) {
             cb(compressed);
         });
     }
