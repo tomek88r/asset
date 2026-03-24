@@ -221,6 +221,7 @@
             object-fit: cover;
             border: 2px solid #e2e8f0;
             background: #f8fafc;
+            cursor: pointer;
         }
 
         .card.expanded .card-img {
@@ -335,6 +336,12 @@
             padding: 4px;
             border: 1px solid #e2e8f0;
             margin-top: 4px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .sticker-image:active {
+            transform: scale(0.98);
         }
 
         .action-btns {
@@ -497,6 +504,7 @@
             object-fit: cover;
             border-radius: 8px;
             border: 1px solid #e2e8f0;
+            cursor: pointer;
         }
 
         .btn-primary {
@@ -552,6 +560,36 @@
             background: #f1f5f9;
             border-radius: 20px;
         }
+
+        /* MODAL PODGLĄDU ZDJĘCIA */
+        .image-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .image-modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .image-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
@@ -595,6 +633,11 @@
 </div>
 
 <button class="fab" id="fabBtn">+</button>
+
+<!-- MODAL PODGLĄDU ZDJĘCIA -->
+<div class="image-modal" id="imageModal">
+    <img id="modalImage" src="" alt="podgląd">
+</div>
 
 <div class="modal" id="modal">
     <div class="modal-content">
@@ -711,7 +754,6 @@
     var editingId = null;
     var unsubscribe = null;
     var lastUpdateTimestamp = 0;
-    var isSaving = false;
 
     var container = document.getElementById('inventoryContainer');
     var template = document.getElementById('cardTemplate');
@@ -722,6 +764,9 @@
     var saveBtn = document.getElementById('saveBtn');
     var lastUpdateEl = document.getElementById('lastUpdate');
     var savingStatus = document.getElementById('savingStatus');
+
+    var imageModal = document.getElementById('imageModal');
+    var modalImage = document.getElementById('modalImage');
 
     var assetInput = document.getElementById('assetInput');
     var nameInput = document.getElementById('nameInput');
@@ -796,18 +841,37 @@
         lastUpdateTimestamp = now.getTime();
     }
 
-    function compressImage(file, maxWidth, quality, callback) {
+    // Funkcja do otwierania podglądu zdjęcia
+    function openImageViewer(imageUrl) {
+        if (imageUrl && imageUrl !== 'https://via.placeholder.com/200/e2e8f0/64748b?text=brak') {
+            modalImage.src = imageUrl;
+            imageModal.classList.add('active');
+        }
+    }
+
+    function closeImageViewer() {
+        imageModal.classList.remove('active');
+    }
+
+    imageModal.addEventListener('click', closeImageViewer);
+
+    function compressImageFast(file, callback) {
         var reader = new FileReader();
         reader.onload = function(e) {
             var img = new Image();
             img.onload = function() {
                 var canvas = document.createElement('canvas');
+                var maxSize = 600;
                 var width = img.width;
                 var height = img.height;
                 
-                if (width > maxWidth) {
-                    height = Math.round(height * (maxWidth / width));
-                    width = maxWidth;
+                if (width > maxSize) {
+                    height = Math.round(height * (maxSize / width));
+                    width = maxSize;
+                }
+                if (height > maxSize) {
+                    width = Math.round(width * (maxSize / height));
+                    height = maxSize;
                 }
                 
                 canvas.width = width;
@@ -816,7 +880,7 @@
                 var ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
                 
-                var compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                var compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
                 callback(compressedDataUrl);
             };
             img.src = e.target.result;
@@ -847,8 +911,6 @@
         if (!firebaseReady) return;
         
         unsubscribe = db.collection('devices').onSnapshot(function(snapshot) {
-            if (isSaving) return; // Pomijamy aktualizację podczas własnego zapisu
-            
             var loaded = [];
             snapshot.forEach(function(doc) {
                 loaded.push({
@@ -931,14 +993,10 @@
     }
 
     function saveData() {
-        isSaving = true;
         if (firebaseReady) {
-            return saveToFirebase().finally(function() {
-                isSaving = false;
-            });
+            return saveToFirebase();
         } else {
             saveToStorage();
-            isSaving = false;
             return Promise.resolve();
         }
     }
@@ -1013,6 +1071,10 @@
         if (device.previewImg) {
             img.src = device.previewImg;
         }
+        img.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openImageViewer(device.previewImg);
+        });
 
         card.querySelector('.asset').textContent = device.asset;
         card.querySelector('.name').textContent = device.name;
@@ -1023,8 +1085,11 @@
         stock.checked = device.inStock;
         stock.addEventListener('change', function() {
             device.inStock = stock.checked;
-            saveData();
-            updateLastUpdateTime();
+            saveData().then(function() {
+                updateFilterOptions();
+                render();
+                updateLastUpdateTime();
+            });
         });
 
         var details = card.querySelector('.details');
@@ -1045,22 +1110,41 @@
             stickerField.src = device.stickerImg;
         }
 
+        previewField.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openImageViewer(device.previewImg);
+        });
+
+        stickerField.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openImageViewer(device.stickerImg);
+        });
+
         dateField.addEventListener('input', function() { 
             device.capDate = dateField.value; 
-            saveData();
-            updateLastUpdateTime();
+            saveData().then(function() {
+                updateFilterOptions();
+                render();
+                updateLastUpdateTime();
+            });
         });
         
         picField.addEventListener('input', function() { 
             device.picName = picField.value; 
-            saveData();
-            updateLastUpdateTime();
+            saveData().then(function() {
+                updateFilterOptions();
+                render();
+                updateLastUpdateTime();
+            });
         });
         
         notesField.addEventListener('input', function() { 
             device.notes = notesField.value; 
-            saveData();
-            updateLastUpdateTime();
+            saveData().then(function() {
+                updateFilterOptions();
+                render();
+                updateLastUpdateTime();
+            });
         });
 
         card.addEventListener('click', function(e) {
@@ -1167,7 +1251,7 @@
         stickerFile.value = '';
     }
 
-    function handleImageUpload(input, cb) {
+    function handleImageUploadFast(input, cb) {
         if (!input.files || !input.files[0]) return;
         var file = input.files[0];
         
@@ -1176,7 +1260,7 @@
             return;
         }
         
-        compressImage(file, 800, 0.7, function(compressed) {
+        compressImageFast(file, function(compressed) {
             cb(compressed);
         });
     }
@@ -1187,7 +1271,7 @@
     });
     
     previewCamera.addEventListener('change', function() {
-        handleImageUpload(previewCamera, function(b64) {
+        handleImageUploadFast(previewCamera, function(b64) {
             previewBase64 = b64;
             previewThumb.classList.remove('hidden');
             previewImg.src = b64;
@@ -1200,7 +1284,7 @@
     });
     
     previewFile.addEventListener('change', function() {
-        handleImageUpload(previewFile, function(b64) {
+        handleImageUploadFast(previewFile, function(b64) {
             previewBase64 = b64;
             previewThumb.classList.remove('hidden');
             previewImg.src = b64;
@@ -1213,7 +1297,7 @@
     });
     
     stickerCamera.addEventListener('change', function() {
-        handleImageUpload(stickerCamera, function(b64) {
+        handleImageUploadFast(stickerCamera, function(b64) {
             stickerBase64 = b64;
             stickerThumb.classList.remove('hidden');
             stickerImg.src = b64;
@@ -1226,7 +1310,7 @@
     });
     
     stickerFile.addEventListener('change', function() {
-        handleImageUpload(stickerFile, function(b64) {
+        handleImageUploadFast(stickerFile, function(b64) {
             stickerBase64 = b64;
             stickerThumb.classList.remove('hidden');
             stickerImg.src = b64;
@@ -1252,10 +1336,9 @@
             return;
         }
 
-        // Wyłącz przycisk i pokaż status
         saveBtn.disabled = true;
         savingStatus.classList.remove('hidden');
-        savingStatus.textContent = 'przetwarzanie zdjęć...';
+        savingStatus.textContent = 'zapisywanie...';
 
         var newDevice = {
             id: editingId || (Date.now() + '-' + Math.random().toString(36).substr(2, 6)),
@@ -1270,8 +1353,6 @@
             stickerImg: stickerBase64 || '',
             inStock: false
         };
-
-        savingStatus.textContent = 'zapisywanie...';
 
         if (editingId) {
             var idx = -1;
@@ -1289,13 +1370,9 @@
         }
 
         saveData().then(function() {
-            if (!firebaseReady) {
-                updateFilterOptions();
-                render();
-            }
+            updateFilterOptions();
+            render();
             updateLastUpdateTime();
-            
-            // Sukces - zamknij modal
             modal.classList.remove('active');
             resetForm();
             editingId = null;
