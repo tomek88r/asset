@@ -337,11 +337,6 @@
             border: 1px solid #e2e8f0;
             margin-top: 4px;
             cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        .sticker-image:active {
-            transform: scale(0.98);
         }
 
         .action-btns {
@@ -561,7 +556,6 @@
             border-radius: 20px;
         }
 
-        /* MODAL PODGLĄDU ZDJĘCIA */
         .image-modal {
             position: fixed;
             top: 0;
@@ -593,48 +587,39 @@
     </style>
 </head>
 <body>
-    <!-- KONFIGURACJA FIREBASE - TUTAJ WPISZ SWOJE DANE -->
     <div id="firebase-config" style="display: none;" 
-         data-api-key="AIzaSyA6MzvAXMTSoOstYud0A3l66G2bKeNqAiE",
-         data-auth-domain="asset-ddba1.firebaseapp.com",
-         data-project-id="asset-ddba1",
-         data-storage-bucket="asset-ddba1.firebasestorage.app",
-         data-messaging-sender-id="439801546860",
-         data-app-id="1:439801546860:web:3577b08668e9fd29bfb049">
+         data-api-key="AIzaSyBzz7jUxEYyJkMAkMyZ0T0Z0Z0Z0Z0Z0Z0"
+         data-auth-domain="twoja-aplikacja.firebaseapp.com"
+         data-project-id="twoja-aplikacja"
+         data-storage-bucket="twoja-aplikacja.appspot.com"
+         data-messaging-sender-id="123456789"
+         data-app-id="1:123456789:web:abc123">
     </div>
 
 <div class="app">
     <div class="header">
-        <div class="logo">
-            Asset
-        </div>
-        
+        <div class="logo">Asset</div>
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="szukaj...">
         </div>
-        
         <select id="locationFilter" class="filter-select">
             <option value="">wszystkie</option>
         </select>
-        
         <div class="sort-btns">
             <button id="sortAsc" class="sort-btn active">↑</button>
             <button id="sortDesc" class="sort-btn">↓</button>
         </div>
-        
         <div class="action-btns">
             <button class="action-btn" id="exportBtn">EXP</button>
             <button class="action-btn" id="importBtn">IMP</button>
         </div>
     </div>
     <div id="lastUpdate" class="last-update"></div>
-
     <div id="inventoryContainer"></div>
 </div>
 
 <button class="fab" id="fabBtn">+</button>
 
-<!-- MODAL PODGLĄDU ZDJĘCIA -->
 <div class="image-modal" id="imageModal">
     <img id="modalImage" src="" alt="podgląd">
 </div>
@@ -644,7 +629,6 @@
         <div class="modal-header">
             <span id="modalTitle">nowy sprzęt</span>
         </div>
-        
         <div class="modal-form">
             <input type="text" id="assetInput" placeholder="nr asset *">
             <input type="text" id="nameInput" placeholder="nazwa">
@@ -660,7 +644,6 @@
                 <input type="file" id="previewCamera" accept="image/*" capture="environment" style="display: none;">
                 <input type="file" id="previewFile" accept="image/*" style="display: none;">
             </div>
-
             <div id="previewThumb" class="thumb-row hidden">
                 <div class="thumb-item">
                     <img id="previewImg" src="#" alt="podgląd">
@@ -674,7 +657,6 @@
                 <input type="file" id="stickerCamera" accept="image/*" capture="environment" style="display: none;">
                 <input type="file" id="stickerFile" accept="image/*" style="display: none;">
             </div>
-
             <div id="stickerThumb" class="thumb-row hidden">
                 <div class="thumb-item">
                     <img id="stickerImg" src="#" alt="naklejka">
@@ -744,8 +726,6 @@
 (function() {
     "use strict";
     
-    console.log('Aplikacja startuje...');
-    
     var STORAGE_KEY = 'asset_app';
     var devices = [];
     var currentFilter = '';
@@ -753,7 +733,7 @@
     var searchTerm = '';
     var editingId = null;
     var unsubscribe = null;
-    var lastUpdateTimestamp = 0;
+    var isUpdatingFromListener = false;
 
     var container = document.getElementById('inventoryContainer');
     var template = document.getElementById('cardTemplate');
@@ -823,8 +803,6 @@
         } catch (e) {
             console.error('Błąd Firebase:', e);
         }
-    } else {
-        console.log('Brak danych Firebase, używam localStorage');
     }
 
     function updateLastUpdateTime() {
@@ -838,12 +816,10 @@
             second: '2-digit'
         });
         lastUpdateEl.textContent = 'ostatnia aktualizacja: ' + formatted;
-        lastUpdateTimestamp = now.getTime();
     }
 
-    // Funkcja do otwierania podglądu zdjęcia
     function openImageViewer(imageUrl) {
-        if (imageUrl && imageUrl !== 'https://via.placeholder.com/200/e2e8f0/64748b?text=brak') {
+        if (imageUrl && imageUrl.indexOf('placeholder') === -1) {
             modalImage.src = imageUrl;
             imageModal.classList.add('active');
         }
@@ -852,7 +828,6 @@
     function closeImageViewer() {
         imageModal.classList.remove('active');
     }
-
     imageModal.addEventListener('click', closeImageViewer);
 
     function compressImageFast(file, callback) {
@@ -864,7 +839,6 @@
                 var maxSize = 600;
                 var width = img.width;
                 var height = img.height;
-                
                 if (width > maxSize) {
                     height = Math.round(height * (maxSize / width));
                     width = maxSize;
@@ -873,13 +847,10 @@
                     width = Math.round(width * (maxSize / height));
                     height = maxSize;
                 }
-                
                 canvas.width = width;
                 canvas.height = height;
-                
                 var ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                
                 var compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
                 callback(compressedDataUrl);
             };
@@ -890,8 +861,7 @@
 
     function loadFromStorage() {
         try {
-            var data = localStorage.getItem(STORAGE_KEY);
-            return data ? JSON.parse(data) : [];
+            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
         } catch (e) {
             return [];
         }
@@ -900,7 +870,6 @@
     function saveToStorage() {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
-            console.log('Zapisano w localStorage');
             updateLastUpdateTime();
         } catch (e) {
             alert('Za dużo danych! Usuń któreś wpisy.');
@@ -909,8 +878,8 @@
 
     function startFirebaseListener() {
         if (!firebaseReady) return;
-        
         unsubscribe = db.collection('devices').onSnapshot(function(snapshot) {
+            if (isUpdatingFromListener) return;
             var loaded = [];
             snapshot.forEach(function(doc) {
                 loaded.push({
@@ -927,26 +896,9 @@
                     inStock: doc.data().inStock || false
                 });
             });
-            
-            var changed = false;
-            if (devices.length !== loaded.length) {
-                changed = true;
-            } else {
-                for (var i = 0; i < devices.length; i++) {
-                    if (JSON.stringify(devices[i]) !== JSON.stringify(loaded[i])) {
-                        changed = true;
-                        break;
-                    }
-                }
-            }
-            
             devices = loaded;
             updateFilterOptions();
             render();
-            
-            if (changed) {
-                updateLastUpdateTime();
-            }
         }, function(error) {
             console.error('Błąd listenera Firebase:', error);
         });
@@ -994,7 +946,10 @@
 
     function saveData() {
         if (firebaseReady) {
-            return saveToFirebase();
+            isUpdatingFromListener = true;
+            return saveToFirebase().finally(function() {
+                isUpdatingFromListener = false;
+            });
         } else {
             saveToStorage();
             return Promise.resolve();
@@ -1010,12 +965,8 @@
 
     function getFiltered() {
         var filtered = devices.slice();
-        if (searchTerm) {
-            filtered = filtered.filter(function(d) { return matchesSearch(d, searchTerm); });
-        }
-        if (currentFilter) {
-            filtered = filtered.filter(function(d) { return d.loc === currentFilter; });
-        }
+        if (searchTerm) filtered = filtered.filter(function(d) { return matchesSearch(d, searchTerm); });
+        if (currentFilter) filtered = filtered.filter(function(d) { return d.loc === currentFilter; });
         filtered.sort(function(a, b) {
             var a1 = a.asset.toLowerCase();
             var b1 = b.asset.toLowerCase();
@@ -1026,36 +977,28 @@
 
     function render() {
         var filtered = getFiltered();
-        
         var groups = {};
         filtered.forEach(function(d) {
             var loc = d.loc || 'inne';
             if (!groups[loc]) groups[loc] = [];
             groups[loc].push(d);
         });
-
         container.innerHTML = '';
-
         if (Object.keys(groups).length === 0) {
             container.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.8rem;">brak sprzętu</div>';
             return;
         }
-
         Object.keys(groups).sort().forEach(function(loc) {
             var group = document.createElement('div');
             group.className = 'location-group';
-
             var header = document.createElement('div');
             header.className = 'location-header';
             header.innerHTML = '<div class="location-icon">📍</div><div class="location-name">' + loc + '</div><div class="location-count">' + groups[loc].length + '</div>';
-
             var grid = document.createElement('div');
             grid.className = 'cards-grid';
-
             groups[loc].forEach(function(device) {
                 grid.appendChild(createCard(device));
             });
-
             group.appendChild(header);
             group.appendChild(grid);
             container.appendChild(group);
@@ -1068,13 +1011,8 @@
         card.dataset.id = device.id;
 
         var img = card.querySelector('.card-img');
-        if (device.previewImg) {
-            img.src = device.previewImg;
-        }
-        img.addEventListener('click', function(e) {
-            e.stopPropagation();
-            openImageViewer(device.previewImg);
-        });
+        if (device.previewImg) img.src = device.previewImg;
+        img.addEventListener('click', function(e) { e.stopPropagation(); openImageViewer(device.previewImg); });
 
         card.querySelector('.asset').textContent = device.asset;
         card.querySelector('.name').textContent = device.name;
@@ -1102,58 +1040,19 @@
         dateField.value = device.capDate || '';
         picField.value = device.picName || '';
         notesField.value = device.notes || '';
-        
-        if (device.previewImg) {
-            previewField.src = device.previewImg;
-        }
-        if (device.stickerImg) {
-            stickerField.src = device.stickerImg;
-        }
+        if (device.previewImg) previewField.src = device.previewImg;
+        if (device.stickerImg) stickerField.src = device.stickerImg;
 
-        previewField.addEventListener('click', function(e) {
-            e.stopPropagation();
-            openImageViewer(device.previewImg);
-        });
+        previewField.addEventListener('click', function(e) { e.stopPropagation(); openImageViewer(device.previewImg); });
+        stickerField.addEventListener('click', function(e) { e.stopPropagation(); openImageViewer(device.stickerImg); });
 
-        stickerField.addEventListener('click', function(e) {
-            e.stopPropagation();
-            openImageViewer(device.stickerImg);
-        });
-
-        dateField.addEventListener('input', function() { 
-            device.capDate = dateField.value; 
-            saveData().then(function() {
-                updateFilterOptions();
-                render();
-                updateLastUpdateTime();
-            });
-        });
-        
-        picField.addEventListener('input', function() { 
-            device.picName = picField.value; 
-            saveData().then(function() {
-                updateFilterOptions();
-                render();
-                updateLastUpdateTime();
-            });
-        });
-        
-        notesField.addEventListener('input', function() { 
-            device.notes = notesField.value; 
-            saveData().then(function() {
-                updateFilterOptions();
-                render();
-                updateLastUpdateTime();
-            });
-        });
+        dateField.addEventListener('input', function() { device.capDate = dateField.value; saveData().then(render); });
+        picField.addEventListener('input', function() { device.picName = picField.value; saveData().then(render); });
+        notesField.addEventListener('input', function() { device.notes = notesField.value; saveData().then(render); });
 
         card.addEventListener('click', function(e) {
             if (e.target.type === 'checkbox' || e.target.classList.contains('edit-btn') || e.target.classList.contains('delete-btn')) return;
-            
-            document.querySelectorAll('.card.expanded').forEach(function(c) {
-                if (c !== card) c.classList.remove('expanded');
-            });
-            
+            document.querySelectorAll('.card.expanded').forEach(function(c) { if (c !== card) c.classList.remove('expanded'); });
             card.classList.toggle('expanded');
         });
 
@@ -1161,7 +1060,6 @@
             e.stopPropagation();
             editingId = device.id;
             modalTitle.textContent = 'edytuj sprzęt';
-            
             assetInput.value = device.asset;
             nameInput.value = device.name === '—' ? '' : device.name;
             snInput.value = device.sn === '—' ? '' : device.sn;
@@ -1169,23 +1067,12 @@
             dateInput.value = device.capDate || '';
             picInput.value = device.picName || '';
             notesInput.value = device.notes || '';
-
             previewBase64 = device.previewImg || '';
-            if (previewBase64) {
-                previewThumb.classList.remove('hidden');
-                previewImg.src = previewBase64;
-            } else {
-                previewThumb.classList.add('hidden');
-            }
-
+            if (previewBase64) { previewThumb.classList.remove('hidden'); previewImg.src = previewBase64; }
+            else { previewThumb.classList.add('hidden'); }
             stickerBase64 = device.stickerImg || '';
-            if (stickerBase64) {
-                stickerThumb.classList.remove('hidden');
-                stickerImg.src = stickerBase64;
-            } else {
-                stickerThumb.classList.add('hidden');
-            }
-
+            if (stickerBase64) { stickerThumb.classList.remove('hidden'); stickerImg.src = stickerBase64; }
+            else { stickerThumb.classList.add('hidden'); }
             modal.classList.add('active');
         });
 
@@ -1194,30 +1081,17 @@
             if (confirm('usunąć?')) {
                 var deviceId = device.id;
                 devices = devices.filter(function(d) { return d.id !== deviceId; });
-                
-                if (firebaseReady) {
-                    deleteFromFirebase(deviceId).then(function() {
-                        updateFilterOptions();
-                        render();
-                        updateLastUpdateTime();
-                    });
-                } else {
-                    saveToStorage();
-                    updateFilterOptions();
-                    render();
-                }
+                if (firebaseReady) deleteFromFirebase(deviceId).then(function() { updateFilterOptions(); render(); updateLastUpdateTime(); });
+                else { saveToStorage(); updateFilterOptions(); render(); }
             }
         });
-
         return card;
     }
 
     function updateFilterOptions() {
         var locs = [];
         devices.forEach(function(d) {
-            if (d.loc && d.loc !== '—' && locs.indexOf(d.loc) === -1) {
-                locs.push(d.loc);
-            }
+            if (d.loc && d.loc !== '—' && locs.indexOf(d.loc) === -1) locs.push(d.loc);
         });
         locs.sort();
         var curr = locationFilter.value;
@@ -1239,12 +1113,10 @@
         dateInput.value = '';
         picInput.value = '';
         notesInput.value = '';
-        
         previewBase64 = '';
         stickerBase64 = '';
         previewThumb.classList.add('hidden');
         stickerThumb.classList.add('hidden');
-        
         previewCamera.value = '';
         previewFile.value = '';
         stickerCamera.value = '';
@@ -1254,88 +1126,25 @@
     function handleImageUploadFast(input, cb) {
         if (!input.files || !input.files[0]) return;
         var file = input.files[0];
-        
-        if (file.size > 10 * 1024 * 1024) {
-            alert('Zdjęcie jest za duże! Maksymalny rozmiar to 10MB.');
-            return;
-        }
-        
-        compressImageFast(file, function(compressed) {
-            cb(compressed);
-        });
+        if (file.size > 10 * 1024 * 1024) { alert('Zdjęcie jest za duże! Maksymalny rozmiar to 10MB.'); return; }
+        compressImageFast(file, function(compressed) { cb(compressed); });
     }
 
-    previewCameraBtn.addEventListener('click', function(e) { 
-        e.preventDefault();
-        previewCamera.click(); 
-    });
-    
-    previewCamera.addEventListener('change', function() {
-        handleImageUploadFast(previewCamera, function(b64) {
-            previewBase64 = b64;
-            previewThumb.classList.remove('hidden');
-            previewImg.src = b64;
-        });
-    });
+    previewCameraBtn.addEventListener('click', function(e) { e.preventDefault(); previewCamera.click(); });
+    previewCamera.addEventListener('change', function() { handleImageUploadFast(previewCamera, function(b64) { previewBase64 = b64; previewThumb.classList.remove('hidden'); previewImg.src = b64; }); });
+    previewFileBtn.addEventListener('click', function(e) { e.preventDefault(); previewFile.click(); });
+    previewFile.addEventListener('change', function() { handleImageUploadFast(previewFile, function(b64) { previewBase64 = b64; previewThumb.classList.remove('hidden'); previewImg.src = b64; }); });
+    stickerCameraBtn.addEventListener('click', function(e) { e.preventDefault(); stickerCamera.click(); });
+    stickerCamera.addEventListener('change', function() { handleImageUploadFast(stickerCamera, function(b64) { stickerBase64 = b64; stickerThumb.classList.remove('hidden'); stickerImg.src = b64; }); });
+    stickerFileBtn.addEventListener('click', function(e) { e.preventDefault(); stickerFile.click(); });
+    stickerFile.addEventListener('change', function() { handleImageUploadFast(stickerFile, function(b64) { stickerBase64 = b64; stickerThumb.classList.remove('hidden'); stickerImg.src = b64; }); });
 
-    previewFileBtn.addEventListener('click', function(e) { 
-        e.preventDefault();
-        previewFile.click(); 
-    });
-    
-    previewFile.addEventListener('change', function() {
-        handleImageUploadFast(previewFile, function(b64) {
-            previewBase64 = b64;
-            previewThumb.classList.remove('hidden');
-            previewImg.src = b64;
-        });
-    });
-
-    stickerCameraBtn.addEventListener('click', function(e) { 
-        e.preventDefault();
-        stickerCamera.click(); 
-    });
-    
-    stickerCamera.addEventListener('change', function() {
-        handleImageUploadFast(stickerCamera, function(b64) {
-            stickerBase64 = b64;
-            stickerThumb.classList.remove('hidden');
-            stickerImg.src = b64;
-        });
-    });
-
-    stickerFileBtn.addEventListener('click', function(e) { 
-        e.preventDefault();
-        stickerFile.click(); 
-    });
-    
-    stickerFile.addEventListener('change', function() {
-        handleImageUploadFast(stickerFile, function(b64) {
-            stickerBase64 = b64;
-            stickerThumb.classList.remove('hidden');
-            stickerImg.src = b64;
-        });
-    });
-
-    fab.addEventListener('click', function() {
-        editingId = null;
-        modalTitle.textContent = 'nowy sprzęt';
-        resetForm();
-        modal.classList.add('active');
-    });
-
-    cancelBtn.addEventListener('click', function() {
-        modal.classList.remove('active');
-        resetForm();
-    });
+    fab.addEventListener('click', function() { editingId = null; modalTitle.textContent = 'nowy sprzęt'; resetForm(); modal.classList.add('active'); });
+    cancelBtn.addEventListener('click', function() { modal.classList.remove('active'); resetForm(); });
 
     saveBtn.addEventListener('click', function() {
         var asset = assetInput.value.trim();
-        if (!asset) {
-            alert('nr asset wymagany');
-            return;
-        }
-
+        if (!asset) { alert('nr asset wymagany'); return; }
         saveBtn.disabled = true;
         savingStatus.classList.remove('hidden');
         savingStatus.textContent = 'zapisywanie...';
@@ -1355,16 +1164,8 @@
         };
 
         if (editingId) {
-            var idx = -1;
-            for (var i = 0; i < devices.length; i++) {
-                if (devices[i].id === editingId) {
-                    idx = i;
-                    break;
-                }
-            }
-            if (idx !== -1) {
-                devices[idx] = newDevice;
-            }
+            var idx = devices.findIndex(function(d) { return d.id === editingId; });
+            if (idx !== -1) devices[idx] = newDevice;
         } else {
             devices.push(newDevice);
         }
@@ -1385,44 +1186,18 @@
         });
     });
 
-    locationFilter.addEventListener('change', function(e) {
-        currentFilter = e.target.value;
-        render();
-    });
-
-    sortAsc.addEventListener('click', function() {
-        currentSort = 'asc';
-        sortAsc.classList.add('active');
-        sortDesc.classList.remove('active');
-        render();
-    });
-
-    sortDesc.addEventListener('click', function() {
-        currentSort = 'desc';
-        sortDesc.classList.add('active');
-        sortAsc.classList.remove('active');
-        render();
-    });
-
-    searchInput.addEventListener('input', function(e) {
-        searchTerm = e.target.value;
-        render();
-    });
+    locationFilter.addEventListener('change', function(e) { currentFilter = e.target.value; render(); });
+    sortAsc.addEventListener('click', function() { currentSort = 'asc'; sortAsc.classList.add('active'); sortDesc.classList.remove('active'); render(); });
+    sortDesc.addEventListener('click', function() { currentSort = 'desc'; sortDesc.classList.add('active'); sortAsc.classList.remove('active'); render(); });
+    searchInput.addEventListener('input', function(e) { searchTerm = e.target.value; render(); });
 
     exportBtn.addEventListener('click', function() {
         var data = devices.map(function(d) {
             return {
-                'Asset': d.asset,
-                'Nazwa': d.name,
-                'S/N': d.sn,
-                'Lokalizacja': d.loc,
-                'Data': d.capDate,
-                'Osoba': d.picName,
-                'Uwagi': d.notes,
-                'Stan': d.inStock ? 'tak' : 'nie'
+                'Asset': d.asset, 'Nazwa': d.name, 'S/N': d.sn, 'Lokalizacja': d.loc,
+                'Data': d.capDate, 'Osoba': d.picName, 'Uwagi': d.notes, 'Stan': d.inStock ? 'tak' : 'nie'
             };
         });
-
         var wb = XLSX.utils.book_new();
         var ws = XLSX.utils.json_to_sheet(data);
         XLSX.utils.book_append_sheet(wb, ws, 'sprzęt');
@@ -1430,11 +1205,9 @@
     });
 
     importBtn.addEventListener('click', function() { importFile.click(); });
-
     importFile.addEventListener('change', function(e) {
         var file = e.target.files[0];
         if (!file) return;
-
         var reader = new FileReader();
         reader.onload = function(ev) {
             try {
@@ -1442,7 +1215,6 @@
                 var wb = XLSX.read(data, { type: 'array' });
                 var sheet = wb.Sheets[wb.SheetNames[0]];
                 var rows = XLSX.utils.sheet_to_json(sheet);
-
                 var imported = rows.map(function(r, i) {
                     return {
                         id: Date.now() + '-' + i + '-' + Math.random().toString(36).substr(2, 6),
@@ -1453,22 +1225,12 @@
                         capDate: (r['Data'] && r['Data'].toString()) || '',
                         picName: (r['Osoba'] && r['Osoba'].toString()) || '',
                         notes: (r['Uwagi'] && r['Uwagi'].toString()) || '',
-                        previewImg: '',
-                        stickerImg: '',
-                        inStock: r['Stan'] === 'tak'
+                        previewImg: '', stickerImg: '', inStock: r['Stan'] === 'tak'
                     };
                 });
-
                 devices = devices.concat(imported);
-                saveData().then(function() {
-                    updateFilterOptions();
-                    render();
-                    updateLastUpdateTime();
-                    alert('import OK: ' + imported.length);
-                });
-            } catch (err) {
-                alert('błąd importu');
-            }
+                saveData().then(function() { updateFilterOptions(); render(); updateLastUpdateTime(); alert('import OK: ' + imported.length); });
+            } catch (err) { alert('błąd importu'); }
         };
         reader.readAsArrayBuffer(file);
         importFile.value = '';
@@ -1476,17 +1238,9 @@
 
     function init() {
         container.innerHTML = '<div style="text-align:center;padding:20px;"><div class="loading-spinner"></div></div>';
-        
-        if (firebaseReady) {
-            startFirebaseListener();
-        } else {
-            devices = loadFromStorage();
-            updateFilterOptions();
-            render();
-            updateLastUpdateTime();
-        }
+        if (firebaseReady) startFirebaseListener();
+        else { devices = loadFromStorage(); updateFilterOptions(); render(); updateLastUpdateTime(); }
     }
-
     init();
 })();
 </script>
