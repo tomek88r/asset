@@ -512,6 +512,11 @@
             -webkit-appearance: none;
         }
 
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .btn-secondary {
             background: #f1f5f9;
             border: 1px solid #e2e8f0;
@@ -536,6 +541,16 @@
 
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+
+        .saving-indicator {
+            font-size: 0.7rem;
+            color: #1e293b;
+            text-align: center;
+            margin-top: 8px;
+            padding: 4px;
+            background: #f1f5f9;
+            border-radius: 20px;
         }
     </style>
 </head>
@@ -624,6 +639,7 @@
                 </div>
             </div>
 
+            <div id="savingStatus" class="saving-indicator hidden">zapisywanie...</div>
             <button type="button" class="btn-primary" id="saveBtn">dodaj</button>
             <button type="button" class="btn-secondary" id="cancelBtn">anuluj</button>
         </div>
@@ -695,6 +711,7 @@
     var editingId = null;
     var unsubscribe = null;
     var lastUpdateTimestamp = 0;
+    var isSaving = false;
 
     var container = document.getElementById('inventoryContainer');
     var template = document.getElementById('cardTemplate');
@@ -704,6 +721,7 @@
     var cancelBtn = document.getElementById('cancelBtn');
     var saveBtn = document.getElementById('saveBtn');
     var lastUpdateEl = document.getElementById('lastUpdate');
+    var savingStatus = document.getElementById('savingStatus');
 
     var assetInput = document.getElementById('assetInput');
     var nameInput = document.getElementById('nameInput');
@@ -778,7 +796,6 @@
         lastUpdateTimestamp = now.getTime();
     }
 
-    // POPRAWNIE DZIAŁAJĄCA KOMPRESJA ZDJĘĆ
     function compressImage(file, maxWidth, quality, callback) {
         var reader = new FileReader();
         reader.onload = function(e) {
@@ -788,7 +805,6 @@
                 var width = img.width;
                 var height = img.height;
                 
-                // Oblicz nowe wymiary zachowując proporcje
                 if (width > maxWidth) {
                     height = Math.round(height * (maxWidth / width));
                     width = maxWidth;
@@ -800,7 +816,6 @@
                 var ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
                 
-                // Kompresja do JPEG z zadaną jakością
                 var compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
                 callback(compressedDataUrl);
             };
@@ -832,6 +847,8 @@
         if (!firebaseReady) return;
         
         unsubscribe = db.collection('devices').onSnapshot(function(snapshot) {
+            if (isSaving) return; // Pomijamy aktualizację podczas własnego zapisu
+            
             var loaded = [];
             snapshot.forEach(function(doc) {
                 loaded.push({
@@ -914,10 +931,14 @@
     }
 
     function saveData() {
+        isSaving = true;
         if (firebaseReady) {
-            return saveToFirebase();
+            return saveToFirebase().finally(function() {
+                isSaving = false;
+            });
         } else {
             saveToStorage();
+            isSaving = false;
             return Promise.resolve();
         }
     }
@@ -1146,7 +1167,6 @@
         stickerFile.value = '';
     }
 
-    // POPRAWIONA OBSŁUGA ZDJĘĆ - dla aparatu i dysku
     function handleImageUpload(input, cb) {
         if (!input.files || !input.files[0]) return;
         var file = input.files[0];
@@ -1156,7 +1176,6 @@
             return;
         }
         
-        // Kompresja do max 800px szerokości, jakość 0.7
         compressImage(file, 800, 0.7, function(compressed) {
             cb(compressed);
         });
@@ -1233,6 +1252,11 @@
             return;
         }
 
+        // Wyłącz przycisk i pokaż status
+        saveBtn.disabled = true;
+        savingStatus.classList.remove('hidden');
+        savingStatus.textContent = 'przetwarzanie zdjęć...';
+
         var newDevice = {
             id: editingId || (Date.now() + '-' + Math.random().toString(36).substr(2, 6)),
             asset: asset,
@@ -1246,6 +1270,8 @@
             stickerImg: stickerBase64 || '',
             inStock: false
         };
+
+        savingStatus.textContent = 'zapisywanie...';
 
         if (editingId) {
             var idx = -1;
@@ -1268,11 +1294,18 @@
                 render();
             }
             updateLastUpdateTime();
+            
+            // Sukces - zamknij modal
+            modal.classList.remove('active');
+            resetForm();
+            editingId = null;
+        }).catch(function(error) {
+            console.error('Błąd zapisu:', error);
+            alert('Błąd zapisu. Spróbuj ponownie.');
+        }).finally(function() {
+            saveBtn.disabled = false;
+            savingStatus.classList.add('hidden');
         });
-        
-        modal.classList.remove('active');
-        resetForm();
-        editingId = null;
     });
 
     locationFilter.addEventListener('change', function(e) {
