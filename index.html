@@ -231,6 +231,7 @@
 
         .card-info {
             flex: 1;
+            min-width: 0;
         }
 
         .row {
@@ -265,6 +266,25 @@
             border-radius: 14px;
             font-size: 0.6rem;
             display: inline-block;
+        }
+
+        /* NOWE - styl dla uwag na liście */
+        .notes-preview {
+            font-size: 0.6rem;
+            color: #475569;
+            margin-top: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .notes-preview span {
+            font-size: 0.55rem;
+            color: #94a3b8;
         }
 
         .stock-box {
@@ -684,6 +704,11 @@
                     <span class="name-text name"></span>
                 </div>
                 <span class="loc-badge location"></span>
+                <!-- UWAGI NA LIŚCIE -->
+                <div class="notes-preview">
+                    <span>📝</span>
+                    <span class="notes-text"></span>
+                </div>
             </div>
             <div class="stock-box">
                 <input type="checkbox" class="stock-checkbox">
@@ -819,7 +844,7 @@
     }
 
     function openImageViewer(imageUrl) {
-        if (imageUrl && imageUrl.indexOf('placeholder') === -1) {
+        if (imageUrl && imageUrl.indexOf('placeholder') === -1 && imageUrl !== '') {
             modalImage.src = imageUrl;
             imageModal.classList.add('active');
         }
@@ -1018,6 +1043,17 @@
         card.querySelector('.name').textContent = device.name;
         card.querySelector('.sn').textContent = device.sn;
         card.querySelector('.location').textContent = device.loc;
+        
+        // Wyświetlanie uwag na liście
+        var notesText = card.querySelector('.notes-text');
+        if (device.notes && device.notes !== '') {
+            notesText.textContent = device.notes.length > 40 ? device.notes.substring(0, 37) + '...' : device.notes;
+            notesText.style.display = 'inline';
+        } else {
+            notesText.textContent = '';
+            notesText.style.display = 'none';
+            card.querySelector('.notes-preview').style.display = 'none';
+        }
 
         var stock = card.querySelector('.stock-checkbox');
         stock.checked = device.inStock;
